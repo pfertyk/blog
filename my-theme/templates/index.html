@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+{% if articles %}
+{% for article in articles %}
+<div>
+    <a href="{{ SITEURL }}/{{ article.url }}">{{ article.title }}</a>
+    {{ article.summary }}
+</div>
+{% endfor %}
+{% endif %}
+{% endblock %}

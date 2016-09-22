@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>{% block title %}{{ SITENAME }}{%endblock%}</title>
+        <link rel="stylesheet" href="{{ SITEURL }}/theme/css/{{ CSS_FILE }}" type="text/css"/>
+    </head>
+    <body>
+        <div>pfertyk.me</div>
+        <div>
+            <a href="{{ SITEURL }}/">blog</a>, 
+            <a href="{{ SITEURL }}/{{ TAGS_URL }}">tags</a>, 
+            <a href="{{ SITEURL }}/{{ AUTHORS_URL }}">about</a>
+        </div>
+        {% block content %}
+        {% endblock %}
+        <div>copyrights</div>
+    </body>
+</html>
