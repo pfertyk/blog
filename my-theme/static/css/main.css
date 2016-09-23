@@ -1,1 +1,27 @@
 @import url("pygment.css");
+
+nav {
+    display: block;
+    background-color: gray;
+    border-radius: 1rem;
+}
+nav a:link,
+nav a:visited,
+nav a:active {
+    color: white;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+nav header {
+    display: block;
+}
+nav ul li {
+    display: block;
+}
+.page-wrapper {
+    max-width: 40rem;
+    margin: 0 auto;
+}
+.copyright {
+    text-align: center;
+}

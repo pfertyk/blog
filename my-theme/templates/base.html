@@ -6,16 +6,19 @@
         <link rel="stylesheet" href="{{ SITEURL }}/theme/css/{{ CSS_FILE }}" type="text/css"/>
     </head>
     <body>
-        <div>pfertyk.me</div>
-        <div>
-            <a href="{{ SITEURL }}/">blog</a>, 
-            <a href="{{ SITEURL }}/{{ TAGS_URL }}">tags</a>, 
-            <a href="{{ SITEURL }}/about/">about</a>
-        </div>
-        {% block content %}
-        {% endblock %}
-        <div class="footer">
-            <div class="copyright">&copy; 2016 Paweł Fertyk</div>
+        <div class="page-wrapper">
+            <nav>
+                <header><a href="{{ SITEURL }}/">{{ SITENAME }}</a>{% if tag %}/{{ tag }}{% endif %}</header>
+                <ul>
+                    <li><a href="{{ SITEURL }}/{{ TAGS_URL }}">tags</a></li>
+                    <li><a href="{{ SITEURL }}/about/">about</a></li>
+                </ul>
+            </nav>
+            {% block content %}
+            {% endblock %}
+            <div class="footer">
+                <div class="copyright">&copy; 2016 Paweł Fertyk</div>
+            </div>
         </div>
     </body>
 </html>
