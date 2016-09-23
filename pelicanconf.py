@@ -17,11 +17,11 @@ PAGINATION_PATTERNS = (
 
 THEME = 'my-theme'
 
+TEMPLATE_PAGES = {'about.html': 'about/index.html'}
+
 TAGS_URL = 'tags/'
 TAGS_SAVE_AS = 'tags/index.html'
 TAG_URL = 'tag/{slug}/'
 TAG_SAVE_AS = 'tag/{slug}/index.html'
 ARTICLE_URL = '{slug}/'
 ARTICLE_SAVE_AS = '{slug}/index.html'
-AUTHORS_URL = 'about/'
-AUTHORS_SAVE_AS = 'about/index.html'
