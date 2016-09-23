@@ -25,3 +25,8 @@ TAG_URL = 'tag/{slug}/'
 TAG_SAVE_AS = 'tag/{slug}/index.html'
 ARTICLE_URL = '{slug}/'
 ARTICLE_SAVE_AS = '{slug}/index.html'
+
+CATEGORY_SAVE_AS = ''
+CATEGORIES_SAVE_AS = ''
+AUTHORS_SAVE_AS = ''
+FEEDS_SAVE_AS = ''
