@@ -1,11 +1,14 @@
 {% extends 'base.html' %}
 {% block content %}
 {% if articles %}
-{% for article in articles %}
+{% for article in articles_page.object_list %}
 <div>
     <a href="{{ SITEURL }}/{{ article.url }}">{{ article.title }}</a>
     {{ article.summary }}
 </div>
 {% endfor %}
+{% endif %}
+{% if articles_page.has_other_pages() %}
+    {% include 'pagination.html' %}
 {% endif %}
 {% endblock %}
