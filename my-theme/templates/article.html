@@ -10,7 +10,7 @@
 <h2 class="article-title">
   {{ article.title }}
 </h2>
-<div class="date-posted">Posted {{ article.date|strftime('%Y-%m-%d') }}</div>
+<div class="date-posted">{{ article.date|strftime('%Y-%m-%d') }}</div>
 {{ article.content }}
 {% if TWITTER_USERNAME %}
 <a href="http://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="{{TWITTER_USERNAME}}">Tweet</a>
