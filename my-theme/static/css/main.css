@@ -14,14 +14,19 @@ a:hover {
     color: gray;
 }
 nav header {
-    float: left;
+    text-align: center;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 3rem;
 }
 nav ul {
-    float: right;
-    margin: 0;
+    padding: 0;
 }
 nav ul li {
     display: inline-block;
+    width: 50%;
+    text-align: center;
+    text-transform: uppercase;
 }
 .page-wrapper {
     max-width: 40rem;
@@ -31,20 +36,12 @@ nav ul li {
     text-align: center;
 }
 
-.paginator {
-    text-align: center;
-}
-.paginator a {
-    padding: 0.25rem;
-}
-
 .code {
     background-color: #282828;
     padding: 0.5rem;
 }
 
 .article-preview {
-    padding-bottom: 0.1rem;
     margin-bottom: 1rem;
 }
 .article-preview .title {
