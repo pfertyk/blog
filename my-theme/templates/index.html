@@ -4,14 +4,16 @@
 <div class="articles">
     {% for article in articles_page.object_list %}
     <div class="article-preview">
-        <a class="article-title" href="{{ SITEURL }}/{{ article.url }}">{{ article.title }}</a>
-        <div class="article-summary">{{ article.summary }}</div>
-        <div class="article-date">{{ article.date|strftime('%Y-%m-%d') }}</div>
-        <div class="article-tags">
-            {% for tag in article.tags %}
-            <a class="article-tag" href="{{ SITEURL }}/{{ tag.url }}">{{ tag }}</a>
-            {% endfor %}
+        <a class="title" href="{{ SITEURL }}/{{ article.url }}">{{ article.title }}</a>
+        <div class="meta">
+            <div class="date">{{ article.date|strftime('%Y-%m-%d') }}</div>
+            <div class="tags">
+                {% for tag in article.tags %}
+                <a href="{{ SITEURL }}/{{ tag.url }}">{{ tag }}</a>
+                {% endfor %}
+            </div>
         </div>
+        <div class="summary">{{ article.summary }}</div>
     </div>
     {% endfor %}
 </div>
