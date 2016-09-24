@@ -3,11 +3,14 @@
 SITENAME = 'pfertyk'
 SITEURL = ''
 
+TWITTER_USERNAME = 'pfertyk'
+
 PATH = 'content'
 
 TIMEZONE = 'Europe/Warsaw'
-
 DEFAULT_LANG = 'en'
+
+DELETE_OUTPUT_DIRECTORY = True
 
 THEME = 'my-theme'
 
@@ -22,4 +25,7 @@ AUTHORS_SAVE_AS = ''
 TAGS_SAVE_AS = ''
 TAG_SAVE_AS = ''
 
-TWITTER_USERNAME = 'pfertyk'
+FEED_ATOM = None
+FEED_ALL_ATOM = None
+TRANSLATION_FEED_ATOM = None
+CATEGORY_FEED_ATOM = None
