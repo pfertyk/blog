@@ -38,3 +38,11 @@ nav ul li {
 .paginator a {
     padding: 0.25rem;
 }
+
+.tag-cloud {
+    text-align: center;
+    margin: 2rem;
+}
+.tag-cloud a {
+    padding: 0.25rem;
+}

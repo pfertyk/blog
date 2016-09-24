@@ -1,12 +1,10 @@
 {% extends 'base.html' %}
 {% block content %}
 {% if tags %}
+<div class="tag-cloud">
 {% for tag, articles in tags|sort %}
-<div>
-    {{ tag }}
-    {{ articles|count }}
-    <a href="{{ SITEURL }}/{{ tag.url }}">articles</a>
-</div>
+    <a href="{{ SITEURL }}/{{ tag.url }}">{{ tag }} ({{ articles|count }})</a>
 {% endfor %}
+</div>
 {% endif %}
 {% endblock %}
