@@ -29,3 +29,5 @@ ARTICLE_SAVE_AS = '{slug}/index.html'
 CATEGORY_SAVE_AS = ''
 CATEGORIES_SAVE_AS = ''
 AUTHORS_SAVE_AS = ''
+
+DISQUS_SITENAME = 'pfertyk'
