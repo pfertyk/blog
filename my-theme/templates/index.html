@@ -1,12 +1,20 @@
 {% extends 'base.html' %}
 {% block content %}
 {% if articles %}
-{% for article in articles_page.object_list %}
-<div>
-    <a href="{{ SITEURL }}/{{ article.url }}">{{ article.title }}</a>
-    {{ article.summary }}
+<div class="articles">
+    {% for article in articles_page.object_list %}
+    <div class="article-preview">
+        <a class="article-title" href="{{ SITEURL }}/{{ article.url }}">{{ article.title }}</a>
+        <div class="article-summary">{{ article.summary }}</div>
+        <div class="article-date">{{ article.date|strftime('%Y-%m-%d') }}</div>
+        <div class="article-tags">
+            {% for tag in article.tags %}
+            <a class="article-tag" href="{{ SITEURL }}/{{ tag.url }}">{{ tag }}</a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
 </div>
-{% endfor %}
 {% endif %}
 {% if articles_page.has_other_pages() %}
     {% include 'pagination.html' %}
