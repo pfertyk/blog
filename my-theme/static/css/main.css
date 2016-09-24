@@ -1,5 +1,8 @@
 @import url("pygment.css");
 
+body {
+  font-family: Sans-Serif;
+}
 nav {
   margin-bottom: 2rem;
   padding-bottom: 1rem;
