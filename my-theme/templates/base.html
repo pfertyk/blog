@@ -1,24 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>{% block title %}{{ SITENAME }}{%endblock%}</title>
-        <link rel="stylesheet" href="{{ SITEURL }}/theme/css/{{ CSS_FILE }}" type="text/css"/>
-    </head>
-    <body>
-        <div class="page-wrapper">
-            <nav>
-                <header><a href="{{ SITEURL }}/">{{ SITENAME }}</a></header>
-                <ul>
-                    <li><a href="{{ SITEURL }}/">Blog</a></li><li><a href="{{ SITEURL }}/about/">About</a></li>
-                </ul>
-            </nav>
-            {% block content %}
-            {% endblock %}
-            <div class="footer">
-                <div class="copyright">&copy; 2016 Paweł Fertyk</div>
-            </div>
-        </div>
-    </body>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}{{ SITENAME }}{%endblock%}</title>
+    <link rel="stylesheet" href="{{ SITEURL }}/theme/css/{{ CSS_FILE }}" type="text/css"/>
+  </head>
+  <body>
+    <div class="page-wrapper">
+      <nav>
+        <header><a href="{{ SITEURL }}/">{{ SITENAME }}</a></header>
+        <ul>
+          <li><a href="{{ SITEURL }}/">Blog</a></li><li><a href="{{ SITEURL }}/about/">About</a></li>
+        </ul>
+      </nav>
+      {% block content %}
+      {% endblock %}
+      <div class="footer">
+        <div class="copyright">&copy; 2016 Paweł Fertyk</div>
+      </div>
+    </div>
+  </body>
 </html>

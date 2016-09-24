@@ -1,53 +1,53 @@
 @import url("pygment.css");
 
 nav {
-    margin-bottom: 2rem;
-    padding-bottom: 1rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
 }
 a:link,
 a:visited,
 a:active {
-    color: black;
-    text-decoration: none;
+  color: black;
+  text-decoration: none;
 }
 a:hover {
-    color: gray;
+  color: gray;
 }
 nav header {
-    text-align: center;
-    font-weight: bold;
-    text-transform: uppercase;
-    font-size: 3rem;
+  text-align: center;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 3rem;
 }
 nav ul {
-    padding: 0;
+  padding: 0;
 }
 nav ul li {
-    display: inline-block;
-    width: 50%;
-    text-align: center;
-    text-transform: uppercase;
+  display: inline-block;
+  width: 50%;
+  text-align: center;
+  text-transform: uppercase;
 }
 .page-wrapper {
-    max-width: 40rem;
-    margin: 0 auto;
+  max-width: 40rem;
+  margin: 0 auto;
 }
 .copyright {
-    text-align: center;
+  text-align: center;
 }
 
 .code {
-    background-color: #282828;
-    padding: 0.5rem;
+  background-color: #282828;
+  padding: 0.5rem;
 }
 
 .article-preview {
-    margin-bottom: 1rem;
+  margin-bottom: 1rem;
 }
 .article-preview .title {
-    font-weight: bold;
-    font-size: 1.5rem;
+  font-weight: bold;
+  font-size: 1.5rem;
 }
 .article-preview .date {
-    display: inline;
+  display: inline;
 }

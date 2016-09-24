@@ -2,13 +2,13 @@
 {% block content %}
 {% if articles %}
 <div class="articles">
-    {% for article in articles %}
-    <div class="article-preview">
-        <a class="title" href="{{ SITEURL }}/{{ article.url }}">{{ article.title }}</a>
-        <div class="date">{{ article.date|strftime('%Y-%m-%d') }}</div>
-        <div class="summary">{{ article.summary }}</div>
-    </div>
-    {% endfor %}
+  {% for article in articles %}
+  <div class="article-preview">
+    <a class="title" href="{{ SITEURL }}/{{ article.url }}">{{ article.title }}</a>
+    <div class="date">{{ article.date|strftime('%Y-%m-%d %H:%M') }}</div>
+    <div class="summary">{{ article.summary }}</div>
+  </div>
+  {% endfor %}
 </div>
 {% endif %}
 {% endblock %}
