@@ -23,3 +23,4 @@ TAGS_SAVE_AS = ''
 TAG_SAVE_AS = ''
 
 DISQUS_SITENAME = 'pfertyk'
+TWITTER_USERNAME = 'pfertyk'

@@ -4,8 +4,10 @@
 <div class="articles">
   {% for article in articles %}
   <div class="article-preview">
-    <a class="title" href="{{ SITEURL }}/{{ article.url }}">{{ article.title }}</a>
-    <div class="date">{{ article.date|strftime('%Y-%m-%d %H:%M') }}</div>
+    <h2 class="article-title">
+      <a class="title" href="{{ SITEURL }}/{{ article.url }}">{{ article.title }}</a>
+    </h2>
+    <div class="date-posted">Posted {{ article.date|strftime('%Y-%m-%d') }}</div>
     <div class="summary">{{ article.summary }}</div>
   </div>
   {% endfor %}

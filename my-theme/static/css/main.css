@@ -48,12 +48,12 @@ nav ul li {
 .article-preview {
   margin-bottom: 1rem;
 }
-.article-preview .title {
-  font-weight: bold;
-  font-size: 1.5rem;
+.article-title {
+  margin: 0;
 }
-.article-preview .date {
+.date-posted {
   font-style: italic;
+  color: gray;
 }
 
 .about {
