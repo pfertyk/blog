@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 {% block head %}
-  {{ super() }}
-  {% if article.description %}
-    <meta name="description" content="{{article.description}}" />
-  {% endif %}
+{{ super() }}
+{% if article.description %}
+<meta name="description" content="{{article.description}}" />
+{% endif %}
 {% endblock %}
 {% block title %}{{ article.title|striptags }} / {{ super() }}{% endblock %}
 {% block content %}
@@ -12,19 +12,6 @@
 </h2>
 <div class="date-posted">Posted {{ article.date|strftime('%Y-%m-%d') }}</div>
 {{ article.content }}
-{% if DISQUS_SITENAME %}
-<div class="comments">
-  <div id="disqus_thread"></div>
-  <script type="text/javascript">
-var disqus_identifier = "{{ article.url }}";
-(function() {
-  var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-  dsq.src = 'https://{{ DISQUS_SITENAME }}.disqus.com/embed.js';
-  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-})();
-  </script>
-</div>
-{% endif %}
 {% if TWITTER_USERNAME %}
 <a href="http://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="{{TWITTER_USERNAME}}">Tweet</a>
 <script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
