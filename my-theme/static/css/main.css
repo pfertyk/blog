@@ -33,6 +33,7 @@ nav ul li {
   margin: 0 auto;
 }
 .copyright {
+  margin-top: 1rem;
   text-align: center;
 }
 
@@ -50,4 +51,32 @@ nav ul li {
 }
 .article-preview .date {
   font-style: italic;
+}
+
+.about {
+  text-align: center;
+}
+.social-links a {
+  display: inline-block;
+  text-indent: -9999px;
+  width: 4rem;
+  height: 4rem;
+  margin: 0.5rem;
+}
+.social-links .github {
+  background: url(../images/github.svg);
+}
+.social-links .exercism {
+  background: url(../images/exercism.svg);
+}
+.social-links .twitter {
+  background: url(../images/twitter.svg);
+}
+.about .email {
+  font-family: monospace;
+}
+.about .photo img {
+  border-radius: 50%;
+  width: 50%;
+  margin: 1rem;
 }
