@@ -9,12 +9,6 @@ TIMEZONE = 'Europe/Warsaw'
 
 DEFAULT_LANG = 'en'
 
-DEFAULT_PAGINATION = 3
-PAGINATION_PATTERNS = (
-    (1, '{base_name}/', '{base_name}/index.html'),
-    (2, '{base_name}/page/{number}/', '{base_name}/page/{number}/index.html'),
-)
-
 THEME = 'my-theme'
 
 TEMPLATE_PAGES = {'about.html': 'about/index.html'}
