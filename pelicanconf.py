@@ -19,15 +19,13 @@ THEME = 'my-theme'
 
 TEMPLATE_PAGES = {'about.html': 'about/index.html'}
 
-TAGS_URL = 'tags/'
-TAGS_SAVE_AS = 'tags/index.html'
-TAG_URL = 'tag/{slug}/'
-TAG_SAVE_AS = 'tag/{slug}/index.html'
 ARTICLE_URL = '{slug}/'
 ARTICLE_SAVE_AS = '{slug}/index.html'
 
 CATEGORY_SAVE_AS = ''
 CATEGORIES_SAVE_AS = ''
 AUTHORS_SAVE_AS = ''
+TAGS_SAVE_AS = ''
+TAG_SAVE_AS = ''
 
 DISQUS_SITENAME = 'pfertyk'

@@ -2,23 +2,13 @@
 {% block content %}
 {% if articles %}
 <div class="articles">
-    {% for article in articles_page.object_list %}
+    {% for article in articles %}
     <div class="article-preview">
         <a class="title" href="{{ SITEURL }}/{{ article.url }}">{{ article.title }}</a>
-        <div class="meta">
-            <div class="date">{{ article.date|strftime('%Y-%m-%d') }}</div>
-            <div class="tags">
-                {% for tag in article.tags %}
-                <a href="{{ SITEURL }}/{{ tag.url }}">{{ tag }}</a>
-                {% endfor %}
-            </div>
-        </div>
+        <div class="date">{{ article.date|strftime('%Y-%m-%d') }}</div>
         <div class="summary">{{ article.summary }}</div>
     </div>
     {% endfor %}
 </div>
-{% endif %}
-{% if articles_page.has_other_pages() %}
-    {% include 'pagination.html' %}
 {% endif %}
 {% endblock %}
