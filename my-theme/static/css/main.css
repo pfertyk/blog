@@ -46,3 +46,8 @@ nav ul li {
 .tag-cloud a {
     padding: 0.25rem;
 }
+
+.code {
+    background-color: #282828;
+    padding: 0.5rem;
+}
