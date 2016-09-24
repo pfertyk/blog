@@ -3,6 +3,7 @@
 SITENAME = 'pfertyk'
 SITEURL = ''
 
+AUTHOR_NAME = 'Paweł Fertyk'
 TWITTER_USERNAME = 'pfertyk'
 
 PATH = 'content'
