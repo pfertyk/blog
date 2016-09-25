@@ -67,19 +67,22 @@ nav ul li {
   margin: 0.5rem;
 }
 .social-links .github {
-  background: url(../images/github.svg);
+  background-image: url(../images/github.svg);
 }
 .social-links .exercism {
-  background: url(../images/exercism.svg);
+  background-image: url(../images/exercism.svg);
 }
 .social-links .twitter {
-  background: url(../images/twitter.svg);
+  background-image: url(../images/twitter.svg);
 }
 .about .email {
   font-family: monospace;
 }
-.about .photo img {
+.about .photo {
   border-radius: 50%;
-  width: 50%;
-  margin: 1rem;
+  width: 16rem;
+  height: 16rem;
+  margin: 1rem auto;
+  background-image: url(../images/pfertyk.jpg);
+  background-position: center;
 }
