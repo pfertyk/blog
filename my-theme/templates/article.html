@@ -13,7 +13,6 @@
 <div class="date-posted">{{ article.date|strftime('%Y-%m-%d') }}</div>
 {{ article.content }}
 {% if TWITTER_USERNAME %}
-<a href="http://twitter.com/share" class="twitter-share-button" data-count="horizontal" data-via="{{TWITTER_USERNAME}}">Tweet</a>
-<script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
+<a href="{{ article|twitter_link }}">Tweet</a>
 {% endif %}
 {% endblock %}

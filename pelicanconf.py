@@ -1,7 +1,8 @@
 #!/usr/bin/env python
+from urllib.parse import quote
 
 SITENAME = 'pfertyk'
-SITEURL = ''
+SITEURL = 'http://pfertyk.me'
 
 AUTHOR_NAME = 'Paweł Fertyk'
 TWITTER_USERNAME = 'pfertyk'
@@ -12,6 +13,7 @@ TIMEZONE = 'Europe/Warsaw'
 DEFAULT_LANG = 'en'
 
 DELETE_OUTPUT_DIRECTORY = True
+RELATIVE_URLS = False
 
 THEME = 'my-theme'
 
@@ -30,3 +32,12 @@ FEED_ATOM = None
 FEED_ALL_ATOM = None
 TRANSLATION_FEED_ATOM = None
 CATEGORY_FEED_ATOM = None
+
+
+def twitter_link(article):
+    return 'https://twitter.com/intent/tweet?text={}&url={}&via={}'.format(
+        article.title, quote(SITEURL + '/' + article.url), TWITTER_USERNAME
+    )
+
+
+JINJA_FILTERS = {'twitter_link': twitter_link}
