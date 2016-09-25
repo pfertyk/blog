@@ -13,6 +13,8 @@
 <div class="date-posted">{{ article.date|strftime('%Y-%m-%d') }}</div>
 {{ article.content }}
 {% if TWITTER_USERNAME %}
-<a href="{{ article|twitter_link }}">Tweet</a>
+<div class="share-twitter">
+  <a href="{{ article|twitter_link }}">Tweet</a>
+</div>
 {% endif %}
 {% endblock %}

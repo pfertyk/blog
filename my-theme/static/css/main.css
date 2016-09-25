@@ -36,7 +36,7 @@ nav ul li {
   margin: 0 auto;
 }
 .copyright {
-  margin-top: 1rem;
+  margin-top: 4rem;
   text-align: center;
 }
 
@@ -45,15 +45,16 @@ nav ul li {
   padding: 0.5rem;
 }
 
-.article-preview {
-  margin-bottom: 1rem;
-}
 .article-title {
   margin: 0;
 }
 .date-posted {
   font-style: italic;
   color: gray;
+}
+.share-twitter {
+  text-align: center;
+  font-size: 0.9rem;
 }
 
 .about {
