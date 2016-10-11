@@ -87,3 +87,6 @@ nav ul li {
   background-image: url(../images/pfertyk.jpg);
   background-position: center;
 }
+code {
+  background-color: #ddd;
+}
