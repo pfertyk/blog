@@ -90,3 +90,6 @@ nav ul li {
 code {
   background-color: #ddd;
 }
+a.reference.external {
+  text-decoration: underline;
+}
