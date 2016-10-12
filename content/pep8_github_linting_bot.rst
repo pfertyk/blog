@@ -36,7 +36,7 @@ Next you will need to clone the repository with PEP-8 linter bot:
         git clone https://github.com/pfertyk/lint-review.git
         cd lint-review
 
-The time has come to tell Heroku who you are. Run :code:`heroku login` an provide it with your Heroku credentials (email and password). Next you can configure a remote to be able to push the code to Heroku. The name of the remote can be found in your app's Settings page:
+The time has come to tell Heroku who you are. Run :code:`heroku login` an provide it with your Heroku credentials (email and password). Next you can configure a remote to be able to push the code to Heroku. The name of the remote can be found in your app's **Settings** page:
 
 [screenshot goes here]
 
@@ -86,9 +86,10 @@ LINTREVIEW_WORKSPACE    ./workspace
 New GitHub account
 ------------------
 
-Your automatic linter will need a GitHub account. You can use your own, but it's more fun to create a new one. I named mine `PEPing-tom`.
+Your automatic linter will need a GitHub account. You can use your own, but it's more fun to create a new one. I named mine ``PEPing-tom``.
 
-[screenshot goes here]
+.. image:: |filename|images/pep8_bot_github_profile.png
+   :alt: bot profile
 
 Once the account is created, you will need to create a token. Go to **Settings** -> **Personal access tokens** and click **Generate new token**. Choose a good description and select the scopes: **notifications** and **repo** (or **public_repo** if you are going to use this bot only for private repositories).
 
@@ -118,4 +119,4 @@ Push the new branch to GitHub and create a new pull request. A moment later, you
 
 That's it! Now you can be sure that no PEP-8 violation will sneak into your clean and standard-compliant codebase. Unless, of course, you decide to ignore these comments...
 
-Please contact me if you find any problems with the process described in this tutorial.
+I hope that you found this tutorial useful. Please contact me if you encounter any problems with the whole process, I will try to fix them as soon as possible.
