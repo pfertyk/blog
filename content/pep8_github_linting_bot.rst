@@ -41,7 +41,7 @@ configure a credit card for your account). But don't worry, the add-on itself is
 .. image:: |filename|images/pep8_bot_rabbitmq_provision.png
    :alt: Provisioning PEP-8 bot with rabbitmq plugin
 
-Next we move to the command line. First, you should install ``Heroku CLI``.
+Now we move to the command line. First, you should install **Heroku CLI**.
 Just run this command:
 
 .. code:: sh

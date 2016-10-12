@@ -2,6 +2,8 @@
 
 body {
   font-family: Sans-Serif;
+  font-size: 1.1rem;
+  color: #333;
 }
 nav {
   margin-bottom: 2rem;
@@ -10,11 +12,11 @@ nav {
 a:link,
 a:visited,
 a:active {
-  color: black;
+  color: #333;
   text-decoration: none;
 }
 a:hover {
-  color: gray;
+  color: #777;
 }
 nav header {
   text-align: center;
@@ -50,11 +52,12 @@ nav ul li {
 }
 .date-posted {
   font-style: italic;
-  color: gray;
+  color: #888;
 }
 .share-twitter {
   text-align: center;
-  font-size: 0.9rem;
+  margin-top: 3rem;
+  font-size: 1rem;
 }
 
 .about {
@@ -88,10 +91,11 @@ nav ul li {
   background-position: center;
 }
 tt.literal {
-  background-color: #ddd;
+  background-color: #ccc;
 }
 pre.code {
   overflow-x: auto;
+  font-size: 1rem;
 }
 a.reference.external {
   text-decoration: underline;
