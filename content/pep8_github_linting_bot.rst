@@ -97,11 +97,13 @@ switch the state and confirm.
 Next go to **Settings** and click **Reveal Config Vars**.
 You should see the following variables:
 
-.. code:: ini
-
-        RABBITMQ_BIGWIG_URL
-        RABBITMQ_BIGWIG_TX_URL
-        RABBITMQ_BIGWIG_RX_URL
++----------------------+
+|RABBITMQ_BIGWIG_URL   |
++----------------------+
+|RABBITMQ_BIGWIG_TX_URL|
++----------------------+
+|RABBITMQ_BIGWIG_RX_URL|
++----------------------+
 
 You need to configure the settings file and workspace for your app.
 You also have to specify the name of the server, which is the same as your

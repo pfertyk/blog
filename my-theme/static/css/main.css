@@ -96,3 +96,9 @@ pre.code {
 a.reference.external {
   text-decoration: underline;
 }
+table {
+  border-collapse: collapse;
+}
+td, th {
+  padding: 0.25rem;
+}
