@@ -179,7 +179,7 @@ Let's fix this errors:
             a = 1
             print(a)
 
-Now our bot informs us that there are no problems:
+Now your bot informs you that there are no problems:
 
 .. image:: |filename|images/pep8-bot-github-nice-comment.png
    :alt: PEP8 bot is content

@@ -19,8 +19,8 @@ THEME = 'my-theme'
 
 TEMPLATE_PAGES = {'about.html': 'about/index.html'}
 
-ARTICLE_URL = '{slug}/'
-ARTICLE_SAVE_AS = '{slug}/index.html'
+ARTICLE_URL = '{date:%Y}/{date:%m}/{slug}/'
+ARTICLE_SAVE_AS = '{date:%Y}/{date:%m}/{slug}/index.html'
 
 CATEGORY_SAVE_AS = ''
 CATEGORIES_SAVE_AS = ''
