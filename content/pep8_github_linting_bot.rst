@@ -4,9 +4,9 @@ Detect PEP-8 violations on pull requests
 :date: 2016-10-11
 :summary: Your own automatic GitHub linter
 
-I like the philosophy of Python. **"There should be one - and preferably only one - obvious way to do it"** seems like a very reasonable statement. That is why I also like PEP-8: it solves the problem of different coding conventions across many teams. Sure, you have to sacrifice a bit of your freedom as a developer, and sometimes it is difficult to keep the line under 79 characters, but still it is worth it in the long run.
+I like the philosophy of Python. *There should be one - and preferably only one - obvious way to do it* reflects my view on solving problems. That is why I also like PEP-8: it solves the problem of different coding conventions across many teams. Sure, you have to sacrifice a bit of your freedom as a developer, and sometimes it is difficult to keep the line under 79 characters, but still I think it is worth it in the long run.
 
-Every Python developer has an editor or an IDE configured to display all PEP-8 warnings and errors (initially, of course, since in time you learn those rules by heart and you no longer need any hints). But sometimes there is this new junior, who starts to push changes without installing linter plugin first. Or the manual testers in your team, who have never before heard of PEP-8, start to write Behave tests. Or one of your fellow developers simply does not notice that ``imported but unused [F401]`` message. What then? How to ensure that no PEP-8 violations will ever find their way into your codebase?
+Every Python developer has an editor or an IDE configured to display all PEP-8 warnings and errors (initially, of course, since in time you learn those rules by heart and you no longer need any hints). But sometimes there is this new junior, who starts to push changes without installing a linter plugin first. Or the manual testers in your team, who have never before heard of PEP-8, start to write Behave tests. Or one of your fellow developers simply does not notice that ``imported but unused [F401]`` message. What then? How to ensure that no PEP-8 violations will ever find their way into your codebase?
 
 Don't worry, you don't have to manually validate every pull request. You can configure an automatic linter. Once in place, it will analyse the changes in a branch once a pull request is created. If no errors are found, it will add a comment with a nice message. If there are any errors, it will add a comment with a full description for each incorrect line of code.
 
@@ -110,7 +110,7 @@ Now you are finally ready to test our automatic PEP-8 linter. Create a test repo
         [tools]
         linters = flake8
 
-There are two more things you need to configure in every repository that you want to use this bot in. First, you need to invite our bot as a collaborator (**Settings** -> **Collaborators**), and the bot needs to accept the invitation. Second, you need to add a webhook to your repository to inform the bot about changes. Go to **Settings** -> **Webhooks** and click **Add webhook**. **Payload URL** should be ``{HEROKU_APP_DOMAIN}/review/start`` (so in my case it was ``https://pep8-linter.herokuapp.com/review/start``). Leave ``application/json`` as content type and choose **Let me select individual events**. The only even you will need is **Pull request**. Make sure that **Active** is checked and add a webhook.
+There are two more things you need to configure in every repository that you want to use this bot in. First, you need to invite our bot as a collaborator (**Settings** -> **Collaborators**), and the bot needs to accept the invitation. Second, you need to add a webhook to your repository to inform the bot about changes. Go to **Settings** -> **Webhooks** and click **Add webhook**. The value in **Payload URL** should be ``{HEROKU_APP_DOMAIN}/review/start`` (so in my case it was ``https://pep8-linter.herokuapp.com/review/start``). Leave ``application/json`` as content type and choose **Let me select individual events**. The only even you will need is **Pull request**. Make sure that **Active** is checked and add a webhook.
 
 Now let's see how it works in practice. Create a new branch in your test repository and add some atrocious Python code, for example:
 
@@ -119,10 +119,23 @@ Now let's see how it works in practice. Create a new branch in your test reposit
         def x():
             a=x
 
-Push the new branch to GitHub and create a new pull request. A moment later, you should see a nice comment:
+Push the new branch to GitHub and create a new pull request. A moment later, you should see some comments:
 
-.. image:: |filename|images/pep8_bot_github_comments.png
+.. image:: |filename|images/pep8_bot_github_error_comments.png
    :alt: PEP8 bot in action
+
+Let's fix this errors:
+
+.. code:: python
+
+        def x():
+            a = 1
+            print(a)
+
+Now our bot informs us that there are no problems:
+
+.. image:: |filename|images/pep8_bot_github_nice_comment.png
+   :alt: PEP8 bot is content
 
 That's it! Now you can be sure that no PEP-8 violation will sneak into your clean and standard-compliant codebase. Unless, of course, you decide to ignore these comments...
 
