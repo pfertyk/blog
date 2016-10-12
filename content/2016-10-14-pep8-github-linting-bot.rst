@@ -30,7 +30,7 @@ To create a new app, go to **Dashboard** -> **New** -> **Create new app**.
 You can specify the name of your app if you want.
 
 
-.. image:: |filename|images/pep8_bot_heroku_app_name.png
+.. image:: |filename|images/pep8-bot-heroku-app-name.png
    :alt: PEP-8 bot Heroku app name
 
 Once the app is created, provide it with **RabbitMQ Bigwig** add-on.
@@ -38,7 +38,7 @@ Go to **Resources**, find the add-on and click **Provision**. Unfortunately,
 the process requires you to provide billing information (you need to
 configure a credit card for your account). But don't worry, the add-on itself is free.
 
-.. image:: |filename|images/pep8_bot_rabbitmq_provision.png
+.. image:: |filename|images/pep8-bot-rabbitmq-provision.png
    :alt: Provisioning PEP-8 bot with rabbitmq plugin
 
 Now we move to the command line. First, you should install **Heroku CLI**.
@@ -60,7 +60,7 @@ it with your Heroku credentials (email and password). Next you have to
 configure a git remote to be able to push the code to Heroku.
 The name of the remote can be found in your app's **Settings**:
 
-.. image:: |filename|images/pep8_bot_heroku_git_url.png
+.. image:: |filename|images/pep8-bot-heroku-git-url.png
    :alt: Heroku Git URL for PEP-8 bot
 
 .. code:: sh
@@ -88,7 +88,7 @@ Configuration
 
 Once the app is deployed, you will notice that the celery worker's status if ``OFF``:
 
-.. image:: |filename|images/pep8_bot_disabled_celery_worker.png
+.. image:: |filename|images/pep8-bot-disabled-celery-worker.png
    :alt: Disabled celery worker
 
 To fix this, go to **Resources**, click the edit icon next to ``worker``,
@@ -122,7 +122,7 @@ New GitHub account
 Your automatic linter will need a GitHub account.
 You can use your own, but it's more fun to create a new one.
 
-.. image:: |filename|images/pep8_bot_github_profile.png
+.. image:: |filename|images/pep8-bot-github-profile.png
    :alt: PEP-8 bot profile
 
 Once the account is created, you will have to generate a token.
@@ -168,7 +168,7 @@ and add some atrocious Python code:
 
 Push the new branch to GitHub and create a new pull request. A moment later, you should see some comments:
 
-.. image:: |filename|images/pep8_bot_github_error_comments.png
+.. image:: |filename|images/pep8-bot-github-error-comments.png
    :alt: PEP8 bot in action
 
 Let's fix this errors:
@@ -181,7 +181,7 @@ Let's fix this errors:
 
 Now our bot informs us that there are no problems:
 
-.. image:: |filename|images/pep8_bot_github_nice_comment.png
+.. image:: |filename|images/pep8-bot-github-nice-comment.png
    :alt: PEP8 bot is content
 
 That's it! Now you can be sure that no PEP-8 violation will sneak into your clean and standard-compliant codebase. Unless, of course, you decide to ignore these comments...
