@@ -39,7 +39,7 @@ Next you will need to clone the repository with PEP-8 linter bot:
         git clone https://github.com/pfertyk/lint-review.git
         cd lint-review
 
-The time has come to tell Heroku who you are. Run :code:`heroku login` an provide it with your Heroku credentials (email and password). Next you can configure a remote to be able to push the code to Heroku. The name of the remote can be found in your app's **Settings** page:
+The time has come to tell Heroku who you are. Run ``heroku login`` an provide it with your Heroku credentials (email and password). Next you can configure a remote to be able to push the code to Heroku. The name of the remote can be found in your app's **Settings** page:
 
 .. image:: |filename|images/pep8_bot_heroku_git_url.png
    :alt: Heroku Git URL for PEP-8 bot
@@ -60,6 +60,8 @@ When this is done, you can deploy the app to Heroku:
 
         git push heroku master
 
+Bear in mind that this process can take a while.
+
 Configuration
 -------------
 
@@ -68,18 +70,17 @@ After the app is deployed, you will notice that the celery worker's status if "O
 .. image:: |filename|images/pep8_bot_disabled_celery_worker.png
    :alt: Disabled celery worker
 
-To fix this, go to Resources, click the "Edit" icon next to worker, click the switch and confirm.
+To fix this, go to **Resources**, click the edit icon next to ``worker``, switch the state and confirm.
 
-Next go to Settings and click "Reveal Config Vars". You should see the following variables:
+Next go to **Settings** and click **Reveal Config Vars**. You should see the following variables:
 
 .. code:: ini
 
-        LANG
         RABBITMQ_BIGWIG_URL
         RABBITMQ_BIGWIG_TX_URL
         RABBITMQ_BIGWIG_RX_URL
 
-You need to configure the settings file and workspace for your bot. You also have to specify the name of the server, which is the same as your app's domain (you can find it in Settings -> Domains). In my case, the additional configuration looked like this:
+You need to configure the settings file and workspace for your bot. You also have to specify the name of the server, which is the same as your app's domain (you can find it in **Settings** -> **Domains**). In my case, the additional configuration looked like this:
 
 ======================= =========================
 LINTREVIEW_SERVER_NAME  pep8-linter.herokuapp.com
@@ -109,17 +110,19 @@ Now you are finally ready to test our automatic PEP-8 linter. Create a test repo
         [tools]
         linters = flake8
 
-There are 2 more things you need to configure in every repository that you want to use this bot in. First, you need to invite our bot as a collaborator, and the bot needs to accept the invitation. Second, you need to add a webhook to your repository to inform the bot about changes. Go to **Settings** -> **Webhooks** and click **Add webhook**. **Payload URL** should be ``{HEROKU_APP_DOMAIN}/review/start`` (so in my case it was ``https://pep8-linter.herokuapp.com/review/start``). Leave ``application/json`` as content type and choose **Let me select individual events**. The only even you will need is **Pull request**. Make sure that **Active** is checked and create a webhook.
+There are two more things you need to configure in every repository that you want to use this bot in. First, you need to invite our bot as a collaborator (**Settings** -> **Collaborators**), and the bot needs to accept the invitation. Second, you need to add a webhook to your repository to inform the bot about changes. Go to **Settings** -> **Webhooks** and click **Add webhook**. **Payload URL** should be ``{HEROKU_APP_DOMAIN}/review/start`` (so in my case it was ``https://pep8-linter.herokuapp.com/review/start``). Leave ``application/json`` as content type and choose **Let me select individual events**. The only even you will need is **Pull request**. Make sure that **Active** is checked and add a webhook.
 
 Now let's see how it works in practice. Create a new branch in your test repository and add some atrocious Python code, for example:
 
 .. code:: python
 
-        import random
+        def x():
+            a=x
 
 Push the new branch to GitHub and create a new pull request. A moment later, you should see a nice comment:
 
-[screenshot goes here]
+.. image:: |filename|images/pep8_bot_github_comments.png
+   :alt: PEP8 bot in action
 
 That's it! Now you can be sure that no PEP-8 violation will sneak into your clean and standard-compliant codebase. Unless, of course, you decide to ignore these comments...
 
