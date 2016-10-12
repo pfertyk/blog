@@ -90,6 +90,9 @@ nav ul li {
 code {
   background-color: #ddd;
 }
+pre.code {
+  overflow-x: auto;
+}
 a.reference.external {
   text-decoration: underline;
 }

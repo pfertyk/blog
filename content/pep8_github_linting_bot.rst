@@ -15,15 +15,18 @@ Application setup
 
 First you need to create an app on Heroku. In case you haven't used it before, `here <https://devcenter.heroku.com/articles/getting-started-with-python#introduction>`_ is a guide that will help you get started.
 
-To create a new app, go to Dashboard -> New -> Create new app. All you have to do next is specify the name of the app. I have chosen 'pep8-linter'.
+To create a new app, go to **Dashboard** -> **New** and click **Create new app**. All you have to do next is specify the name of the app. I have chosen ``pep8-linter``.
 
-[screenshot goes here]
 
-Once the app is created, you can provide it with RabbitMQ Bigwig addon. Go to Resources, find the add-on and click 'Provision'. Unfortunately, the process requires you to provide billing information (you need to configure a credit card for your account). But don't worry, the add-on itself is free.
+.. image:: |filename|images/pep8_bot_heroku_app_name.png
+   :alt: PEP-8 bot Heroku app name
 
-[screenshot goes here]
+Once the app is created, you can provide it with **RabbitMQ Bigwig addon**. Go to **Resources**, find the add-on and click **Provision**. Unfortunately, the process requires you to provide billing information (you need to configure a credit card for your account). But don't worry, the add-on itself is free.
 
-Next we move to the command line. First, you should install `Heroku CLI`. Just run this command:
+.. image:: |filename|images/pep8_bot_rabbitmq_provision.png
+   :alt: Provisioning PEP-8 bot with rabbitmq plugin
+
+Next we move to the command line. First, you should install ``Heroku CLI``. Just run this command:
 
 .. code:: sh
 
@@ -38,7 +41,8 @@ Next you will need to clone the repository with PEP-8 linter bot:
 
 The time has come to tell Heroku who you are. Run :code:`heroku login` an provide it with your Heroku credentials (email and password). Next you can configure a remote to be able to push the code to Heroku. The name of the remote can be found in your app's **Settings** page:
 
-[screenshot goes here]
+.. image:: |filename|images/pep8_bot_heroku_git_url.png
+   :alt: Heroku Git URL for PEP-8 bot
 
 .. code:: sh
 
@@ -61,7 +65,8 @@ Configuration
 
 After the app is deployed, you will notice that the celery worker's status if "OFF":
 
-[screenshot goes here]
+.. image:: |filename|images/pep8_bot_disabled_celery_worker.png
+   :alt: Disabled celery worker
 
 To fix this, go to Resources, click the "Edit" icon next to worker, click the switch and confirm.
 
@@ -73,7 +78,6 @@ Next go to Settings and click "Reveal Config Vars". You should see the following
         RABBITMQ_BIGWIG_URL
         RABBITMQ_BIGWIG_TX_URL
         RABBITMQ_BIGWIG_RX_URL
-
 
 You need to configure the settings file and workspace for your bot. You also have to specify the name of the server, which is the same as your app's domain (you can find it in Settings -> Domains). In my case, the additional configuration looked like this:
 
@@ -89,7 +93,7 @@ New GitHub account
 Your automatic linter will need a GitHub account. You can use your own, but it's more fun to create a new one. I named mine ``PEPing-tom``.
 
 .. image:: |filename|images/pep8_bot_github_profile.png
-   :alt: bot profile
+   :alt: PEP-8 bot profile
 
 Once the account is created, you will need to create a token. Go to **Settings** -> **Personal access tokens** and click **Generate new token**. Choose a good description and select the scopes: **notifications** and **repo** (or **public_repo** if you are going to use this bot only for private repositories).
 
