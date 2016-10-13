@@ -90,6 +90,9 @@ nav ul li {
   background-image: url(../images/pfertyk.jpg);
   background-position: center;
 }
+.about .description {
+  margin-top: 4rem;
+}
 tt.literal {
   background-color: #ccc;
 }
@@ -102,7 +105,16 @@ a.reference.external {
 }
 table {
   border-collapse: collapse;
+  border: 2px solid #ccc;
 }
 td, th {
   padding: 0.25rem;
+}
+.section img,
+.section table {
+  max-width: 100%;
+}
+.section img {
+  display: block;
+  margin: 0 auto;
 }

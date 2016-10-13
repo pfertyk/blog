@@ -33,7 +33,7 @@ You can specify the name of your app if you want.
 .. image:: |filename|images/pep8-bot-heroku-app-name.png
    :alt: PEP-8 bot Heroku app name
 
-Once the app is created, provide it with **RabbitMQ Bigwig** add-on.
+Once the app is created, provide it with the **RabbitMQ Bigwig** add-on.
 Go to **Resources**, find the add-on and click **Provision**. Unfortunately,
 the process requires you to provide billing information (you need to
 configure a credit card for your account). But don't worry, the add-on itself is free.
@@ -155,7 +155,7 @@ Go to **Settings** -> **Webhooks** -> **Add webhook**.
 The value in **Payload URL** should be ``{HEROKU_APP_DOMAIN}/review/start``
 (in my case it was ``https://pep8-linter.herokuapp.com/review/start``).
 Leave ``application/json`` as content type and choose **Let me select individual events**.
-The only even you need is **Pull request**.
+The only event you need is **Pull request**.
 Make sure that **Active** is checked and add a webhook.
 
 Now let's see how it works in practice. Create a new branch in your test repository
@@ -171,7 +171,7 @@ Push the new branch to GitHub and create a new pull request. A moment later, you
 .. image:: |filename|images/pep8-bot-github-error-comments.png
    :alt: PEP8 bot in action
 
-Let's fix this errors:
+Let's fix these errors:
 
 .. code:: python
 
