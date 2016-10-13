@@ -120,10 +120,10 @@ td, th {
 .section img,
 .section table {
   max-width: 100%;
+  margin: 0 auto;
 }
 .section img {
   display: block;
-  margin: 0 auto;
 }
 p,
 .description {
