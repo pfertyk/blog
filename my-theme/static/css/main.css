@@ -1,7 +1,10 @@
 @import url("pygment.css");
 
+nav, h1, h2, h3, h4, h5, h6 {
+  font-family: "Ubuntu", Sans-Serif;
+}
 body {
-  font-family: Sans-Serif;
+  font-family: "Source Sans Pro", Sans-Serif;
   font-size: 1.1rem;
   color: #333;
 }
