@@ -83,7 +83,7 @@ nav ul li {
   background-image: url(../images/twitter.svg);
 }
 .about .email {
-  font-family: monospace;
+  font-family: "DejaVu Sans Mono", monospace;
 }
 .about .photo {
   border-radius: 50%;
@@ -97,7 +97,11 @@ nav ul li {
   margin-top: 4rem;
 }
 code {
+  font-family: "DejaVu Sans Mono", monospace;
   background-color: #ccc;
+  padding: 0 0.2rem;
+  font-size: 1rem;
+  border-radius: 0.3rem;
 }
 pre.code {
   overflow-x: auto;
