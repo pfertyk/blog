@@ -8,9 +8,8 @@ I like the Zen of Python. *There should be one - and preferably only one - obvio
 
 Every Python developer has an editor or an IDE configured to display all PEP-8 violations
 (initially, of course, since in time you learn those rules by heart and you no longer need any hints).
-But sometimes there is this new junior, who starts to push changes without installing a linter plugin first.
-Or the manual testers in your team, who have never before heard of PEP-8, start to write Behave tests.
-Or one of your fellow developers simply does not notice that :code:`imported but unused [F401]` message.
+But sometimes you need to push changes before you can install a linter plugin
+or you simply don't notice that :code:`imported but unused [F401]` message.
 What then? How to ensure that no PEP-8 violations will ever find their way into your codebase?
 
 Don't worry, you don't have to manually validate every pull request.
