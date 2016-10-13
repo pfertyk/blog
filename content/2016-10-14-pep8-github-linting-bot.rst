@@ -10,7 +10,7 @@ Every Python developer has an editor or an IDE configured to display all PEP-8 v
 (initially, of course, since in time you learn those rules by heart and you no longer need any hints).
 But sometimes there is this new junior, who starts to push changes without installing a linter plugin first.
 Or the manual testers in your team, who have never before heard of PEP-8, start to write Behave tests.
-Or one of your fellow developers simply does not notice that ``imported but unused [F401]`` message.
+Or one of your fellow developers simply does not notice that :code:`imported but unused [F401]` message.
 What then? How to ensure that no PEP-8 violations will ever find their way into your codebase?
 
 Don't worry, you don't have to manually validate every pull request.
@@ -55,7 +55,7 @@ Next you will need to clone the repository with PEP-8 linter bot:
         git clone https://github.com/pfertyk/lint-review.git
         cd lint-review
 
-The time has come to tell Heroku who you are. Run ``heroku login`` an provide
+The time has come to tell Heroku who you are. Run :code:`heroku login` an provide
 it with your Heroku credentials (email and password). Next you have to
 configure a git remote to be able to push the code to Heroku.
 The name of the remote can be found in your app's **Settings**:
@@ -86,12 +86,12 @@ Bear in mind that this process can take a while.
 Configuration
 -------------
 
-Once the app is deployed, you will notice that the celery worker's status if ``OFF``:
+Once the app is deployed, you will notice that the celery worker's status if :code:`OFF`:
 
 .. image:: |filename|images/pep8-bot-disabled-celery-worker.png
    :alt: Disabled celery worker
 
-To fix this, go to **Resources**, click the edit icon next to ``worker``,
+To fix this, go to **Resources**, click the edit icon next to :code:`worker`,
 switch the state and confirm.
 
 Next go to **Settings** and click **Reveal Config Vars**.
@@ -131,15 +131,15 @@ Choose a good description and select the **notifications** scope and the whole *
 (or just **public_repo** if you are going to use this bot only for public repositories).
 
 Copy the token and go back to your Heroku app's **Settings**.
-Add two new config variables: ``GITHUB_USER`` with the name of newly created GitHub
-profile (in my case ``PEPing-tom``) and ``GITHUB_OAUTH_TOKEN``
+Add two new config variables: :code:`GITHUB_USER` with the name of newly created GitHub
+profile (in my case :code:`PEPing-tom`) and :code:`GITHUB_OAUTH_TOKEN`
 with the token you just generated.
 
 Testing
 -------
 
 Let's see your new bot in action. Create a test repository on GitHub.
-The bot will look for linter configuration in a file called ``.lintrc``,
+The bot will look for linter configuration in a file called :code:`.lintrc`,
 so let's create one with the following content:
 
 .. code:: ini
@@ -152,9 +152,9 @@ this linter to check. First, you have to add your bot's GitHub profile as a coll
 (**Settings** -> **Collaborators**), and the bot has to accept the invitation.
 Second, you need to add a webhook to your repository to inform the bot about pull requests.
 Go to **Settings** -> **Webhooks** -> **Add webhook**.
-The value in **Payload URL** should be ``{HEROKU_APP_DOMAIN}/review/start``
-(in my case it was ``https://pep8-linter.herokuapp.com/review/start``).
-Leave ``application/json`` as content type and choose **Let me select individual events**.
+The value in **Payload URL** should be :code:`{HEROKU_APP_DOMAIN}/review/start`
+(in my case it was :code:`https://pep8-linter.herokuapp.com/review/start`).
+Leave :code:`application/json` as content type and choose **Let me select individual events**.
 The only event you need is **Pull request**.
 Make sure that **Active** is checked and add a webhook.
 

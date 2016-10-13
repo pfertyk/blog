@@ -36,8 +36,13 @@ CATEGORY_FEED_ATOM = None
 
 def twitter_link(article):
     return 'https://twitter.com/intent/tweet?text={}&url={}&via={}'.format(
-        article.title, quote(SITEURL + '/' + article.url), TWITTER_USERNAME
+        quote(article.title),
+        quote(SITEURL + '/' + article.url),
+        TWITTER_USERNAME
     )
 
 
 JINJA_FILTERS = {'twitter_link': twitter_link}
+
+PLUGIN_PATHS = ['plugins']
+PLUGINS = ['better_tables']
