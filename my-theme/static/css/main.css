@@ -59,8 +59,14 @@ nav ul li {
 }
 .share-twitter {
   text-align: center;
-  margin-top: 3rem;
-  font-size: 1rem;
+  margin-top: 4rem;
+}
+.share-twitter a {
+  background-color: #1da1f2;
+  color: #fff;
+  padding: 0.4rem 0.8rem;
+  border-radius: 0.5rem;
+  font-weight: bold;
 }
 
 .about {
