@@ -3,6 +3,7 @@ from urllib.parse import quote
 
 SITENAME = 'pfertyk'
 SITEURL = 'http://pfertyk.me'
+SITE_DESCTIPTION = "Paweł Fertyk's blog on programming"
 
 AUTHOR_NAME = 'Paweł Fertyk'
 TWITTER_USERNAME = 'pfertyk'

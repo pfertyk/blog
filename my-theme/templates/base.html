@@ -4,13 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="author" content="{{ AUTHOR_NAME }}">
-    <title>{% block title %}{{ SITENAME }}{%endblock%}</title>
+    <meta name="description" content="{% block description %}{{ SITE_DESCTIPTION }}{% endblock %}" />
+
+    <title>{% block title %}{{ SITENAME }}{% endblock %}</title>
     <link rel="stylesheet" href="{{ SITEURL }}/theme/css/{{ CSS_FILE }}" type="text/css"/>
     <link rel="shortcut icon" href="{{ SITEURL }}/theme/favicon.ico" type="image/x-icon">
     <link rel="icon" href="{{ SITEURL }}/theme/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Ubuntu"/>
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro"/>
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=DejaVu+Sans+Mono"/>
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:site" content="@{{ TWITTER_USERNAME }}" />
+    <meta name="twitter:image" content="{{ SITEURL }}/theme/images/pfertyk.jpg" />
+    <meta name="twitter:title" content="{% block twitter_title %}{{ SITENAME }}{% endblock %}" />
+    <meta name="twitter:description" content="{% block twitter_description %}{{ SITE_DESCTIPTION }}{% endblock %}" />
   </head>
   <body>
     <div class="page-wrapper">
