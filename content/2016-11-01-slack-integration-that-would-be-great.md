@@ -6,6 +6,8 @@ Have you seen *The Office*? Do you wake up at night to the sound of ? Does your 
 
 ## First attempt: bot user
 
+Some short description of bot users
+
 ### Create a bot user
 
 To create a new bot user, visit [this link](https://my.slack.com/services/new/bot) (of course, you have to be a full member of your team to do that). First, you need to pick a name for your bot:
@@ -131,8 +133,7 @@ else:
 the loop
 the sleep
 the link
-
-### Results
+the checking of link in title
 
 Assuming that you named your Python file `main.py`, you can now run your program:
 
@@ -144,24 +145,65 @@ Now you can see your bot in action:
 
 image here
 
+It works quite nicely, except for that awful endless loop. That is not how the code should look like. If only there was a way to react to actual messages instead of reading all the events...
+
 ## Second attempt: outgoing webhook
+
+Fortunately, Slack provides another way of integrating other services: webhooks. Thanks to them you can receive a call each time a message is sent to a channel.
 
 ### Create a webhook
 
+Go to [Outgoing WebHooks](https://my.slack.com/services/new/outgoing-webhook) page and click **Add Outgoing WebHooks integration**. You will be redirected to the **Edit configuration** page, and you will immediately notice some limitations:
+
+* the integration can only be enabled for one specific channel or for all messages starting with specific words (**trigger words**)
+* you will need a server with a public IP address to send the messages to (you need to provide a URL that Slack can find)
+* you can still customize the name and the icon, but you will have to repeat the process for each channel (assuming you are not going to use **trigger words**)
+
+So, is it even worth the effort to use this outgoing webhook instead of a bot user? I think it is. Infinite loops without breaking conditions are evil and you should avoid them. Besides, the downsides are not really that troublesome.
+
+Let's proceed with the configuration. Select the channel and leave the **Trigger word(s)** section empty. I'm going to assume for a moment that you have your own public IP address and that it is `123.1.2.3` (don't worry, in just a moment you will deploy your program to Heroku and that will take care of the public IP problem). Put `http://123.1.2.3/lumbergh` in the **URL(s)** field. You can also customize the name and the icon.
+
+There is one more important section here: **Token**. It contains the token that will be added to each API call send to the URLs you provided. You will use it in a moment.
+
 ### Write new Python code
 
-the loop!
+The new version of your program will not require `slackclient` at all. Instead, you are going to use `flask`:
 
-use flask
 
 ```sh
 pip install flask
 ```
 
+A very simpla `flask` application would look like this:
+
+```python
+from flask import Flask
+
+app = Flask(__name__)
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0')  # make the app externally visible
+```
+
+This of course will not do anything usefull, so let's create an endpoint:
+
+```python
+@app.route('/lumbergh', methods=['POST'])
+def inbound():
+    return Response(), 200
+```
+
+This will accept **POST** requests to `123.1.2.3/lumbergh` and that's basically it.
+
+
 drop token
 
-### Results
 
-not working locally
+The problem is that you still need to have a public IP address. Let's solve this problem using Heroku.
 
-## Deploying on Heroku
+### Deploying on Heroku
+
+I'm going to assume that you already have an account and that you installed **Heroku CLI**. Create a new app and give it a nice name. Go to **Settings** and check the git URL. 
+
+
+## Summary

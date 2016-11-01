@@ -116,7 +116,8 @@ pre.code {
   overflow-x: auto;
   font-size: 1rem;
 }
-a.reference.external {
+a.reference.external,
+.page-wrapper p a {
   text-decoration: underline;
 }
 table {
