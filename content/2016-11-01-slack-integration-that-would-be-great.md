@@ -1,12 +1,14 @@
-Title: If you could just go ahead and automatically post images on Slack
+Title: Automatically respond to Slack messages containing specified text
 Date: 2016-11-01
 Summary: Yeah, that would be great
 
-Have you seen *The Office*? Do you wake up at night to the sound of ? Does your team use Slack? If so, you came to the right place! In this blog post, I will show you how to use Python to automatically detect 'That would be great' in Slack messages and send a picture of Bill Lumbergh it this situation occurs. You will use bot users and outgoing webhooks, and finally you will deploy on Heroku. Let's get right to it!
+Recently I tried to create a Slack bot. It's job would be to read the messages and, if 'that would be great' was detected in the content, respond to the message with a picture of Bill Lumbergh from the office (yeah, I'm a funny guy). But I found out that the learning resources are somewhat scattered around the Internet. It was difficult for a person not familiar with Slack API and with bots in general to get a grip of the whole process.
+
+I finally succeeded, and I would like to help others with a similar problem. This post will show you how to integrate with Slack in two ways: sing bot users and outgoing webhooks. You don't have to know anything about Slack or Python frameworks, but the basic Python skills and a Heroku account are required (unless you want to host the solution on your own server). The code will be simple and will do this one and only task that I mentioned: detect the text and respond with an image. Let't get right to it!
 
 ## First attempt: bot user
 
-Some short description of bot users
+Slack allows you to create [bot users](https://api.slack.com/bot-users). They are very similar to normal users, except they can be controlled using the API token.
 
 ### Create a bot user
 
@@ -225,7 +227,7 @@ The problem is that you still need to have a public IP address. Let's solve this
 
 ### Deploying on Heroku
 
-I'm going to assume that you already have an account and that you installed **Heroku CLI**. Create a new app and give it a nice name. Go to **Settings**, check the git URL and configure the git remote accordingly:
+I'm going to assume that you already have an account and that you installed **Heroku CLI**. Create a new app and give it a nice name (I picked *lumbergh*). Go to **Settings**, check the git URL and configure the git remote accordingly:
 
 image here
 
@@ -263,8 +265,20 @@ On the **Overview** page you should see that the program is working:
 
 image here
 
+Now you can change the URL for the Slack webhook to your
+
 Now if you post a proper message on Slack, you should see a response:
 
 image here
 
 ## Summary
+
+As it turns out, answering messages automatically on Slack is very easy. Bot users can be enabled for many channels, but they need an ugly loop. Outgoing webhooks can react on each message, but they need a public IP and have to be added to each channel separately.
+
+If you don't have the time to configure the bot by yourself, you can use my instance. Just add a new outgoing webhook with the following URL:
+
+```ini
+https://lumbergh.herokuapp.com/lumbergh
+```
+
+If you find any problems with this tutorial, please let me know.
