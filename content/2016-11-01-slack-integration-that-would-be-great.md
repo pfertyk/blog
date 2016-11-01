@@ -2,7 +2,7 @@ Title: Automatically respond to Slack messages containing specified text
 Date: 2016-11-01
 Summary: Yeah, that would be great
 
-Recently I tried to create a Slack bot. It's job would be to read the messages and, if 'that would be great' was detected in the content, respond to the message with a picture of Bill Lumbergh from the office (yeah, I'm a funny guy). But I found out that the learning resources are somewhat scattered around the Internet. It was difficult for a person not familiar with Slack API and with bots in general to get a grip of the whole process.
+Recently I tried to create a Slack bot. It's job would be to read the messages and, if *that would be great* was detected in the content, respond to the message with a picture of Bill Lumbergh from *Office Space* (yeah, I'm a funny guy). But I found out that the learning resources are somewhat scattered around the Internet. It was difficult for a person not familiar with Slack API and with bots in general to quickly get a grip of the whole process (I just wanted a simple bot, not the whole API documentation).
 
 I finally succeeded, and I would like to help others with a similar problem. This post will show you how to integrate with Slack in two ways: sing bot users and outgoing webhooks. You don't have to know anything about Slack or Python frameworks, but the basic Python skills and a Heroku account are required (unless you want to host the solution on your own server). The code will be simple and will do this one and only task that I mentioned: detect the text and respond with an image. Let't get right to it!
 
@@ -14,17 +14,18 @@ Slack allows you to create [bot users](https://api.slack.com/bot-users). They ar
 
 To create a new bot user, visit [this link](https://my.slack.com/services/new/bot) (of course, you have to be a full member of your team to do that). First, you need to pick a name for your bot:
 
-image here
+![New bot's name]({filename}/images/slack-lumbergh-bot-creation.png)
 
 Then, you can access your bot settings. It is possible (and advised!) to give it a nice name and icon. But the important part here is the token:
 
-image here
+![New bot's token]({filename}/images/slack-lumbergh-bot-token.png)
 
 This will be required for our Python code to post messages to a slack channel as this bot user. From now on, I'm going to assume that your token is `xoxo-123token`.
 
 Now that your bot is created, go ahead and invite it to your Slack channel:
 
-image here
+![Inviting the bot]({filename}/images/slack-lumbergh-bot-invite.png)
+![Bot accepted invitation]({filename}/images/slack-lumbergh-bot-accept-invitation.png)
 
 ### Write some Python code
 
@@ -145,7 +146,7 @@ python main.py
 
 Now you can see your bot in action:
 
-image here
+![User bot in action]({filename}/images/slack-lumbergh-bot-answer.png)
 
 It works quite nicely, except for that awful endless loop. That is not how the code should look like. If only there was a way to react to actual messages instead of reading all the events...
 
@@ -169,7 +170,7 @@ There is one more important section here: **Token**. It contains the token that 
 
 Click **Save Settings** button. Notice that you don't need to invite an integration to a channel, it will be added automatically when you create the webhook (also, integrations can have names starting with a capital letter):
 
-image here
+![Webhook integration enabled]({filename}/images/slack-lumbergh-webhook-enabled.png)
 
 ### Write new Python code
 
@@ -225,7 +226,7 @@ if __name__ == '__main__':
     app.run(host='0.0.0.0')
 ```
 
-You might notice that there is no token validation here. If you want, you can check if the call was made by Slack:
+Do you remember the token that Slack created for your outgoing webhook? You might notice that there is no token validation here. If you want, you can check if the call was made by Slack:
 
 ```python
 def lumbergh():
@@ -236,13 +237,23 @@ def lumbergh():
 
 I decided not to do it. That way one instance of a program can be used with multiple channels.
 
+You can run the your new app:
+
+```sh
+python main.py
+```
+
+and you should see some nice answers:
+
+![Webhook integration response]({filename}/images/slack-lumbergh-webhook-working.png)
+
 The problem is that you still need to have a public IP address. Let's solve this problem using Heroku.
 
 ### Deploying on Heroku
 
 I'm going to assume that you already have an account and that you installed **Heroku CLI**. Create a new app and give it a nice name (I picked *lumbergh*). Go to **Settings**, check the git URL and configure the git remote accordingly:
 
-image here
+![Webhook integration git URL]({filename}/images/slack-lumbergh-webhook-git.png)
 
 ```sh
 git init
@@ -276,13 +287,9 @@ git push heroku master
 
 On the **Overview** page you should see that the program is working:
 
-image here
+![Webhook integration status]({filename}/images/slack-lumbergh-webhook-status.png)
 
 Now you can change the URL for the Slack webhook to your
-
-Now if you post a proper message on Slack, you should see a response:
-
-image here
 
 ## Summary
 
