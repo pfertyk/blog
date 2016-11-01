@@ -189,21 +189,82 @@ This of course will not do anything usefull, so let's create an endpoint:
 
 ```python
 @app.route('/lumbergh', methods=['POST'])
-def inbound():
+def lumbergh():
+    text = request.form.get('text', '')
+    if 'that would be great' in text.lower() and link not in text:
+        return jsonify(text=link)
     return Response(), 200
 ```
 
-This will accept **POST** requests to `123.1.2.3/lumbergh` and that's basically it.
+This will accept **POST** requests to `123.1.2.3/lumbergh` and if the text is detected in the message, our link will be returned as a response. As you can see, you don't need to post the message using the Slack API, since the response to this **POST** call will be automatically used as a message.
+
+The code of your program should look something like this:
 
 
-drop token
+```python
+from flask import Flask, request, Response, jsonify
 
+app = Flask(__name__)
+link = '<https://cdn.meme.am/instances/400x/33568413.jpg|That would be great>'
+
+
+@app.route('/lumbergh', methods=['POST'])
+def lumbergh():
+    text = request.form.get('text', '')
+    if 'that would be great' in text.lower() and link not in text:
+        return jsonify(text=link)
+    return Response(), 200
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0')
+```
+
+You might notice that there is no token validation here. If you want, you can check if the call was made by Slack 
 
 The problem is that you still need to have a public IP address. Let's solve this problem using Heroku.
 
 ### Deploying on Heroku
 
-I'm going to assume that you already have an account and that you installed **Heroku CLI**. Create a new app and give it a nice name. Go to **Settings** and check the git URL. 
+I'm going to assume that you already have an account and that you installed **Heroku CLI**. Create a new app and give it a nice name. Go to **Settings**, check the git URL and configure the git remote accordingly:
 
+image here
+
+```sh
+git init
+git remote add heroku
+https://git.heroku.com/lumbergh.git
+```
+
+To run the program, you will need a server, like `gunicorn`:
+
+```sh
+pip install gunicorn
+```
+
+For a program to work with Heroku, you will have to create an additional file called `Procfile`:
+
+```ini
+web: gunicorn lumbergh:app
+```
+
+Also, since [Python 2.x is legacy and Python 3.x is the present and future of the language](https://wiki.python.org/moin/Python2orPython3), you should inform Heroku that you want to use proper version of Python by creating a `runtime.txt` file:
+
+```ini
+python-3.4.3
+```
+
+Now you can deploy to Heroku (remember, that first you need to authenticate yourself using `heroku login`):
+
+```sh
+git push heroku master
+```
+
+On the **Overview** page you should see that the program is working:
+
+image here
+
+Now if you post a proper message on Slack, you should see a response:
+
+image here
 
 ## Summary
