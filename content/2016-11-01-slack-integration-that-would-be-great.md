@@ -30,7 +30,7 @@ The bot should be more than happy to accept the invitation:
 
 ![Bot accepted invitation]({filename}/images/slack-lumbergh-bot-accept-invitation.png)
 
-### Program your bot
+### Write the code
 
 First, you need to create a new virtualenv and install `slackclient`:
 
@@ -187,7 +187,7 @@ The new version of your program will not require `slackclient` at all. Instead, 
 pip install flask
 ```
 
-A very simple `flask` application would look like this:
+A very simple application would look like this:
 
 ```python
 from flask import Flask
