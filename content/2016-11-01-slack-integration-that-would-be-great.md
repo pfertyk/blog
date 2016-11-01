@@ -1,4 +1,4 @@
-Title: If you could integrate Lumbergh with our Slack channel
+Title: If you could just go ahead and automatically post images on Slack
 Date: 2016-11-01
 Summary: Yeah, that would be great
 
@@ -8,7 +8,19 @@ Have you seen *The Office*? Do you wake up at night to the sound of ? Does your 
 
 ### Create a bot user
 
-Slack allows you to create bot users.
+To create a new bot user, visit [this link](https://my.slack.com/services/new/bot) (of course, you have to be a full member of your team to do that). First, you need to pick a name for your bot:
+
+image here
+
+Then, you can access your bot settings. It is possible (and advised!) to give it a nice name and icon. But the important part here is the token:
+
+image here
+
+This will be required for our Python code to post messages to a slack channel as this bot user. From now on, I'm going to assume that your token is `xoxo-123token`.
+
+Now that your bot is created, go ahead and invite it to your slack channel:
+
+image here
 
 ### Write some Python code
 
