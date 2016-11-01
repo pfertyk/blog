@@ -165,7 +165,11 @@ So, is it even worth the effort to use this outgoing webhook instead of a bot us
 
 Let's proceed with the configuration. Select the channel and leave the **Trigger word(s)** section empty. I'm going to assume for a moment that you have your own public IP address and that it is `123.1.2.3` (don't worry, in just a moment you will deploy your program to Heroku and that will take care of the public IP problem). Put `http://123.1.2.3/lumbergh` in the **URL(s)** field. You can also customize the name and the icon.
 
-There is one more important section here: **Token**. It contains the token that will be added to each API call send to the URLs you provided. You will use it in a moment.
+There is one more important section here: **Token**. It contains the token that will be added to each API call send to the URLs you provided. You will get back to it in a moment.
+
+Click **Save Settings** button. Notice that you don't need to invite an integration to a channel, it will be added automatically when you create the webhook (also, integrations can have names starting with a capital letter):
+
+image here
 
 ### Write new Python code
 
@@ -221,7 +225,16 @@ if __name__ == '__main__':
     app.run(host='0.0.0.0')
 ```
 
-You might notice that there is no token validation here. If you want, you can check if the call was made by Slack 
+You might notice that there is no token validation here. If you want, you can check if the call was made by Slack:
+
+```python
+def lumbergh():
+    if request.form.get('token') == os.environ.get('WEBHOOK_TOKEN'):
+        # process the message
+    return Response(), 200
+```
+
+I decided not to do it. That way one instance of a program can be used with multiple channels.
 
 The problem is that you still need to have a public IP address. Let's solve this problem using Heroku.
 
