@@ -45,9 +45,11 @@ nav ul li {
   text-align: center;
 }
 
-.code {
+.code,
+.highlight pre {
   background-color: #282828;
   padding: 0.5rem;
+  font-size: 1rem;
 }
 
 .article-title {
@@ -124,11 +126,14 @@ td, th {
   border: 2px solid #ccc;
 }
 .section img,
-.section table {
+.section table,
+.page-wrapper p img,
+.page-wrapper table {
   max-width: 100%;
   margin: 0 auto;
 }
-.section img {
+.section img,
+.page-wrapper p img {
   display: block;
 }
 p,
