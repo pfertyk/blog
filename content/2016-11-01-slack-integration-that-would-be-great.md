@@ -1,12 +1,12 @@
-Title: Automatically respond to Slack messages containing specified text
+Title: Automatically respond to Slack messages containing specific text
 Date: 2016-11-01
 Summary: Yeah, that would be great
 
-Recently I tried to create a Slack bot. It's job would be to read the messages and, if *that would be great* was detected in the content, respond to the message with a picture of Bill Lumbergh from *Office Space* (yeah, I'm a funny guy). But I found out that the learning resources are somewhat scattered around the Internet. It was difficult for a person not familiar with Slack API and with bots in general to quickly get a grip of the whole process (I just wanted a simple bot, not the whole API documentation).
+Recently I tried to create a Slack bot. It's job was to read messages and, if *'that would be great'* was detected in the content, respond to the message with a picture of Bill Lumbergh from *Office Space* (yeah, I'm a funny guy). But I found out that the learning resources are somewhat scattered around the Internet. It was difficult for a person not familiar with Slack API and with bots in general to quickly create nothing more than a simple bot. I finally put together the information from different sources and decided to describe the process here.
 
-I finally succeeded, and I would like to help others with a similar problem. This post will show you how to integrate with Slack in two ways: sing bot users and outgoing webhooks. You don't have to know anything about Slack or Python frameworks, but the basic Python skills and a Heroku account are required (unless you want to host the solution on your own server). The code will be simple and will do this one and only task that I mentioned: detect the text and respond with an image. Let't get right to it!
+This post will show you how to integrate with Slack in two ways: using bot users and outgoing webhooks. You don't have to know anything about Slack or Python frameworks, but basic Python skills are required (also a Heroku account or your own server would be helpful). The code will be simple and will do the one and only task that I mentioned: detect the text and respond with an image. Let't get right to it!
 
-## First attempt: bot user
+## Bot users
 
 Slack allows you to create [bot users](https://api.slack.com/bot-users). They are very similar to normal users, except they can be controlled using the API token.
 
@@ -16,33 +16,36 @@ To create a new bot user, visit [this link](https://my.slack.com/services/new/bo
 
 ![New bot's name]({filename}/images/slack-lumbergh-bot-creation.png)
 
-Then, you can access your bot settings. It is possible (and advised!) to give it a nice name and icon. But the important part here is the token:
+Then, you can access your bot's settings. It is possible (and advised!) to give it a nice name and a proper icon. But the important part here is the token:
 
 ![New bot's token]({filename}/images/slack-lumbergh-bot-token.png)
 
-This will be required for our Python code to post messages to a slack channel as this bot user. From now on, I'm going to assume that your token is `xoxo-123token`.
+This will be required for your Python code to post messages to Slack channels. From now on, I'm going to assume that your token is `xoxo-123token`.
 
-Now that your bot is created, go ahead and invite it to your Slack channel:
+Now that your bot is created, go ahead and invite it:
 
 ![Inviting the bot]({filename}/images/slack-lumbergh-bot-invite.png)
+
+The bot should be more than happy to accept the invitation:
+
 ![Bot accepted invitation]({filename}/images/slack-lumbergh-bot-accept-invitation.png)
 
-### Write some Python code
+### Program your bot
 
-First, you will need to create a new virtualenv and install `slackclient`:
+First, you need to create a new virtualenv and install `slackclient`:
 
 ```sh
 mkvirtualenv -p /usr/bin/python3 slack-bot
 pip install slackclient
 ```
 
-Next you need to actually create a Slack client, using the bot user's token. For security reasons set the environment variable with the token:
+Next you have to actually create a Slack client, using your bot's token. For security reasons set the environment variable with the token:
 
 ```sh
 export SLACKBOT_LUMBERGH_TOKEN=xoxo-123token
 ```
 
-And then use it in Python:
+and then use it in Python:
 
 ```python
 from slackclient import SlackClient
@@ -83,21 +86,27 @@ if (
     # this is the event you are looking for
 ```
 
-Now that you have an event that you know is a message, you can check if the text contains the phrase. If so, you can post a new message to a Slack channel the event came from. To do this, use `api_call` method:
+Now that you have an actual message, you can check if the text contains the phrase *'that would be great'*. If so, you can post a new message to a Slack channel the message came from. To do this, use `api_call` method:
 
 ```python
+link = '<https://cdn.meme.am/instances/400x/33568413.jpg|That would be great>'
+
 slack_client.api_call(
     'chat.postMessage',
     channel=event['channel'],
-    text='Your very clever response',
+    text=link,
     as_user='true:'
 )
 ```
 
-Two things might require and explaination: `'chat.postMessage'` defines that type of API call you are going to make (in this case, you want to post a message), and `as_user='true:'` will make your bot's messages appear as they were sent by a normal Slack user.
+Some things might require an explaination:
+
+* `'chat.postMessage'` defines that type of the API call you are going to make (in this case, you want to post a message)
+* `as_user='true:'` will make your bot's messages appear as they were sent by a normal Slack user
+* link's format is `<actual_url|Displayed text>`
 
 
-You code by far should look something like this:
+You code by far should look like this:
 
 ```python
 from slackclient import SlackClient
@@ -133,24 +142,21 @@ else:
     print('Connection failed, invalid token?')
 ```
 
-the loop
-the sleep
-the link
-the checking of link in title
+The `sleep(1)` fragment was added to slow down the loop a bit. Also, notice that the text is also checked for the presence of the link itself (otherwise your bot would start answering its own messages).
 
-Assuming that you named your Python file `main.py`, you can now run your program:
+Assuming that you named your file `main.py` you can now run the program:
 
 ```sh
 python main.py
 ```
 
-Now you can see your bot in action:
+and see your bot in action:
 
 ![User bot in action]({filename}/images/slack-lumbergh-bot-answer.png)
 
 It works quite nicely, except for that awful endless loop. That is not how the code should look like. If only there was a way to react to actual messages instead of reading all the events...
 
-## Second attempt: outgoing webhook
+## Outgoing webhooks
 
 Fortunately, Slack provides another way of integrating other services: webhooks. Thanks to them you can receive a call each time a message is sent to a channel.
 
@@ -158,21 +164,21 @@ Fortunately, Slack provides another way of integrating other services: webhooks.
 
 Go to [Outgoing WebHooks](https://my.slack.com/services/new/outgoing-webhook) page and click **Add Outgoing WebHooks integration**. You will be redirected to the **Edit configuration** page, and you will immediately notice some limitations:
 
-* the integration can only be enabled for one specific channel or for all messages starting with specific words (**trigger words**)
+* the integration can only be enabled for one specific channel or for all messages starting with specific (trigger) words
 * you will need a server with a public IP address to send the messages to (you need to provide a URL that Slack can find)
-* you can still customize the name and the icon, but you will have to repeat the process for each channel (assuming you are not going to use **trigger words**)
+* you can still customize the name and the icon, but you will have to repeat the process for each channel (assuming you are not going to use trigger words)
 
-So, is it even worth the effort to use this outgoing webhook instead of a bot user? I think it is. Infinite loops without breaking conditions are evil and you should avoid them. Besides, the downsides are not really that troublesome.
+So, is it even worth the effort to use this outgoing webhook instead of a bot user? I think it is. Infinite loops without breaking conditions are evil and you should avoid them. Besides, the downsides are not really that troublesome (you probably will use this integration on one or two channels anyway, and setting up the server with Heroku is quite easy).
 
-Let's proceed with the configuration. Select the channel and leave the **Trigger word(s)** section empty. I'm going to assume for a moment that you have your own public IP address and that it is `123.1.2.3` (don't worry, in just a moment you will deploy your program to Heroku and that will take care of the public IP problem). Put `http://123.1.2.3/lumbergh` in the **URL(s)** field. You can also customize the name and the icon.
+Let's proceed with the configuration. Select the channel and leave the **Trigger Word(s)** section empty (you don't want to restrict the messages that will be answered). I'm going to assume for a moment that you have your own public IP address and that it is `123.1.2.3` (don't worry, in just a moment you will deploy your program to Heroku and that will take care of the public IP problem). Put `123.1.2.3/lumbergh` in the **URL(s)** field. You can also customize the name and the icon.
 
-There is one more important section here: **Token**. It contains the token that will be added to each API call send to the URLs you provided. You will get back to it in a moment.
+There is another important section here: **Token**. It contains the token that will be added to each API call send to the URLs you provided. You will get back to it in a moment.
 
-Click **Save Settings** button. Notice that you don't need to invite an integration to a channel, it will be added automatically when you create the webhook (also, integrations can have names starting with a capital letter):
+Click **Save Settings** button. Notice that you don't need to invite an integration to a channel, it will be added automatically when you create the webhook (also, unlike bot users, integrations can have names starting with a capital letter):
 
 ![Webhook integration enabled]({filename}/images/slack-lumbergh-webhook-enabled.png)
 
-### Write new Python code
+### Write the code
 
 The new version of your program will not require `slackclient` at all. Instead, you are going to use `flask`:
 
@@ -181,7 +187,7 @@ The new version of your program will not require `slackclient` at all. Instead, 
 pip install flask
 ```
 
-A very simpla `flask` application would look like this:
+A very simple `flask` application would look like this:
 
 ```python
 from flask import Flask
@@ -192,7 +198,7 @@ if __name__ == '__main__':
     app.run(host='0.0.0.0')  # make the app externally visible
 ```
 
-This of course will not do anything usefull, so let's create an endpoint:
+This of course will not do anything useful, so let's create an endpoint:
 
 ```python
 @app.route('/lumbergh', methods=['POST'])
@@ -203,9 +209,9 @@ def lumbergh():
     return Response(), 200
 ```
 
-This will accept **POST** requests to `123.1.2.3/lumbergh` and if the text is detected in the message, our link will be returned as a response. As you can see, you don't need to post the message using the Slack API, since the response to this **POST** call will be automatically used as a message.
+Now every time Slack calls `123.1.2.3/lumbergh`, the program will check if the message contains the text *'it would be great'*. If so, a link to the image will be returned. Notice that you no longer need to use `api_call` here: the response with a text will be automatically converted to a new message by Slack.
 
-The code of your program should look something like this:
+The code of your program should look like this:
 
 
 ```python
@@ -235,7 +241,7 @@ def lumbergh():
     return Response(), 200
 ```
 
-I decided not to do it. That way one instance of a program can be used with multiple channels.
+I decided however to skip the validation. That way one instance of a program can be used with multiple channels.
 
 You can run the your new app:
 
@@ -243,7 +249,7 @@ You can run the your new app:
 python main.py
 ```
 
-and you should see some nice answers:
+and check if it works:
 
 ![Webhook integration response]({filename}/images/slack-lumbergh-webhook-working.png)
 
@@ -251,54 +257,52 @@ The problem is that you still need to have a public IP address. Let's solve this
 
 ### Deploying on Heroku
 
-I'm going to assume that you already have an account and that you installed **Heroku CLI**. Create a new app and give it a nice name (I picked *lumbergh*). Go to **Settings**, check the git URL and configure the git remote accordingly:
+I'm going to assume that you already have a Heroku account and that you installed **Heroku CLI**. Create a new app and give it a nice name (I picked *lumbergh*). Go to **Settings**, check the git URL and configure the git remote accordingly:
 
 ![Webhook integration git URL]({filename}/images/slack-lumbergh-webhook-git.png)
 
 ```sh
 git init
-git remote add heroku
-https://git.heroku.com/lumbergh.git
+git remote add heroku https://git.heroku.com/lumbergh.git
 ```
 
-To run the program, you will need a server, like `gunicorn`:
+To run the program you will need a server, for example `gunicorn`:
 
 ```sh
 pip install gunicorn
 ```
 
-For a program to work with Heroku, you will have to create an additional file called `Procfile`:
+For a program to work with Heroku, you have to create an additional file called `Procfile`:
 
 ```ini
 web: gunicorn lumbergh:app
 ```
 
-Also, since [Python 2.x is legacy and Python 3.x is the present and future of the language](https://wiki.python.org/moin/Python2orPython3), you should inform Heroku that you want to use proper version of Python by creating a `runtime.txt` file:
+Also, since [Python 2.x is legacy and Python 3.x is the present and future of the language](https://wiki.python.org/moin/Python2orPython3), you should inform Heroku that you want to use the proper version of Python by creating a `runtime.txt` file:
 
 ```ini
 python-3.4.3
 ```
 
-Now you can deploy to Heroku (remember, that first you need to authenticate yourself using `heroku login`):
+Now you can deploy to Heroku (remember that first you need to use `heroku login`):
 
 ```sh
 git push heroku master
 ```
 
-On the **Overview** page you should see that the program is working:
+Check the **Overview** to see if the program is working:
 
 ![Webhook integration status]({filename}/images/slack-lumbergh-webhook-status.png)
 
-Now you can change the URL for the Slack webhook to your
+Now you can change the URL for the Slack webhook to the one provided by Heroku (you will find it in **Settings**):
+
+![Webhook integration Heroku address]({filename}/images/slack-lumbergh-webhook-heroku-url.png)
+![Webhook integration new Slack URL]({filename}/images/slack-lumbergh-webhook-slack-url.png)
 
 ## Summary
 
-As it turns out, answering messages automatically on Slack is very easy. Bot users can be enabled for many channels, but they need an ugly loop. Outgoing webhooks can react on each message, but they need a public IP and have to be added to each channel separately.
+As it turns out, answering messages automatically on Slack is very easy. Bot users can be enabled for many channels, but they need an infinite loop to process events. Outgoing webhooks can be called for each message, but they need a public IP and have to be added to each channel separately. And both of these solutions can be implemented in less than 31 lines of code.
 
-If you don't have the time to configure the bot by yourself, you can use my instance. Just add a new outgoing webhook with the following URL:
-
-```ini
-https://lumbergh.herokuapp.com/lumbergh
-```
+The source code for this Slack bot can be found [here](https://github.com/pfertyk/lumbergh-slackbot). The latest version contains the webhook integration, but the first commit shows the bot user program. If you don't have the time to configure the bot by yourself, you can use my Heroku instance (just add a new outgoing webhook with `https://lumbergh.herokuapp.com/lumbergh` URL).
 
 If you find any problems with this tutorial, please let me know.
