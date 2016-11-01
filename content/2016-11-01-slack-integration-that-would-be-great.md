@@ -4,7 +4,7 @@ Summary: Yeah, that would be great
 
 Recently I tried to create a Slack bot. It's job was to read messages and, if *'that would be great'* was detected in the content, respond to the message with a picture of Bill Lumbergh from *Office Space* (yeah, I'm a funny guy). But I found out that the learning resources are somewhat scattered around the Internet. It was difficult for a person not familiar with Slack API and with bots in general to quickly create nothing more than a simple bot. I finally put together the information from different sources and decided to describe the process here.
 
-This post will show you how to integrate with Slack in two ways: using bot users and outgoing webhooks. You don't have to know anything about Slack or Python frameworks, but basic Python skills are required (also a Heroku account or your own server would be helpful). The code will be simple and will do the one and only task that I mentioned: detect the text and respond with an image. Let't get right to it!
+This post will show you how to integrate with Slack in two ways: using bot users and outgoing webhooks. You don't have to know anything about Slack or Python frameworks, but basic Python skills are required (also a Heroku account or your own server would be helpful). The code will be simple and will do the one and only task that I mentioned: detect the phrase and respond with an image. Let't get right to it!
 
 ## Bot users
 
@@ -142,7 +142,7 @@ else:
     print('Connection failed, invalid token?')
 ```
 
-The `sleep(1)` fragment was added to slow down the loop a bit. Also, notice that the text is also checked for the presence of the link itself (otherwise your bot would start answering its own messages).
+The `sleep(1)` fragment was added to slow down the loop a bit. Notice that the text is also checked for the presence of the link itself (otherwise your bot would start answering its own messages).
 
 Assuming that you named your file `main.py` you can now run the program:
 
@@ -158,7 +158,7 @@ It works quite nicely, except for that awful endless loop. That is not how the c
 
 ## Outgoing webhooks
 
-Fortunately, Slack provides another way of integrating other services: webhooks. Thanks to them you can receive a call each time a message is sent to a channel.
+Fortunately, Slack provides another way of integrating with other services: webhooks. Thanks to them you can receive a call each time a message is sent to a channel.
 
 ### Create a webhook
 
@@ -166,7 +166,7 @@ Go to [Outgoing WebHooks](https://my.slack.com/services/new/outgoing-webhook) pa
 
 * the integration can only be enabled for one specific channel or for all messages starting with specific (trigger) words
 * you will need a server with a public IP address to send the messages to (you need to provide a URL that Slack can find)
-* you can still customize the name and the icon, but you will have to repeat the process for each channel (assuming you are not going to use trigger words)
+* you can still customize the name and the icon, but you will have to repeat the process for each channel (unless you are going to use trigger words)
 
 So, is it even worth the effort to use this outgoing webhook instead of a bot user? I think it is. Infinite loops without breaking conditions are evil and you should avoid them. Besides, the downsides are not really that troublesome (you probably will use this integration on one or two channels anyway, and setting up the server with Heroku is quite easy).
 
@@ -209,7 +209,7 @@ def lumbergh():
     return Response(), 200
 ```
 
-Now every time Slack calls `123.1.2.3/lumbergh`, the program will check if the message contains the text *'it would be great'*. If so, a link to the image will be returned. Notice that you no longer need to use `api_call` here: the response with a text will be automatically converted to a new message by Slack.
+Now every time Slack calls `123.1.2.3/lumbergh`, the program will check if the message contains the phrase *'it would be great'*. If so, a link to the image will be returned. Notice that you no longer need to use `api_call` here: the response with a text will be automatically converted to a new message by Slack.
 
 The code of your program should look like this:
 
@@ -243,7 +243,7 @@ def lumbergh():
 
 I decided however to skip the validation. That way one instance of a program can be used with multiple channels.
 
-You can run the your new app:
+You can run the your new app (on a publicly available server):
 
 ```sh
 python main.py
@@ -253,7 +253,7 @@ and check if it works:
 
 ![Webhook integration response]({filename}/images/slack-lumbergh-webhook-working.png)
 
-The problem is that you still need to have a public IP address. Let's solve this problem using Heroku.
+The problem is that you still need to have a public IP address. Let's solve this problem with Heroku.
 
 ### Deploying on Heroku
 
