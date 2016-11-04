@@ -44,6 +44,3 @@ def twitter_link(article):
 
 
 JINJA_FILTERS = {'twitter_link': twitter_link}
-
-PLUGIN_PATHS = ['plugins']
-PLUGINS = ['better_tables']
