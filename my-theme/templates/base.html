@@ -6,6 +6,13 @@
     <meta name="author" content="{{ AUTHOR_NAME }}">
     <meta name="description" content="{% block description %}{{ SITE_DESCTIPTION }}{% endblock %}" />
 
+    {% if FEED_ALL_ATOM %}
+    <link type="application/atom+xml" rel="alternate" href="/{{ FEED_ALL_ATOM }}"  title="{{ SITE_DESCTIPTION }} - Atom Feed">
+    {% endif %}
+    {% if FEED_ALL_RSS %}
+    <link type="application/rss+xml" rel="alternate" href="/{{ FEED_ALL_RSS }}" title="{{ SITE_DESCTIPTION }} - RSS Feed">
+    {% endif %}
+
     <title>{% block title %}{{ SITENAME }}{% endblock %}</title>
     <link rel="stylesheet" href="{{ SITEURL }}/theme/css/{{ CSS_FILE }}" type="text/css"/>
     <link rel="shortcut icon" href="{{ SITEURL }}/theme/favicon.ico" type="image/x-icon">
