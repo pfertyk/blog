@@ -44,6 +44,10 @@ nav ul li {
   margin-top: 4rem;
   text-align: center;
 }
+.highlight,
+.highlight pre {
+  border-radius: 0.5rem;
+}
 .highlight pre {
   overflow-x: auto;
   font-size: 1rem;
