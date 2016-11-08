@@ -5,9 +5,9 @@ Summary: Because, sooner or later, you will have to use JavaScript
 In one of my [previous posts](http://pfertyk.me/2016/10/detect-pep-8-violations-on-pull-requests/)
 I described how to automatically check for PEP-8 violations on pull requests.
 But sometimes Python is not enough, and your project will require some JavaScript as well.
-Fortunately, you can modify the linter bot to use ESlint to ensure the quality of your whole codebase.
+Fortunately, you can modify the `PEPing-tom` bot to also use ESlint to ensure the quality of your whole codebase.
 
-To proceed you should first configure an automatic PEP-8 linter.
+In this post I will show you how to update your linter to check also JavaScript files using [Airbnb JavaScript Style Guide](https://github.com/airbnb/javascript). To proceed you should first configure an automatic PEP-8 linter mentioned earlier.
 
 ## Heroku configuration
 
@@ -41,9 +41,9 @@ $ heroku buildpacks
 
 ## Code changes
 
-You need to update your linter. New version is already available in my
-[repository](github.com/pfertyk/lint-review). The only change was to put proper
-node modules in `package.json` file:
+Next you need to update your linter. New version is already available in my
+[repository](github.com/pfertyk/lint-review), you can just clone it and push it to Heroku. The only modification was to put proper
+modules in `package.json` file:
 
 ```json
 {
@@ -72,7 +72,7 @@ Add `eslint` to the list of linters in `.lintrc` file:
 linters = flake8, eslint
 ```
 
-Next create a file with ESlint configuration (call it `.eslintrc`):
+Next create a new file with ESlint configuration (call it `.eslintrc`):
 
 ```json
 {
@@ -109,4 +109,6 @@ Soon after creating a pull request with this file, you should notice that your b
 You might also notice that the name `PEPing-tom` no longer suits your bot, since now it can also use ESlint.
 Maybe `ESPEP` would be better?
 
-That's it!
+That's it! Your linter is up and running. Now it should keep both Python and JavaScript developers on their toes.
+
+I hope this tutorial will make your life a bit easier. If any instructions are unclear or not working, please let me know.
