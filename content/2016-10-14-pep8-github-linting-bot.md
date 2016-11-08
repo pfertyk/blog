@@ -58,7 +58,7 @@ The name of the remote can be found in your app's **Settings**:
 ![Heroku Git URL for PEP-8 bot]({filename}/images/pep8-bot-heroku-git-url.png)
 
 ```sh
-git remote add heroku https://git.heroku.com.pep8-linter.git
+git remote add heroku https://git.heroku.com/pep8-linter.git
 ```
 
 For some reason, when I tried to deploy this app, Heroku insisted on
