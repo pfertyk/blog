@@ -2,24 +2,35 @@ Title: Run ESlint on each pull request
 Date: 2016-11-08
 Summary: Because, sooner or later, you will have to use JavaScript
 
-Last time: PEP8 linter (link to article). But javascript. So here is another solution: update the bot to detect js style violations.
+In one of my [previous posts](http://pfertyk.me/2016/10/detect-pep-8-violations-on-pull-requests/)
+I described how to automatically check for PEP-8 violations on pull requests.
+But sometimes Python is not enough, and your project will require some JavaScript as well.
+Fortunately, you can modify the linter bot to use ESlint to ensure the quality of your whole codebase.
 
-Assume you already have Pep8 bot
+To proceed you should first configure an automatic PEP-8 linter.
 
 ## Heroku configuration
 
-add new buildpack
+First thing you need to do is add another buildpack. As you remember, last time you
+specifically told Heroku that your linter is a Python application. Now you need to
+treat is also as a JavaScript application, so the dependencies in `package.json` file
+can be properly installed.
+
+Go to your app's **Settings** and click **Add buildpack** button. Next, select **nodejs** buildpack:
 
 ![Node.js buildpack]({filename}/images/eslint-bot-nodejs-buildpack.png)
+
+Now your app should have two buildpacks:
+
 ![Two buildpacks]({filename}/images/eslint-bot-double-buildpack.png)
 
-Note: this can also be achieved with command line.
+If you are passionate about the command line (like me), you can achieve the same effect this way:
 
 ```sh
 heroku buildpacks:add heroku/nodejs
 ```
 
-Check if working:
+Now check if it worked:
 
 ```sh
 $ heroku buildpacks
@@ -30,13 +41,9 @@ $ heroku buildpacks
 
 ## Code changes
 
-already in repo
-
-```sh
-npm install --save eslint eslint-plugin-import eslint-plugin-react eslint-plugin-jsx-a11y eslint-config-airbnb
-```
-
-config file should look like this:
+You need to update your linter. New version is already available in my
+[repository](github.com/pfertyk/lint-review). The only change was to put proper
+node modules in `package.json` file:
 
 ```json
 {
@@ -53,18 +60,19 @@ config file should look like this:
 }
 ```
 
-ugly coupling?
+Of course, if you decide to use another linter (ESlint is not the only available option), then you will have to change the list of packages you want to install.
 
 ## New configuration
 
-Add `eslint` to `.lintrc`:
+Now you need to modify the configuration in the repository you want to be checked by your linter.
+Add `eslint` to the list of linters in `.lintrc` file:
 
 ```ini
 [tools]
 linters = flake8, eslint
 ```
 
-Add `.eslintrc` file:
+Next create a file with ESlint configuration (call it `.eslintrc`):
 
 ```json
 {
@@ -82,19 +90,23 @@ Add `.eslintrc` file:
 }
 ```
 
+This is of course my choice of linting rules. You can configure anything you like or anything your team agreed to use.
+
 ## New bot in action
 
-`main.js`:
+Now let's check if your modified bot actually works. Create a new file `main.js` and put the following
+code in it:
 
 ```js
 var x = 5
 a = x
 ```
 
-Comments:
+Soon after creating a pull request with this file, you should notice that your bot is not very happy:
 
 ![ESlint comments]({filename}/images/eslint-bot-comments.png)
 
-Change the name
+You might also notice that the name `PEPing-tom` no longer suits your bot, since now it can also use ESlint.
+Maybe `ESPEP` would be better?
 
 That's it!
