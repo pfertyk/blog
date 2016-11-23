@@ -3,7 +3,7 @@ Date: 2016-11-25
 Summary: Float like a Ruby, sting like a C?
 
 At Polyconf 2016 I attended a workshop about Crystal.
-It is supposed to have a high-level syntax (similar to Ruby) and
+It is a relatively new language that's supposed to have a high-level syntax (similar to Ruby) and
 high efficiency (comparable with C). I don't know Ruby, but the vision of
 combining these two traits seemed very appealing to me. So recently I decided to
 try this language again. And since the best way to try is to write some code,
@@ -12,52 +12,93 @@ efficiency.
 
 ## Installing Crystal
 
+Crystal is not available by default on Ubuntu, but the
+[installation instructions](https://crystal-lang.org/docs/installation/on_debian_and_ubuntu.html)
+are very clear and simple:
+
 ```sh
 curl https://dist.crystal-lang.org/apt/setup.sh | sudo bash
 sudo apt-get install crystal
 ```
 
-## Creating new project
+This installs both the Crystal compiler and the default dependency manager called Shards
+(I already like these names).
+
+## Creating a new project
+
+Normally, I could just create a source file and start coding. But image processing
+will almost certainly require some sort of third party library, so I decided to create a project.
+
+Each Crystal project is expected to have a `shard.yml` file that contains the
+dependencies and additional information. Fortunately, Crystal already has a neat
+command to set this up:
 
 ```sh
-crystal init app
+crystal init app hello_world
 ```
 
-Git repository, `lib` directory etc.
+This creates a Git repository, a directory for dependencies (`lib`), `.travis.yml` file
+(initially only with language name) and a lot of other stuff. The newly created `grayscale`
+directory looks like this:
 
 ```sh
 .
+├── .git
+│   ├── branches
+│   ├── config
+│   ├── description
+│   ├── HEAD
+│   ├── hooks
+│   │   ├── applypatch-msg.sample
+│   │   ├── commit-msg.sample
+│   │   ├── post-update.sample
+│   │   ├── pre-applypatch.sample
+│   │   ├── pre-commit.sample
+│   │   ├── prepare-commit-msg.sample
+│   │   ├── pre-push.sample
+│   │   ├── pre-rebase.sample
+│   │   └── update.sample
+│   ├── info
+│   │   └── exclude
+│   ├── objects
+│   │   ├── info
+│   │   └── pack
+│   └── refs
+│       ├── heads
+│       └── tags
+├── .gitignore
 ├── LICENSE
 ├── README.md
 ├── shard.yml
 ├── spec
-│   ├── hello_world_spec.cr
+│   ├── grayscale_spec.cr
 │   └── spec_helper.cr
-└── src
-    ├── hello_world
-    │   └── version.cr
-    └── hello_world.cr
-
+├── src
+│   ├── grayscale
+│   │   └── version.cr
+│   └── grayscale.cr
+└── .travis.yml
 ```
 
-A bit of an overkill, so I used a simpler command:
+I decided that it is a bit of an overkill for a simple grayscale filter.
+Fortunately, there is another way: I created a `grayscale` directory manually and
+executed this command inside it:
 
 ```sh
 shards init
 ```
 
-This creates only `shard.yml` file that stores the dependencied and other date.
-By default the file looks like this:
+This creates just the `shard.yml` file. By default it looks like this:
 
 ```yml
-name: test_init
+name: grayscale
 version: 0.1.0
 
 # authors:
 #   - name <email@example.com>
 
 # description: |
-#   Short description of test_init
+#   Short description of grayscale
 
 # dependencies:
 #   pg:
@@ -69,8 +110,10 @@ version: 0.1.0
 #     github: manastech/webmock.cr
 
 # license: MIT
-
 ```
+
+By far, Crystal seems to make my life easier on every occasion. So now that I have
+a project ready, let's install the dependency!
 
 ## Installing the dependency
 
