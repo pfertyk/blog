@@ -34,7 +34,7 @@ dependencies and additional information. Fortunately, Crystal already has a neat
 command to set this up:
 
 ```sh
-crystal init app hello_world
+crystal init app grayscale
 ```
 
 This creates a Git repository, a directory for dependencies (`lib`), `.travis.yml` file
@@ -138,8 +138,8 @@ require "stumpy_png"
 
 canvas = StumpyPNG.read("image.png")
 
-(0...canvas.width).each do |x|
-  (0...canvas.height).each do |y|
+canvas.width.times do |x|
+  canvas.height.times do |y|
     color = canvas[x, y]
     g = 0_u32
     g = (g + color.r + color.g + color.b) / 3
