@@ -279,7 +279,7 @@ following things about this language:
 
 **Cons**
 
-* it lacks libraries
+* it lacks the libraries
 * it does not support parallel code execution
 * the package manager can be a bit confusing
 * the code can still be quite verbose
