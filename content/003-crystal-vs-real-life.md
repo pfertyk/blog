@@ -7,10 +7,10 @@ It is a relatively young programming language that's supposed to have both high-
 syntax (similar to Ruby) and high efficiency (comparable with C). Combining
 these two traits seems difficult, but also very appealing to me.
 
-Recently, I decided to try Crystal again, to check on my own if it can keep the
-promise. The best way to do that was to write some code.
-I needed a program that would take advantage of high efficiency, so I decided to
-write a simple grayscale filter for PNG files.
+Recently, I decided to try Crystal again, to check on my own if it can keep this
+promise. The best way to test a programming language is to write some code, so
+I decided to create a simple grayscale filter for PNG images (that way I could easily
+test the efficiency). This posts describes my adventure with Crystal
 
 ## Installing Crystal
 
@@ -28,7 +28,7 @@ This installs both the Crystal compiler and the default dependency manager calle
 
 ## Creating a new project
 
-Normally, I could just create a source file and start coding. But image processing
+Normally, I could just create a source file (`.cr`) and start coding. But image processing
 will almost certainly require some sort of a third party library, so I decided to create a project.
 
 Each Crystal project is expected to have a `shard.yml` file that contains the
@@ -116,7 +116,7 @@ version: 0.1.0
 
 So there are two ways of creating a new project and both work out-of-the-box.
 By far, Crystal seems to make my life easier at every step and I like it.
-So now that I have a project ready, let's install the dependency!
+So, now that I have a project ready, let's install the dependency!
 
 ## Installing the dependency
 
@@ -144,12 +144,12 @@ But there is no such command. It was [suggested](https://github.com/crystal-lang
 to create one, but the idea was eventually rejected.
 It was also mentioned (in [this comment](https://github.com/crystal-lang/shards/issues/81#issuecomment-261747349))
 that Shards should fail when unknown arguments are left on the command line, to
-avoid the confusion (something that will probably implemented in the future).
+avoid the confusion (something that will be probably implemented in the future).
 
 Crystal is no longer that helpful.
 It seems that I have to edit `shard.yml` manually:
 
-```sh
+```yml
 dependencies:
   stumpy_png:
     github: l3kn/stumpy_png
@@ -157,9 +157,9 @@ dependencies:
 
 ## Code
 
-Using the trial and error approach I came up with this code:
+Using the trial and error approach (I'm not very familiar with Ruby syntax) I came up with this code:
 
-```crystal
+```ruby
 require "stumpy_png"
 
 canvas = StumpyPNG.read("image.png")
@@ -186,13 +186,14 @@ which is a bit inconsistent (at least for a Python developer, who imports exactl
 can be used later)
 * the code is still a bit verbose (this particular library doesn't provide a way to apply a function
 to each pixel)
-* I had to manually declare the type of the grayscale color variable (`0_u32`),
-otherwise the value was incorrect for bright colors (apparently Crystal cannot
-automatically choose the type that will hold the result)
-* I need to create a new color each time I change its value (this is again the
-limitation of stumpy_png)
+* I had to manually declare the type of the grayscale color variable (`0_u32`)
+and add all 3 colors to this variable,
+otherwise the value was incorrect for bright colors due to integer overflow
+* I needed to create a new color each time I wanted to change its value (this is a
+limitation of stumpy_png, not Crystal itself)
 
 So, the high-level syntax in this case was a bit of a disappointment.
+I still have to worry about variable types and storing intermediary results.
 The program looks better than the one written in C, but I expected more.
 It seems that Crystal no longer wants to be my friend. However, the goal of this
 language was also to be very fast, and I can forgive that code if this is true.
@@ -206,9 +207,9 @@ The naive way to run a Crystal program would be something like this:
 crystal grayscale.cr
 ```
 
-This actually compiles the code and then executes it, without saving the executable
-on disk. So, it works somewhat as an interpreter, allowing to run the program with
-just one simple command. This is another good idea Crystal creators came up with,
+This compiles the code and then executes it, without saving the executable
+on disk. So it actually works like an interpreter that allows to run the program with
+just one simple command. This is another great idea Crystal creators came up with,
 but since I need the speed, I will use another way:
 
 ```
@@ -223,7 +224,7 @@ Since I *really* want the speed I should also turn on the optimization:
 crystal build --release grayscale.cr
 ```
 
-I executed this program on a 1920x1080 px image. I was a bit surprised that the
+I executed this program on a 1920x1080 pixels image. I was a bit surprised that the
 execution time was around 1 second. I compared it with the similar program written
 in Python:
 
@@ -244,12 +245,12 @@ I decided to try this approach, however I got stopped by two things.
 
 The first one is that Crystal [does not support parallel code execution](https://crystal-lang.org/docs/guides/concurrency.html).
 I understand that it will be implemented in the future.
-Still, that's kind of like shooting your own foot for a language that wants to be very efficient.
+Still, that's kind of like shooting your own foot for a language that wants to be very fast.
 
 The second reason was that I started a [discussion](https://github.com/l3kn/stumpy_png/issues/7)
 about my problem on GitHub.
-The owner of the project soon found out that the problem was not the processing time, but
-rather with loading and saving of the image. The table shows the comparison:
+The owner of the project soon found out that the issue was not the processing time, but
+rather the loading and saving time. This table shows the comparison:
 
 Time spent on (s):|Crystal|Python
 -|-|-
@@ -262,12 +263,12 @@ program works a lot slower. Using multiple cores would not solve this problem.
 
 Of course, contributors already declared to help with this issue and improve the loading
 and saving time. But that doesn't change the fact that the only image processing
-tool for Crystal is at the moment very slow.
+tool available for Crystal is at the moment very slow.
 
 ## Summary
 
 That concludes my first attempt of using Crystal on my own. I noticed the
-following things about this language by far:
+following things about this language:
 
 **Pros**
 
@@ -278,9 +279,9 @@ following things about this language by far:
 **Cons**
 
 * it lacks tools
-* it does not allow for parallel code execution
+* it does not support parallel code execution
 * the package manager can be a bit confusing
-* the code can still be somewhat verbose
+* the code can still be quite verbose
 
 Of course, these are only my personal observations. Moreover, the domain I chose (image processing)
 might not be a thing among Crystal developers. Perhaps if I started with an HTTP server,
