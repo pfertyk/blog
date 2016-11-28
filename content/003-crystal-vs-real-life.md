@@ -194,29 +194,38 @@ limitation of stumpy_png)
 
 So, the high-level syntax in this case was a bit of a disappointment.
 The program looks better than the one written in C, but I expected more.
+It seems that Crystal no longer wants to be my friend. However, the goal of this
+language was also to be very fast, and I can forgive that code if this is true.
+So let's check the performance!
 
 ## Performance
 
-But what I really wanted is performance!
+The naive way to run a Crystal program would be something like this:
 
 ```
 crystal grayscale.cr
 ```
 
+This actually compiles the code and then executes it, without saving the executable
+on disk. So, it works somewhat as an interpreter, allowing to run the program with
+just one simple command. This is another good idea Crystal creators came up with,
+but since I need the speed, I will use another way:
 
 ```
 crystal build grayscale.cr
 ./grayscale
 ```
 
-Builds the executable. 4s
+This will compile the code once and save the executable on disk for further use.
+Since I *really* want the speed I should also turn on the optimization:
+
 ```
 crystal build --release grayscale.cr
 ```
 
-Starts to look a bit more like C than I wanted. Executes in 1s.
-
-I compared the results with a Python program doing exactly the same job:
+I executed this program on a 1920x1080 px image. I was a bit surprised that the
+execution time was around 1 second. I compared it with the similar program written
+in Python:
 
 ```python
 from PIL import Image
@@ -226,38 +235,55 @@ im_gray = im.convert('L')
 im_gray.save('output.png')
 ```
 
-0.2s
+This one does the job done in around 0.2 second.
 
-I decided to improve the performance by using all the cores. Two things stopped me however.
+So... Crystal is both more verbose *and* slower than Python? That cannot be!
+It has to keep at least part of its promise! There must be a way to make it run faster.
+Maybe if I try to use all of the cores, the processing time will improve?
+I decided to try this approach, however I got stopped by two things.
 
-The first one is that Crystal does not support parallel code execution (link).
-Kind of like shooting your own foot for a language that wants to be efficient.
+The first one is that Crystal [does not support parallel code execution](https://crystal-lang.org/docs/guides/concurrency.html).
+I understand that it will be implemented in the future.
+Still, that's kind of like shooting your own foot for a language that wants to be very efficient.
 
-The second reason was that I created an issue on stumpy_png's github.
-After a discussion with the developer of stumpy_png it become obvious that the
-problem is not with the processing, but with loading and saving.
+The second reason was that I started a [discussion](https://github.com/l3kn/stumpy_png/issues/7)
+about my problem on GitHub.
+The owner of the project soon found out that the problem was not the processing time, but
+rather with loading and saving of the image. The table shows the comparison:
 
-The table shows the comparison:
-
-Time spent on:|Crystal|Python
+Time spent on (s):|Crystal|Python
 -|-|-
-Reading|0|0
-Processing|0|0
-Writing|0|0
+Loading the image| 0.4599181 | 0.1104393
+Processing the pixels| 0.0112788 | 0.0521736
+Saving the output| 0.2979503 | 0.0803592
+
+So, the processing time is actually much better in Crystal than in Python, but the rest of the
+program works a lot slower. Using multiple cores would not solve this problem.
+
+Of course, contributors already declared to help with this issue and improve the loading
+and saving time. But that doesn't change the fact that the only image processing
+tool for Crystal is at the moment very slow.
 
 ## Summary
 
-Cons:
+That concludes my first attempt of using Crystal on my own. I noticed the
+following things about this language by far:
 
-* lack of tools
-* no parallel code
-* some issues with package manager
+**Pros**
+
+* it has an excellent community (people respond very quickly and try to help newbies)
+* it simplifies a lot of things
+* it is fast (at least the image processing part)
+
+**Cons**
+
+* it lacks tools
+* it does not allow for parallel code execution
+* the package manager can be a bit confusing
 * the code can still be somewhat verbose
-* need to pay attention to compiler flags
 
-Pros:
-
-* excellent community
-
-Seems interesting, but not for now. Maybe in other domains (like HTTP server),
-but not for general use.
+Of course, these are only my personal observations. Moreover, the domain I chose (image processing)
+might not be a thing among Crystal developers. Perhaps if I started with an HTTP server,
+my experience would be very different. But the general impression I got was that
+Crystal is not yet ready for being a general purpose tool. It has a bit of a charm,
+but for now I will stick with Python (and, if I really need the speed, with C).
