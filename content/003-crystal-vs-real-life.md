@@ -10,7 +10,7 @@ these two traits seems difficult, but also very appealing to me.
 Recently, I decided to try Crystal again, to check on my own if it can keep this
 promise. The best way to test a programming language is to write some code, so
 I decided to create a simple grayscale filter for PNG images (that way I could easily
-test the efficiency). This posts describes my adventure with Crystal
+test the efficiency). This posts describes the whole process.
 
 ## Installing Crystal
 
@@ -116,7 +116,7 @@ version: 0.1.0
 
 So there are two ways of creating a new project and both work out-of-the-box.
 By far, Crystal seems to make my life easier at every step and I like it.
-So, now that I have a project ready, let's install the dependency!
+Now that I have a project ready, let's install the dependency!
 
 ## Installing the dependency
 
@@ -176,8 +176,9 @@ end
 StumpyPNG.write(canvas, "output.png")
 ```
 
-I know that grayscale conversion is a bit more complicated than the average
+Note: I know that grayscale conversion is a bit more complicated than the average
 value of all 3 colors, but this filter was supposed to be a simple test of Crystal.
+
 The code works, but there are some issues:
 
 * in the first line I included the name of the library (`stumpy_png`),
@@ -196,7 +197,7 @@ So, the high-level syntax in this case was a bit of a disappointment.
 I still have to worry about variable types and storing intermediary results.
 The program looks better than the one written in C, but I expected more.
 It seems that Crystal no longer wants to be my friend. However, the goal of this
-language was also to be very fast, and I can forgive that code if this is true.
+language was also to be very fast, and I can forgive code like this if the speed is good.
 So let's check the performance!
 
 ## Performance
@@ -250,7 +251,7 @@ Still, that's kind of like shooting your own foot for a language that wants to b
 The second reason was that I started a [discussion](https://github.com/l3kn/stumpy_png/issues/7)
 about my problem on GitHub.
 The owner of the project soon found out that the issue was not the processing time, but
-rather the loading and saving time. This table shows the comparison:
+rather the loading and saving times. This table shows the comparison:
 
 Time spent on (s):|Crystal|Python
 -|-|-
@@ -262,7 +263,7 @@ So, the processing time is actually much better in Crystal than in Python, but t
 program works a lot slower. Using multiple cores would not solve this problem.
 
 Of course, contributors already declared to help with this issue and improve the loading
-and saving time. But that doesn't change the fact that the only image processing
+and saving times. But that doesn't change the fact that the only image processing
 tool available for Crystal is at the moment very slow.
 
 ## Summary
@@ -278,7 +279,7 @@ following things about this language:
 
 **Cons**
 
-* it lacks tools
+* it lacks libraries
 * it does not support parallel code execution
 * the package manager can be a bit confusing
 * the code can still be quite verbose
