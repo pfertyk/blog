@@ -1,18 +1,20 @@
 Title: Crystal in real life
-Date: 2016-11-25
+Date: 2016-11-28
 Summary: Float like a Ruby, sting like a C?
 
 At Polyconf 2016 I attended a workshop about Crystal.
-It is a relatively new language that's supposed to have a high-level syntax (similar to Ruby) and
-high efficiency (comparable with C). I don't know Ruby, but the vision of
-combining these two traits seemed very appealing to me. So recently I decided to
-try this language again. And since the best way to try is to write some code,
-I decided to create a simple grayscale filter. That way I could also test the
-efficiency.
+It is a relatively young programming language that's supposed to have both high-level
+syntax (similar to Ruby) and high efficiency (comparable with C). Combining
+these two traits seems difficult, but also very appealing to me.
+
+Recently, I decided to try Crystal again, to check on my own if it can keep the
+promise. The best way to do that was to write some code.
+I needed a program that would take advantage of high efficiency, so I decided to
+write a simple grayscale filter for PNG files.
 
 ## Installing Crystal
 
-Crystal is not available by default on Ubuntu, but the
+I'm using Ubuntu 16.04. Crystal is not available there by default, but the
 [installation instructions](https://crystal-lang.org/docs/installation/on_debian_and_ubuntu.html)
 are very clear and simple:
 
@@ -27,7 +29,7 @@ This installs both the Crystal compiler and the default dependency manager calle
 ## Creating a new project
 
 Normally, I could just create a source file and start coding. But image processing
-will almost certainly require some sort of third party library, so I decided to create a project.
+will almost certainly require some sort of a third party library, so I decided to create a project.
 
 Each Crystal project is expected to have a `shard.yml` file that contains the
 dependencies and additional information. Fortunately, Crystal already has a neat
@@ -38,7 +40,7 @@ crystal init app grayscale
 ```
 
 This creates a Git repository, a directory for dependencies (`lib`), `.travis.yml` file
-(initially only with language name) and a lot of other stuff. The newly created `grayscale`
+(initially only with the name of the language) and a lot of other stuff. The newly created `grayscale`
 directory looks like this:
 
 ```sh
@@ -112,26 +114,50 @@ version: 0.1.0
 # license: MIT
 ```
 
-By far, Crystal seems to make my life easier on every occasion. So now that I have
-a project ready, let's install the dependency!
+So there are two ways of creating a new project and both work out-of-the-box.
+By far, Crystal seems to make my life easier at every step and I like it.
+So now that I have a project ready, let's install the dependency!
 
 ## Installing the dependency
 
-I needed an image processing library. The page crystalshards.xyz shows 2 results
-when searched by the keyword 'image'. One project still has `TODO` sections in the
-README.md file. The other one is *stumpy_png* and it looks like a decent piece of code.
-There is an example provided on GitHub. So I decided to use that one.
+For a grayscale filter I needed an image processing library (obviously).
+The page [crystalshards.xyz](http://crystalshards.xyz/) shows 2 results
+when searched by the *image* keyword. One project still has *TODO* sections in the
+README.md file. The other one is called [stumpy_png](https://github.com/l3kn/stumpy_png).
+It looks like a decent piece of code, there is an example of usage provided on GitHub,
+and there is more than one contributor. So I decided to use that one.
+
+I tried installing the dependency with this command:
 
 ```sh
 shards install stumpy_png
 ```
 
-That command does nothing. It does not install the dependency and it does not
-print any error message. According to the documentation, `shards install` downloads
-and install all the dependencies listed in `shard.yml` file.
-So I started to look for a command like `shards add stumpy_png`
+Much to my surprise, this command does nothing. It does not install the dependency and it does not
+print any error message. According to the documentation, `shards install` doesn't add
+a new dependency to the project, it only downloads and installs
+all the dependencies from the `shard.yml` file.
+
+So I started looking for a command like `shards add stumpy_png`, to easily add this new
+dependency to `shard.yml` (something similar to `npm install --save <module>`).
+But there is no such command. It was [suggested](https://github.com/crystal-lang/shards/issues/81)
+to create one, but the idea was eventually rejected.
+It was also mentioned (in [this comment](https://github.com/crystal-lang/shards/issues/81#issuecomment-261747349))
+that Shards should fail when unknown arguments are left on the command line, to
+avoid the confusion (something that will probably implemented in the future).
+
+Crystal is no longer that helpful.
+It seems that I have to edit `shard.yml` manually:
+
+```sh
+dependencies:
+  stumpy_png:
+    github: l3kn/stumpy_png
+```
 
 ## Code
+
+Using the trial and error approach I came up with this code:
 
 ```crystal
 require "stumpy_png"
@@ -141,26 +167,36 @@ canvas = StumpyPNG.read("image.png")
 canvas.width.times do |x|
   canvas.height.times do |y|
     color = canvas[x, y]
-    g = 0_u32
-    g = (g + color.r + color.g + color.b) / 3
-    canvas[x, y] = StumpyPNG::RGBA.from_gray_n(g, 16)
+    grayscale = 0_u32
+    grayscale = (grayscale + color.r + color.g + color.b) / 3
+    canvas[x, y] = StumpyPNG::RGBA.from_gray_n(grayscale, 16)
   end
 end
 
 StumpyPNG.write(canvas, "output.png")
 ```
 
-Some issues:
+I know that grayscale conversion is a bit more complicated than the average
+value of all 3 colors, but this filter was supposed to be a simple test of Crystal.
+The code works, but there are some issues:
 
-* the first line uses the name of the library, but makes available the name of the class;
-this seems to be inconsistent (at least for the Python developer, who import exactly the thing that
+* in the first line I included the name of the library (`stumpy_png`),
+but that allowed me to use the name of the class (`StumpyPNG`),
+which is a bit inconsistent (at least for a Python developer, who imports exactly the thing that
 can be used later)
-* the code is still a bit verbose
-* I need to create a new color each time I change the value
+* the code is still a bit verbose (this particular library doesn't provide a way to apply a function
+to each pixel)
+* I had to manually declare the type of the grayscale color variable (`0_u32`),
+otherwise the value was incorrect for bright colors (apparently Crystal cannot
+automatically choose the type that will hold the result)
+* I need to create a new color each time I change its value (this is again the
+limitation of stumpy_png)
+
+So, the high-level syntax in this case was a bit of a disappointment.
+The program looks better than the one written in C, but I expected more.
 
 ## Performance
 
-So, the high-level syntax in this case was a bit of a disappointment.
 But what I really wanted is performance!
 
 ```
