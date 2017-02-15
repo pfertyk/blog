@@ -140,6 +140,7 @@ some breakpoints in the code and spend (or rather waste) some time figuring
 out what went wrong.
 
 Each test should do 3 things:
+
 * prepare the data
 * execute some action
 * check if the result was as expected
@@ -152,9 +153,7 @@ def test_transaction_list_requires_authentication(self):
     response = self.get_transactions()
 
     self.assertEqual(response.status_code, HTTP_401)
-```
 
-```python
 def test_transaction_list_is_initially_empty(self):
     self.login_as(self.user)
 
@@ -162,9 +161,7 @@ def test_transaction_list_is_initially_empty(self):
 
     self.assertEqual(response.status_code, HTTP_200)
     self.assertEqual(response.data, [])
-```
 
-```python
 def test_new_transactions_are_shown_on_transaction_list(self):
     self.login_as(self.user)
     self.create_transaction()
@@ -182,58 +179,67 @@ it's worth it.
 
 ## Complicated fixtures
 
+Using overly complicated data in our tests is also a bad practice, although
+a bit less obvious. Consider this example:
+
 ```python
-def test_cannot_allocate_overlapping_seats(self):
-    seller = test_helpers.create_ticket_seller(
-        name='Frank', surname='Sinatra', age='33')
-    seat_ranges = [
-        Range(34, 84, section='Balcony', block='B1'),
-        Range(56, 95, section='Balcony', block='B1'),
+def test_sell_same_stock_twice_in_one_transaction(self):
+    seller = test_helpers.create_seller(
+        name='Frank', surname='Sinatra', age='33'
+    )
+    stocks = [
+        Stock(stock_id=35, no_of_shares=45, comment='First item'),
+        Stock(stock_id=35, no_of_shares=34, comment='Second'),
     ]
 
-    response = self.allocate_tickets(seller, seat_ranges)
+    response = self.sell_stocks(seller, stocks)
 
     self.assertEqual(response.status_code, HTTP_422)
 ```
 
+At first it doesn't look that bad. It checks only one thing and it has a meaningful
+name. But let's say you have to read it and maybe change it (because the requirements
+have changed). Which part of this test code is important and which is not? Will you know
+it at first glance?
+
+Let's start with `seller`. Why is it Frank Sinatra, age 33? Why not John Connor, age 10?
+The `seller` is here only because we need someone to sell the stocks. The name and
+age are not important. So, let's simplify the test:
+
 ```python
-def test_cannot_allocate_overlapping_seats(self):
-    seller = test_helpers.create_ticket_seller()
-    seat_ranges = [
-        Range(34, 84, section='Balcony', block='B1'),
-        Range(56, 95, section='Balcony', block='B1'),
+def test_sell_same_stock_twice_in_one_transaction(self):
+    seller = test_helpers.create_seller()
+    stocks = [
+        Stock(stock_id=35, no_of_shares=45, comment='First item'),
+        Stock(stock_id=35, no_of_shares=34, comment='Second'),
     ]
 
-    response = self.allocate_tickets(seller, seat_ranges)
+    response = self.sell_stocks(seller, stocks)
 
     self.assertEqual(response.status_code, HTTP_422)
 ```
+
+Now we will use a seller created with whatever default date the `create_seller`
+method has. And it should not bother us at all, since it's not the seller we are
+testing here, it's stock.
+
+But stock creation also looks complicated. What do we need the comment for? Probably nothing.
+Do we really need to specify the number of shares? Probably no.
+The important part is the `stock_id`, and it should be the simplest one possible
+(not 35, but 1). So let's leave just that:
 
 ```python
-def test_cannot_allocate_overlapping_seats(self):
+def test_sell_same_stock_twice_in_one_transaction(self):
     seller = test_helpers.create_ticket_seller()
-    seat_ranges = [Range(1, 2), Range(2, 3)]
+    stocks = [Stock(stock_id=1), Stock(stock_id=1)]
 
-    response = self.allocate_tickets(seller, seat_ranges)
+    response = self.sell_stocks(seller, stocks)
 
     self.assertEqual(response.status_code, HTTP_422)
 ```
 
-```python
-def test_cannot_allocate_overlapping_seats(self):
-    seller = test_helpers.create_ticket_seller()
-    seat_ranges = [Range(1, 2), Range(2, 3)]
-
-    response = self.allocate_tickets(seller, seat_ranges)
-
-    self.assertEqual(response.status_code, HTTP_422)
-    self.assertEqual(response.data, {'errors': [
-        {},
-        {},
-        {'You cannot create duplicate items.'},
-        {},
-    ]})
-```
+Now if we ever need to read this test, we will immediately know what we should
+focus on.
 
 ## Confusing times
 
