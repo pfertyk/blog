@@ -2,69 +2,118 @@ Title: Clean code in tests
 Date: 2017-02-16
 Summary: Smart summary
 
-My experience with tests
+I like automated tests. I sleep better at night. I've seen many tests in my life
+and I keep seeing the same mistakes in them. In this post I would like to show
+you the most common ones and help you fix some of them.
+
+
+Why would you care about the quality of code in tests? After all, they are not
+production code. You are not going to be paid for keeping them clean.
+Moreover, usually you write the test once and never modify it later (maybe if
+if the requirement change). And you don't really look into the test code
+until something breaks, and then you do it only to check what went wrong.
+
+Well, this is not entirely true. Test code is code, and it is (hopefully) the
+only *untested* code in your project. You should keep them clean, just as any
+other code. Also, you need to write tests often. Nothing should keep you from
+doing that, and badly structured code will do just that. Moreover, you need to
+read tests more often than you think. Every time a test fails, you probably
+have to dive into it to know that went wrong. And if the test is unreadable,
+you will waste a lot of time just looking for a reason of a failure.
+
+So let's consider a simple banking system where you need to handle transactions,
+accounts and stuff like that.
 
 ## Unclear names
 
+One of the most common mistakes is vague or incorrect naming. Consider a test
+like this one:
+
 ```python
-def test_event_error(self):
-    organization = test_helpers.create_organization()
-    event_data = {
-        'name': 'Iron Maiden concert',
-        'organization': organization,
+def test_transaction_error(self):
+    transaction_data = {
+        'organization': 'Wayne Industries',
     }
 
-    response = self.create_event(event_data)
+    response = self.create_transaction(transaction_data)
 
     self.assertEqual(response.status_code, HTTP_422)
 ```
 
+Now imagine that it fails. The only information you will receive will probably
+be:
+
+```
+====== FAILURES ======
+test_transaction_error
+```
+
+What does it tell you? That there is an error with transactions. But you already
+know that, since the test failed. The name itself tells you nothing about
+the nature of the problem. So you need to read the code to know what actually
+went wrong. In this case, it is obvious that the tests tries to create
+a transaction and assumes that it's not possible. So, let's change the name
+of the test:
+
 ```python
-def test_create_event_invalid_request(self):
-    organization = test_helpers.create_organization()
-    event_data = {
-        'name': 'Iron Maiden concert',
-        'organization': organization,
+def test_transaction_creation_error(self):
+    transaction_data = {
+        'organization': 'Wayne Industries',
     }
 
-    response = self.create_event(event_data)
+    response = self.create_transaction(transaction_data)
 
     self.assertEqual(response.status_code, HTTP_422)
 ```
 
+Now we know that there is a problem with transaction creation and not, let's
+say, with transaction update or deletion. That's something. But we still don't
+know *what* is wrong with transaction creation. So we keep on digging.
+After thorough examination we discover that response has not only the `status_code`,
+but also some `data`. And that data contains a message, which says:
+*You need to specify an amount of the transaction.*.
+So, in order to improve our test, we can add another assertion:
+
 ```python
-def test_create_event_invalid_request(self):
-    organization = test_helpers.create_organization()
-    event_data = {
-        'name': 'Iron Maiden concert',
-        'organization': organization,
+def test_transaction_creation_error(self):
+    transaction_data = {
+        'organization': 'Wayne Industries',
     }
 
-    response = self.create_event(event_data)
+    response = self.create_transaction(transaction_data)
 
     self.assertEqual(response.status_code, HTTP_422)
     self.assertEqual(
         response.data['message'],
-        'You cannot create an event without a venue.'
+        'You need to specify an amount of the transaction.'
     )
 ```
 
+Now the name of the test becomes more obvious:
+
 ```python
-def test_cannot_create_event_without_venue(self):
-    organization = test_helpers.create_organization()
-    event_data = {
-        'name': 'Iron Maiden concert',
-        'organization': organization,
+def test_cannot_create_transaction_without_amount(self):
+    transaction_data = {
+        'organization': 'Wayne Industries',
     }
 
-    response = self.create_event(event_data)
+    response = self.create_transaction(transaction_data)
 
     self.assertEqual(response.status_code, HTTP_422)
     self.assertEqual(
         response.data['message'],
-        'You cannot create an event without a venue.'
+        'You need to specify an amount of the transaction.'
     )
 ```
+
+Next time the test fails, you will immediately know what went wrong:
+
+```
+================= FAILURES ==================
+test_cannot_create_transaction_without_amount
+```
+
+
 
 ## Multiple assertions
 
