@@ -1,28 +1,27 @@
 Title: Clean code in tests
 Date: 2017-02-16
-Summary: Smart summary
+Summary: Because not only your production code deserves tenderness
 
-I like automated tests. I sleep better at night. I've seen many tests in my life
-and I keep seeing the same mistakes in them. In this post I would like to show
-you the most common ones and help you fix some of them.
+I like automated tests. I sleep better at night knowing that bugs in my projects will
+be immediately detected. I try to keep the code in my tests clean and readable,
+but I have noticed that (sadly) many developers seem to ignore this issue.
 
-
-Why would you care about the quality of code in tests? After all, they are not
+After all, why would you care about the code quality in tests? Tests are not
 production code. You are not going to be paid for keeping them clean.
-Moreover, usually you write the test once and never modify it later (maybe if
-if the requirement change). And you don't really look into the test code
+Moreover, usually you write the test once and never modify it later (unless
+the requirements change). And you don't really look into the test code
 until something breaks, and then you do it only to check what went wrong.
 
 Well, this is not entirely true. Test code is code, and it is (hopefully) the
-only *untested* code in your project. You should keep them clean, just as any
-other code. Also, you need to write tests often. Nothing should keep you from
-doing that, and badly structured code will do just that. Moreover, you need to
+only *untested* code in your project. Therefore you should keep it clean, just as anything
+else you write. Also, you need to add new tests often. Nothing should keep you from
+doing that, and badly structured tests will. Moreover, you need to
 read tests more often than you think. Every time a test fails, you probably
 have to dive into it to know that went wrong. And if the test is unreadable,
-you will waste a lot of time just looking for a reason of a failure.
+you will waste a lot of time just looking for a reason of the failure.
 
-So let's consider a simple banking system where you need to handle transactions,
-accounts and stuff like that.
+So in this post I would like to show you some of the problems you can encounter
+in your tests and suggest how to fix them.
 
 ## Unclear names
 
@@ -310,4 +309,5 @@ github page for more info.
 ## Summary
 
 These were just some examples I have found while working on different projects.
-I hope that this post will help you deal with similar problems in your code.
+I hope that this post will help you with solving similar problems in your code.
+Also, if you encountered a code quality issue that I missed, please let me know.
