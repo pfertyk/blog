@@ -243,82 +243,71 @@ focus on.
 
 ## Confusing times
 
+I have seen many tests that require date or time manipulation. Surprisingly,
+a lot of them is confusing and unclear. Let's take a look:
+
 ```python
-def test_view_tickets_for_past_events(self):
-    event_past = test_helpers.save_event()
-    test_helpers.allocate_ticket(event_past)
-    event_past.start = timezone.now() - timedelta(days=3)
-    event_past.end = timezone.now() - timedelta(days=2)
-    event_past.save()
+def test_view_sellers_for_past_transactions(self):
+    past_transaction = test_helpers.create_transaction()
+    test_helpers.add_seller(past_transaction)
+    # we cannot add a seller for past transaction
+    past_transaction.date = timezone.now() - timedelta(days=3)
+    past_transaction.save()
 
-    event_upcoming = test_helpers.save_event()
-    test_helpers.allocate_ticket(event_upcoming)
+    upcoming_transaction = test_helpers.create_transaction()
+    test_helpers.add_seller(upcoming_transaction)
 
-    response = self.call_api('/tickets/past')
+    response = self.call_api('/sellers/past')
 
     self.assertEqual(len(response.data), 1)
-    self.assertEqual(response.data[0]['event'], event_past)
+    self.assertEqual(
+        response.data[0]['transaction'], past_transaction
+    )
 ```
+
+Some explaination is in order. We want to check if `sellers/past` endpoint
+lists only the sellers associated with past transactions. The problem is, we cannot
+add a seller to a past transaction. So, we create an upcoming transaction
+(`create_transaction`), we add a seller, and we move it to the past manually.
+Then, we create an upcoming transaction, we add a seller and then we can perform
+an actual test.
+
+Quite complicated, isn't it? Now imagine you have to find a reason a test like this
+failed. It always takes me way too much time to figure out what a test like
+this actually does. And this is not even the worst example I have encountered.
+The worst one had a `sleep(1)` inside to make sure that the object we created
+become a past one!
+
+The solution here is simple: use [freezegun](https://github.com/spulec/freezegun).
+It provides an easy way of controlling the time inside your tests:
 
 ```python
 from freezegun import freeze_time
 
-def test_view_tickets_for_past_events(self):
+
+def test_view_sellers_for_past_transactions(self):
     with freeze_time(2000-01-01):
-        event_past = test_helpers.save_event()
-        test_helpers.allocate_ticket(event_past)
+        past_transaction = test_helpers.create_transaction()
+        test_helpers.add_seller(past_transaction)
+
     with freeze_time(3000-01-01):
-        event_upcoming = test_helpers.save_event()
-        test_helpers.allocate_ticket(event_upcoming)
+        upcoming_transaction = test_helpers.create_transaction()
+        test_helpers.add_seller(upcoming_transaction)
+
     with freeze_time(2500-01-01):
-        response = self.call_api('/tickets/past')
+        response = self.call_api('/sellers/past')
 
     self.assertEqual(len(response.data), 1)
-    self.assertEqual(response.data[0]['event'], event_past)
+    self.assertEqual(
+        response.data[0]['transaction'], past_transaction
+    )
 ```
 
-```python
-from freezegun import freeze_time
+Much nicer, isn't it? The freezegun module provides other useful tools,
+that can make date and time manipulation much easier. Check the project's
+github page for more info.
 
-def test_view_tickets_for_past_events(self):
-    with freeze_time(2000):
-        event_past = test_helpers.save_event()
-        test_helpers.allocate_ticket(event_past)
-    with freeze_time(3000):
-        event_upcoming = test_helpers.save_event()
-        test_helpers.allocate_ticket(event_upcoming)
-    with freeze_time(2500):
-        response = self.call_api('/tickets/past')
+## Summary
 
-    self.assertEqual(len(response.data), 1)
-    self.assertEqual(response.data[0]['event'], event_past)
-```
-
-## Unhelpful helpers
-
-```python
-def test_allocating_tickets(self):
-    self._validate_tickets()
-
-def test_allocating_tickets_admin(self):
-    tickets = self._validate_tickets(False)
-    self.assertEqual(tickets, [])
-
-def test_filter_past_tickets(self):
-    self._validate_tickets()
-
-    response = self.call_api('/tickets/past')
-    self.assertEqual(response.status_code, HTTP_200)
-    self.assertEqual(len(response.data), 3)
-```
-
-```python
-def _validate_tickets(self, is_normal_user=True):
-    # login as self.user or self.admin if not is_normal_user
-    # create 2 events (one past, one upcoming)
-    # assert events creation was successful
-    # prepare complicated test data for 6 tickets
-    # call the API to create tickets (3 past, 3 upcoming)
-    # assert tickets creation was successful
-    # return created tickets as a list
-```
+These were just some examples I have found while working on different projects.
+I hope that this post will help you deal with similar problems in your code.
