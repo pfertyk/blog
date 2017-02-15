@@ -117,47 +117,68 @@ test_cannot_create_transaction_without_amount
 
 ## Multiple assertions
 
+Another common mistake is putting multiple tests into one. Let's look at an
+example:
+
 ```python
-def test_list_tickets(self):
-    response = self.get_tickets()
+def test_list_transactions(self):
+    response = self.get_transactions()
     self.assertIn(response.status_code, [HTTP_401, HTTP_403])
     self.login_as(self.user)
-    response = self.get_tickets()
+    response = self.get_transactions()
     self.assertEqual(response.status_code, HTTP_200)
     self.assertEqual(response.data, [])
-    self.allocate_ticket()
-    response = self.get_tickets()
+    self.create_transaction()
+    response = self.get_transactions()
     self.assertEqual(response.status_code, HTTP_200)
     self.assertEqual(len(response.data), 1)
 ```
 
+When this test fails, what exactly went wrong? Was it the authentication process?
+Or was the new transaction not listed? We will not know that until we put
+some breakpoints in the code and spend (or rather waste) some time figuring
+out what went wrong.
+
+Each test should do 3 things:
+* prepare the data
+* execute some action
+* check if the result was as expected
+
+The example actually includes 3 assertions. So let's split it into 3 tests,
+each with a meaningful name:
+
 ```python
-def test_ticket_list_requires_authentication(self):
-    response = self.get_tickets()
+def test_transaction_list_requires_authentication(self):
+    response = self.get_transactions()
 
     self.assertEqual(response.status_code, HTTP_401)
 ```
 
 ```python
-def test_ticket_list_is_initially_empty(self):
+def test_transaction_list_is_initially_empty(self):
     self.login_as(self.user)
 
-    response = self.get_tickets()
+    response = self.get_transactions()
 
     self.assertEqual(response.status_code, HTTP_200)
     self.assertEqual(response.data, [])
 ```
 
 ```python
-def test_ticket_list_contains_allocated_tickets(self):
+def test_new_transactions_are_shown_on_transaction_list(self):
     self.login_as(self.user)
-    self.allocate_ticket()
+    self.create_transaction()
 
-    response = self.get_tickets()
+    response = self.get_transactions()
 
     self.assertEqual(response.status_code, HTTP_200)
     self.assertEqual(len(response.data), 1)
 ```
+
+Each of those tests check just one thing, so if any of them fails, we will know
+where to look for a bug. You might notice that there is a cost: we need to duplicate
+some code (in our case we need to login twice in two different tests). Still,
+it's worth it.
 
 ## Complicated fixtures
 
