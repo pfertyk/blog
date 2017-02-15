@@ -8,16 +8,16 @@ but I have noticed that (sadly) many developers seem to ignore this issue.
 
 After all, why would you care about the code quality in tests? Tests are not
 production code. You are not going to be paid for keeping them clean.
-Moreover, usually you write the test once and never modify it later (unless
-the requirements change). And you don't really look into the test code
+Moreover, usually you write a test once and never modify it later (unless
+the requirements change). And you don't really look into tests
 until something breaks, and then you do it only to check what went wrong.
 
 Well, this is not entirely true. Test code is code, and it is (hopefully) the
-only *untested* code in your project. Therefore you should keep it clean, just as anything
+only *untested* code in your project. Therefore you should keep it clean, just like anything
 else you write. Also, you need to add new tests often. Nothing should keep you from
 doing that, and badly structured tests will. Moreover, you need to
-read tests more often than you think. Every time a test fails, you probably
-have to dive into it to know that went wrong. And if the test is unreadable,
+read tests quite frequently. Every time a test fails, you probably
+have to dive into it to know what went wrong. And if the test is unreadable,
 you will waste a lot of time just looking for a reason of the failure.
 
 So in this post I would like to show you some of the problems you can encounter
@@ -70,7 +70,7 @@ say, with transaction update or deletion. That's something. But we still don't
 know *what* is wrong with transaction creation. So we keep on digging.
 After thorough examination we discover that response has not only the `status_code`,
 but also some `data`. And that data contains a message, which says:
-*You need to specify an amount of the transaction.*.
+*You need to specify the amount*.
 So, in order to improve our test, we can add another assertion:
 
 ```python
@@ -84,7 +84,7 @@ def test_transaction_creation_error(self):
     self.assertEqual(response.status_code, HTTP_422)
     self.assertEqual(
         response.data['message'],
-        'You need to specify an amount of the transaction.'
+        'You need to specify the amount.'
     )
 ```
 
@@ -101,7 +101,7 @@ def test_cannot_create_transaction_without_amount(self):
     self.assertEqual(response.status_code, HTTP_422)
     self.assertEqual(
         response.data['message'],
-        'You need to specify an amount of the transaction.'
+        'You need to specify the amount.'
     )
 ```
 
@@ -112,7 +112,11 @@ Next time the test fails, you will immediately know what went wrong:
 test_cannot_create_transaction_without_amount
 ```
 
-
+Naming things is a very delicate process and it takes a lot time and practice to master it.
+In this example, the name was quite obvious (after a while).
+But in your project it might be way more difficult. Also, if you are working in
+a team, you will need to comply with the style that other developers use
+(for example, you might agree on using shorter but less self-explainatory names).
 
 ## Multiple assertions
 
@@ -135,10 +139,10 @@ def test_list_transactions(self):
 
 When this test fails, what exactly went wrong? Was it the authentication process?
 Or was the new transaction not listed? We will not know that until we put
-some breakpoints in the code and spend (or rather waste) some time figuring
-out what went wrong.
+some breakpoints in the code and spend (or rather waste) some time figuring it
+out.
 
-Each test should do 3 things:
+Every test should do 3 things:
 
 * prepare the data
 * execute some action
@@ -174,7 +178,7 @@ def test_new_transactions_are_shown_on_transaction_list(self):
 Each of those tests check just one thing, so if any of them fails, we will know
 where to look for a bug. You might notice that there is a cost: we need to duplicate
 some code (in our case we need to login twice in two different tests). Still,
-it's worth it.
+it's better than having one huge test that check many things at once.
 
 ## Complicated fixtures
 
@@ -187,7 +191,7 @@ def test_sell_same_stock_twice_in_one_transaction(self):
         name='Frank', surname='Sinatra', age='33'
     )
     stocks = [
-        Stock(stock_id=35, no_of_shares=45, comment='First item'),
+        Stock(stock_id=35, no_of_shares=45, comment='First'),
         Stock(stock_id=35, no_of_shares=34, comment='Second'),
     ]
 
@@ -209,7 +213,7 @@ age are not important. So, let's simplify the test:
 def test_sell_same_stock_twice_in_one_transaction(self):
     seller = test_helpers.create_seller()
     stocks = [
-        Stock(stock_id=35, no_of_shares=45, comment='First item'),
+        Stock(stock_id=35, no_of_shares=45, comment='First'),
         Stock(stock_id=35, no_of_shares=34, comment='Second'),
     ]
 
@@ -218,14 +222,14 @@ def test_sell_same_stock_twice_in_one_transaction(self):
     self.assertEqual(response.status_code, HTTP_422)
 ```
 
-Now we will use a seller created with whatever default date the `create_seller`
-method has. And it should not bother us at all, since it's not the seller we are
+Now we will use a seller created with whatever default data the `create_seller`
+method provides. And it should not bother us at all, since it's not the seller we are
 testing here, it's stock.
 
 But stock creation also looks complicated. What do we need the comment for? Probably nothing.
 Do we really need to specify the number of shares? Probably no.
 The important part is the `stock_id`, and it should be the simplest one possible
-(not 35, but 1). So let's leave just that:
+(not 35, but 1). So let's fix that too:
 
 ```python
 def test_sell_same_stock_twice_in_one_transaction(self):
@@ -304,7 +308,7 @@ def test_view_sellers_for_past_transactions(self):
 
 Much nicer, isn't it? The freezegun module provides other useful tools,
 that can make date and time manipulation much easier. Check the project's
-github page for more info.
+GitHub page for more info.
 
 ## Summary
 
