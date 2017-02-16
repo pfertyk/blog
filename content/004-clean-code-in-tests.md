@@ -50,7 +50,7 @@ test_transaction_error
 What does it tell you? That there is an error with transactions. But you already
 know that, since the test failed. The name itself tells you nothing about
 the nature of the problem. So you need to read the code to know what actually
-went wrong. In this case, it is obvious that the tests tries to create
+went wrong. In this case, it is obvious that the test tries to create
 a transaction and assumes that it's not possible. So, let's change the name
 of the test:
 
@@ -68,7 +68,7 @@ def test_transaction_creation_error(self):
 Now we know that there is a problem with transaction creation and not, let's
 say, with transaction update or deletion. That's something. But we still don't
 know *what* is wrong with transaction creation. So we keep on digging.
-After thorough examination we discover that response has not only the `status_code`,
+After a thorough examination we discover that response has not only the `status_code`,
 but also some `data`. And that data contains a message, which says:
 *You need to specify the amount*.
 So, in order to improve our test, we can add another assertion:
@@ -137,7 +137,7 @@ def test_list_transactions(self):
     self.assertEqual(len(response.data), 1)
 ```
 
-When this test fails, what exactly went wrong? Was it the authentication process?
+If this test fails, do we know that exactly went wrong? Was it the authentication process?
 Or was the new transaction not listed? We will not know that until we put
 some breakpoints in the code and spend (or rather waste) some time figuring it
 out.
@@ -148,8 +148,8 @@ Every test should do 3 things:
 * execute some action
 * check if the result was as expected
 
-The example actually includes 3 assertions. So let's split it into 3 tests,
-each with a meaningful name:
+Out example actually includes 3 assertions, and therefore it checks 3 things.
+So let's split it into 3 tests, each with a meaningful name:
 
 ```python
 def test_transaction_list_requires_authentication(self):
@@ -175,10 +175,10 @@ def test_new_transactions_are_shown_on_transaction_list(self):
     self.assertEqual(len(response.data), 1)
 ```
 
-Each of those tests check just one thing, so if any of them fails, we will know
+Each of those tests checks just one thing, so if any of them fails, we will know
 where to look for a bug. You might notice that there is a cost: we need to duplicate
 some code (in our case we need to login twice in two different tests). Still,
-it's better than having one huge test that check many things at once.
+it's better than having one huge test that checks many things at once.
 
 ## Complicated fixtures
 
@@ -201,7 +201,7 @@ def test_sell_same_stock_twice_in_one_transaction(self):
 ```
 
 At first it doesn't look that bad. It checks only one thing and it has a meaningful
-name. But let's say you have to read it and maybe change it (because the requirements
+name. But let's say you have to read it and maybe modify it (because the requirements
 have changed). Which part of this test code is important and which is not? Will you know
 it at first glance?
 
@@ -224,11 +224,11 @@ def test_sell_same_stock_twice_in_one_transaction(self):
 
 Now we will use a seller created with whatever default data the `create_seller`
 method provides. And it should not bother us at all, since it's not the seller we are
-testing here, it's stock.
+testing here, it's stocks.
 
 But stock creation also looks complicated. What do we need the comment for? Probably nothing.
-Do we really need to specify the number of shares? Probably no.
-The important part is the `stock_id`, and it should be the simplest one possible
+Do we really need to specify the number of shares? Probably not.
+The important part is the `stock_id`, and it should have the simplest possible value
 (not 35, but 1). So let's fix that too:
 
 ```python
@@ -253,7 +253,7 @@ a lot of them is confusing and unclear. Let's take a look:
 def test_view_sellers_for_past_transactions(self):
     past_transaction = test_helpers.create_transaction()
     test_helpers.add_seller(past_transaction)
-    # we cannot add a seller for past transaction
+    # we cannot add sellers for past transactions
     past_transaction.date = timezone.now() - timedelta(days=3)
     past_transaction.save()
 
@@ -275,11 +275,11 @@ add a seller to a past transaction. So, we create an upcoming transaction
 Then, we create an upcoming transaction, we add a seller and then we can perform
 an actual test.
 
-Quite complicated, isn't it? Now imagine you have to find a reason a test like this
-failed. It always takes me way too much time to figure out what a test like
+Quite complicated, isn't it? Now imagine you have to find a reason why this test has failed.
+It always takes me way too much time to figure out what a test like
 this actually does. And this is not even the worst example I have encountered.
 The worst one had a `sleep(1)` inside to make sure that the object we created
-become a past one!
+was a past one!
 
 The solution here is simple: use [freezegun](https://github.com/spulec/freezegun).
 It provides an easy way of controlling the time inside your tests:
@@ -289,15 +289,15 @@ from freezegun import freeze_time
 
 
 def test_view_sellers_for_past_transactions(self):
-    with freeze_time(2000-01-01):
+    with freeze_time('2000-01-01'):
         past_transaction = test_helpers.create_transaction()
         test_helpers.add_seller(past_transaction)
 
-    with freeze_time(3000-01-01):
+    with freeze_time('3000-01-01'):
         upcoming_transaction = test_helpers.create_transaction()
         test_helpers.add_seller(upcoming_transaction)
 
-    with freeze_time(2500-01-01):
+    with freeze_time('2500-01-01'):
         response = self.call_api('/sellers/past')
 
     self.assertEqual(len(response.data), 1)
