@@ -5,7 +5,7 @@
   {% for article in articles %}
   <div class="article-preview">
     <h2 class="article-title">
-      <a class="title" href="{{ article.url }}">{{ article.title }}</a>
+      <a class="title" href="{{ SITEURL }}{{ article.url }}">{{ article.title }}</a>
     </h2>
     <div class="date-posted">{{ article.date|strftime('%Y-%m-%d') }}</div>
     <div class="summary">{{ article.summary }}</div>
