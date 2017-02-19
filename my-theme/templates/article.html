@@ -7,7 +7,11 @@
 <h2 class="article-title">
   {{ article.title }}
 </h2>
-<div class="date-posted">{{ article.date|strftime('%Y-%m-%d') }}</div>
+<div class="date-posted">{{ article.date|strftime('%Y-%m-%d') }}
+{% for tag in article.tags %}
+<a href="{{ SITEURL }}{{ tag.url }}">{{ tag.name }}</a>
+{% endfor %}
+</div>
 {{ article.content }}
 {% if TWITTER_USERNAME %}
 <div class="share-twitter">

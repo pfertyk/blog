@@ -62,6 +62,12 @@ nav ul li {
   font-style: italic;
   color: #888;
 }
+.date-posted a {
+  background-color: #ccc;
+  color: #fff;
+  padding: 0 0.2rem;
+  border-radius: 0.3rem;
+}
 .share-twitter {
   text-align: center;
   margin-top: 4rem;
