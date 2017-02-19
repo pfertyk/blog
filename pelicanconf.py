@@ -33,6 +33,8 @@ TAG_SAVE_AS = 'tag/{slug}/index.html'
 
 FEED_ALL_RSS = 'feeds/all.rss.xml'
 FEED_ATOM = None
+TAG_FEED_ATOM = 'feeds/%s.atom.xml'
+TAG_FEED_RSS = 'feeds/%s.rss.xml'
 TRANSLATION_FEED_ATOM = None
 CATEGORY_FEED_ATOM = None
 
