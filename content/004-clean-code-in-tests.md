@@ -1,6 +1,7 @@
 Title: Clean code in tests
 Date: 2017-02-16
 Summary: Because not only your production code deserves tenderness
+Tags: python, tests
 
 I like automated tests. I sleep better at night knowing that bugs in my projects will
 be immediately detected. I try to keep the code in my tests clean and readable,

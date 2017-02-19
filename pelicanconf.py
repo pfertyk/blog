@@ -26,8 +26,10 @@ ARTICLE_SAVE_AS = '{date:%Y}/{date:%m}/{slug}/index.html'
 CATEGORY_SAVE_AS = ''
 CATEGORIES_SAVE_AS = ''
 AUTHORS_SAVE_AS = ''
-TAGS_SAVE_AS = ''
-TAG_SAVE_AS = ''
+TAGS_URL = 'tags/'
+TAGS_SAVE_AS = 'tags/index.html'
+TAG_URL = 'tag/{slug}/'
+TAG_SAVE_AS = 'tag/{slug}/index.html'
 
 FEED_ALL_RSS = 'feeds/all.rss.xml'
 FEED_ATOM = None

@@ -1,6 +1,7 @@
 Title: Automatically respond to Slack messages containing specific text
 Date: 2016-11-01
 Summary: Yeah, that would be great
+Tags: bot, python, slack
 
 Recently I tried to create a Slack bot. It's job was to read messages and, if *'that would be great'* was detected in the content, respond to the message with a picture of Bill Lumbergh from *Office Space* (yeah, I'm a funny guy). But I found out that the learning resources are somewhat scattered around the Internet. It was difficult for a person not familiar with Slack API and with bots in general to quickly create nothing more than a simple bot. I finally put together the information from different sources and decided to describe the process here.
 

@@ -1,6 +1,7 @@
 Title: Detect PEP-8 violations on pull requests
 Date: 2016-10-14
 Summary: Your own automatic GitHub linter
+Tags: bot, heroku, python
 
 I like the Zen of Python. *There should be one - and preferably only one - obvious way to do it* reflects perfectly my philosophy of life. That is why I also like PEP-8: it solves the problem of different coding conventions across many teams. Sure, you have to sacrifice a bit of your freedom as a developer, and sometimes it is difficult to keep the line under 79 characters, but still I think it is worth it in the long run.
 

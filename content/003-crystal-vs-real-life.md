@@ -1,6 +1,7 @@
 Title: Crystal in real life
 Date: 2016-11-28
 Summary: Float like a Ruby, sting like a C?
+Tags: crystal
 
 At Polyconf 2016 I attended a workshop (organized by Aleksander Kwiatkowski and Serdar Dogruyol) about Crystal.
 It is a relatively young programming language that's supposed to have both high-level

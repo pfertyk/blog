@@ -1,6 +1,7 @@
 Title: Run ESlint on each pull request
 Date: 2016-11-08
 Summary: Because, sooner or later, you will have to use JavaScript
+Tags: bot, heroku, javascript
 
 In one of my [previous posts](http://pfertyk.me/2016/10/detect-pep-8-violations-on-pull-requests/)
 I described how to automatically check for PEP-8 violations on pull requests.
