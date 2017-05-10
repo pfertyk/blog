@@ -10,11 +10,11 @@ And no matter how hard I tried, I couldn't bring it back.
 Of course I make backups, but this time I was few weeks behind and I had
 some important files that were not copied to my external drive.
 Normally I would just use a Live USB stick to access the hard drive,
-recover my data and install a fresh Xubuntu distro.
+recover my data and install a fresh Xubuntu on my PC.
 
 The problem was that I encrypted my home directory. To decrypt it, I needed
 a password (which, as I mentioned, was gone). Hopefully I recalled that
-during the encryption process a passphrase was generated, and I was informed
+during the encryption process a mount passphrase was generated, and I was informed
 that I should keep it in case I forget the password. So, I could just use this
 passphrase to get my precious data and the problem was solved.
 
@@ -63,12 +63,12 @@ Or so I thought. The content of the mounted directory looked like this:
 ![Encrypted filenames]({filename}/images/ecryptfs-encrypted-filenames.png)
 
 The files might have been available for me now, but they were rather useless
-without the original names. So I had to find a better solution.
+without the original names. So I had to find something better.
 
 ## Approach #2: `mount -t ecryptfs` (good enough)
 
-Another ABC was to mount the encrypted folder. To do this, I first had to add
-the filename encryption key (fnek) to the keyring:
+Another solution was to mount the encrypted folder. To do this, I first had to add
+the filename encryption key (fnek) to the keyring (using the mount passphrase):
 
 ```text
 xubuntu@xubuntu:~$ sudo ecryptfs-add-passphrase --fnek
@@ -77,7 +77,7 @@ Inserted auth tok with sig [9b15cb67b475a9e1] into the user session keyring
 Inserted auth tok with sig [d06fa6176f780bdb] into the user session keyring
 ```
 
-The important key signature here is `d06fa6176f780bdb`.
+The important key signature here is the second one (`d06fa6176f780bdb`).
 
 Next I could mount my home folder:
 
