@@ -1,4 +1,4 @@
-Title: Recovering encrypted home folder in Ubuntu
+Title: Recovering encrypted home directory in Ubuntu
 Date: 2017-05-10
 Summary: When you forgot your password, but still have the mount passphrase
 Tags: linux, ecryptfs
