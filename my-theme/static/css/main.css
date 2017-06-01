@@ -108,6 +108,7 @@ nav ul li {
   margin: 1rem auto;
   background-image: url(../images/pfertyk.jpg);
   background-position: center;
+  background-size: 16rem;
 }
 .about .description {
   margin-top: 4rem;
