@@ -7,7 +7,7 @@ An embarrassing thing happened to me lately: I forgot the password to my PC.
 The connection between my neurons responsible for keeping it suddenly disappeared.
 And no matter how hard I tried, I couldn't bring it back.
 
-Of course I make backups, but this time I skipped oneoand I had
+Of course I make backups, but this time I skipped one and I had
 some important files that were not copied to my external drive.
 Normally I would just use a Live USB stick to access the hard drive,
 recover my data and install a fresh Xubuntu on my PC.
