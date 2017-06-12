@@ -1,4 +1,4 @@
-Title: Getting Mars images from NASA using aiohttp
+Title: Getting Mars photos from NASA using aiohttp
 Date: 2017-06-12
 Summary: One small step for coders, one big step for *The Martian* fans
 Tags: python, aiohttp, nasa
