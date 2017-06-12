@@ -1,6 +1,6 @@
 Title: Getting Mars images from NASA using aiohttp
-Date: 2017-06-11
-Summary: Small step for coders, big step for *The Martian* fans
+Date: 2017-06-12
+Summary: One small step for coders, one big step for *The Martian* fans
 Tags: python, aiohttp, nasa
 
 I am a huge fan of the book *The Martian* by Andy Weir. Recently, thanks to
@@ -9,16 +9,21 @@ I found out that NASA has a public API for accessing photos taken from Mars rove
 
 ## Creating aiohttp application
 
+Let's start with a simple application, to get aiohttp up and running. First,
+create a new virtualenv. It is recommended to use Python 3.5, since we will
+be using new `async def` and `await` syntax. If you want to develop this project
+further and take advantage of asynchronous comprehensions, you can use Python 3.6
+(I did). Next, install aiohttp:
 ```bash
 pip install aiohttp
 ```
-
+Now you can create `nasa.py` file:
 ```python
 from aiohttp import web
 
 
 async def get_mars_photo(request):
-    return web.Response(text='Here is a Mars picture for you!')
+    return web.Response(text='A photo of Mars')
 
 
 app = web.Application()
@@ -27,23 +32,33 @@ app.router.add_get('/', get_mars_photo, name='mars_photo')
 
 ### Running the application
 
+To run your application you can add this line at the end of your file:
 ```python
 web.run_app(app, host='127.0.0.1', port=8080)
 ```
-
+And then run it like any other Python script:
 ```bash
 python main.py
 ```
+However, there is a better way. Among numerous third-party libraries
+you will find [aiohttp-devtools](https://github.com/aio-libs/aiohttp-devtools).
+It provides a nice `runserver` command that detects your app automatically
+and supports live reloading:
 
 ```bash
 pip install aiohttp-devtools
-```
-
-```bash
 adev runserver -p 8080 nasa.py
 ```
 
-## Getting the Mars image
+Now, if you visit `localhost:8080`, you should see the text response saying: *A photo of Mars*.
+
+## Using NASA Open API
+Of course, this is not the end. If you are a keen observer, you have noticed that
+the code is not returning an actual image, but rather some text. Let's fix that.
+
+[here](https://api.nasa.gov/api.html#MarsPhotos)
+
+
 
 ```python
 import random
@@ -80,9 +95,9 @@ async def get_mars_photo(request):
 
 ### Getting NASA API key
 
+
 [here](https://api.nasa.gov/index.html#apply-for-an-api-key)
 
-[here](https://api.nasa.gov/api.html#MarsPhotos)
 
 ## Validating an image
 
@@ -128,6 +143,7 @@ async def validate_image(image_bytes):
 
 ![Rover's selfie]({filename}/images/nasa-aiohttp-selfie.jpg)
 
+## Summary
 
 ```python
 import random
