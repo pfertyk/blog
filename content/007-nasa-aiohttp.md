@@ -74,12 +74,21 @@ adev runserver -p 8080 nasa.py
 Now, if you visit `localhost:8080`, you should see the text response saying: *A photo of Mars*.
 
 ## Using NASA Open API
+
 Of course, this is not the end. If you are a keen observer, you have noticed that
-the code is not returning an actual image, but rather some text. Let's fix that.
+we are not returning an actual image, but rather some text. Let's fix that.
 
-[here](https://api.nasa.gov/api.html#MarsPhotos)
+To get photos from Mars, we will use [NASA API](https://api.nasa.gov/api.html#MarsPhotos). Each rover has its own URL (for Curiosity it's *https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos*). You have to provide at least 2 params for each call:
 
+* `sol`: the Martian rotation or day on which a photo was taken, counting up
+from the rover's landing date (the maximum value can be found in
+*rover/max_sol* part of the response)
+* `API_KEY`: API key provided by NASA (you can use the default one: *DEMO_KEY*)
 
+In return you will get the list of photos, each with a URL, camera info and rover
+manifest.
+
+Modify the `nasa.py` file to look like this:
 
 ```python
 import random
@@ -93,7 +102,7 @@ ROVER_URL = 'https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos'
 
 async def get_mars_image_url_from_nasa():
     while True:
-        sol = random.randint(0, 1700)
+        sol = random.randint(0, 1722)
         params = {'sol': sol, 'api_key': NASA_API_KEY}
         async with ClientSession() as session:
             async with session.get(ROVER_URL, params=params) as resp:
@@ -111,14 +120,23 @@ async def get_mars_photo(request):
     return HTTPFound(url)
 ```
 
+Here is what's going on:
+
+* we select a random sol (for Curiosity the max_sol value is 1722 at the moment
+of writing this post)
+* `ClientSession` creates a session that we can use to get the response
+from NASA API
+* we check if the 'photos' key is present in the response; if not, we have
+reached the limit of hourly calls and we need to wait a bit
+* if there are no photos taken on given day, we check again, for a different
+random sol
+* we then use `HTTPFound` response to redirect to the photo we found
 
 ![A rather uninspiring photo]({filename}/images/nasa-aiohttp-not-inspiring.jpg)
 
 ### Getting NASA API key
 
-
 [here](https://api.nasa.gov/index.html#apply-for-an-api-key)
-
 
 ## Validating an image
 
@@ -185,7 +203,7 @@ async def validate_image(image_bytes):
 
 async def get_mars_image_url_from_nasa():
     while True:
-        sol = random.randint(0, 1700)
+        sol = random.randint(0, 1722)
         params = {'sol': sol, 'api_key': NASA_API_KEY}
         async with ClientSession() as session:
             async with session.get(ROVER_URL, params=params) as resp:
