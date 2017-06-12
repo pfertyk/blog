@@ -3,9 +3,12 @@ Date: 2017-06-12
 Summary: One small step for coders, one big step for *The Martian* fans
 Tags: python, aiohttp, nasa
 
-I am a huge fan of the book *The Martian* by Andy Weir. Recently, thanks to
-[this article](https://www.twilio.com/blog/2017/04/texting-robots-on-mars-using-python-flask-nasa-apis-and-twilio-mms.html)
-I found out that NASA has a public API for accessing photos taken from Mars rovers.
+I am a huge fan of the book *The Martian* by Andy Weir.
+Reading it I wondered how did Mark Watney feel when he walked around the Red Planet.
+Recently, thanks to
+[this Twilio blog post](https://www.twilio.com/blog/2017/04/texting-robots-on-mars-using-python-flask-nasa-apis-and-twilio-mms.html)
+I found out that NASA has a public API for accessing photos taken by Mars rovers. However, not being a huge fan of MMS,
+I decided to write my own application to get the inspiring images delivered straight to my browser.
 
 ## Creating aiohttp application
 
@@ -19,7 +22,7 @@ further and take advantage of asynchronous comprehensions, you can use Python 3.
 pip install aiohttp
 ```
 
-Now you can create a source file (call it `nasa.py` ) and put some code inside:
+Now create a source file (call it `nasa.py` ) and put some code inside:
 
 ```python
 from aiohttp import web
@@ -71,21 +74,21 @@ pip install aiohttp-devtools
 adev runserver -p 8080 nasa.py
 ```
 
-Now, if you visit `localhost:8080`, you should see the text response saying: *A photo of Mars*.
+Now, if you visit [localhost:8080](localhost:8080), you should see *A photo of Mars* text in your browser.
 
 ## Using NASA Open API
 
-Of course, this is not the end. If you are a keen observer, you have noticed that
-we are not returning an actual image, but rather some text. Let's fix that.
+Of course, this is not the end. If you are a keen observer, you noticed that
+we are not getting an actual image, but rather some text. Let's fix that.
 
-To get photos from Mars, we will use [NASA API](https://api.nasa.gov/api.html#MarsPhotos). Each rover has its own URL (for Curiosity it's *https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos*). You have to provide at least 2 params for each call:
+To get photos from Mars, we will use [NASA API](https://api.nasa.gov/api.html#MarsPhotos). Each rover has its own URL (for Curiosity it's `https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos`). We have to provide at least 2 params for each call:
 
 * `sol`: the Martian rotation or day on which a photo was taken, counting up
 from the rover's landing date (the maximum value can be found in
 *rover/max_sol* part of the response)
-* `API_KEY`: API key provided by NASA (you can use the default one: *DEMO_KEY*)
+* `API_KEY`: API key provided by NASA (you can use the default one: `DEMO_KEY`)
 
-In return you will get the list of photos, each with a URL, camera info and rover
+In return we will get the list of photos, each with a URL, camera info and rover
 manifest.
 
 Modify the `nasa.py` file to look like this:
@@ -122,7 +125,7 @@ async def get_mars_photo(request):
 
 Here is what's going on:
 
-* we select a random sol (for Curiosity the max_sol value is 1722 at the moment
+* we select a random sol (for Curiosity the `max_sol` value is 1722 at the moment
 of writing this post)
 * `ClientSession` creates a session that we can use to get the response
 from NASA API
@@ -135,12 +138,12 @@ random sol
 
 ### Getting NASA API key
 
-The default 'DEMO_KEY' provided by NASA works, but you will soon reach the
+The default `DEMO_KEY` provided by NASA works fine, but you will soon reach the
 limit of hourly API calls. I recommend you to get your own API key. You can do
-it [here](https://api.nasa.gov/index.html#apply-for-an-api-key), and the procedure
-is very simple and fast.
+it [here](https://api.nasa.gov/index.html#apply-for-an-api-key)
+(the sign up process is very simple and fast).
 
-Now when you visit `localhost:8080`, you will be redirected to a pretty image
+Now when you run the application, you will be redirected to a pretty image
 straight from Mars:
 
 ![A rather uninspiring photo]({filename}/images/nasa-aiohttp-not-inspiring.jpg)
@@ -151,7 +154,7 @@ Well, that's not exactly what I meant ...
 
 The image you just saw is not very inspiring. It turns out that rovers take
 a lot of really boring photos. I wanted to see what Mark Watney saw on his
-incredible journey, and this is just not good enough. Lets' find a way to fix
+incredible journey, and this is just not good enough. Let's find a way to fix
 that.
 
 We will need some sort of validation for our images. Without specifying the
@@ -179,12 +182,12 @@ Some new things happened here:
 * we get the URL using the previously defined method and read the raw bytes from
 the image using `resp.read()`
 * we check if our image is good enough; if not, we keep looking
-* once we have a satisfying image we put it in the response (notice we still
-use the same `web.Response` class as before, but this time we put the `body`
+* once we have a satisfying photo we put it in the response (notice we still
+use the same `web.Response` as before, but this time we specify the `body`
 instead of `text`)
 
-Note that in this code we have removed the redirection (`HTTPFound`),
-so now we can easily refresh the page to get another photo.
+Note: in this code we have removed the redirection (`HTTPFound`),
+so now we can easily refresh the page to get another image.
 
 Now we need to figure out how to validate the photos.
 One thing we can do rather easily is to check if the image is big enough.
@@ -283,7 +286,7 @@ app.router.add_get('/', get_mars_photo, name='mars_photo')
 
 There are many things we could improve (like getting `max_sol` value from
 the API, passing the rover's name, caching the URLs) but for now it does the job
-done: we can get a random, but still inspiring photo of Mars and feel like we
+done: we can get a random, inspiring photo of Mars and feel like we
 are actually there.
 
 I hope you liked this short tutorial. If you spot a mistake or have any questions,
