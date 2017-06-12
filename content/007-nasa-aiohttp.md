@@ -126,19 +126,36 @@ Here is what's going on:
 of writing this post)
 * `ClientSession` creates a session that we can use to get the response
 from NASA API
+* we obtain the returned JSON using `resp.json()`
 * we check if the 'photos' key is present in the response; if not, we have
 reached the limit of hourly calls and we need to wait a bit
 * if there are no photos taken on given day, we check again, for a different
 random sol
 * we then use `HTTPFound` response to redirect to the photo we found
 
-![A rather uninspiring photo]({filename}/images/nasa-aiohttp-not-inspiring.jpg)
-
 ### Getting NASA API key
 
-[here](https://api.nasa.gov/index.html#apply-for-an-api-key)
+The default 'DEMO_KEY' provided by NASA works, but you will soon reach the
+limit of hourly API calls. I recommend you to get your own API key. You can do
+it [here](https://api.nasa.gov/index.html#apply-for-an-api-key), and the procedure
+is very simple and fast.
+
+Now when you visit `localhost:8080`, you will be redirected to a pretty image
+straight from Mars:
+
+![A rather uninspiring photo]({filename}/images/nasa-aiohttp-not-inspiring.jpg)
+
+Well, that's not exactly what I meant ...
 
 ## Validating an image
+
+The image you just saw is not very inspiring. It turns out that rovers take
+a lot of really boring photos. I wanted to see what Mark Watney saw on his
+incredible journey, and this is just not good enough. Lets' find a way to fix
+that.
+
+We will need some sort of validation for our images. Without specifying the
+criteria yet, we can modify our code:
 
 ```python
 async def get_mars_photo_bytes():
@@ -157,9 +174,28 @@ async def get_mars_photo(request):
     return web.Response(body=image, content_type='image/jpeg')
 ```
 
+Some new things happened here:
+
+* we get the URL using the previously defined method and read the raw bytes from
+the image using `resp.read()`
+* we check if our image is good enough; if not, we keep looking
+* once we have a satisfying image we put it in the response (notice we still
+use the same `web.Response` class as before, but this time we put the `body`
+instead of `text`)
+
+Note that in this code we have removed the redirection (`HTTPFound`),
+so now we can easily refresh the page to get another photo.
+
+Now we need to figure out how to validate the photos.
+One thing we can do rather easily is to check if the image is big enough.
+It's not a perfect validation, but it should do for now. To process images,
+we will need Pillow (PIL fork):
+
 ```bash
 pip install pillow
 ```
+
+Our validation function could look like this:
 
 ```python
 import io
@@ -170,7 +206,10 @@ async def validate_image(image_bytes):
     image = Image.open(io.BytesIO(image_bytes))
     return image.width >= 1024 and image.height >= 1024
 ```
+
 ![Mars in shades of gray]({filename}/images/nasa-aiohttp-landscape-grayscale.jpg)
+
+Now that's more like it! We can go one step further and reject grayscale images:
 
 ```python
 async def validate_image(image_bytes):
@@ -178,11 +217,17 @@ async def validate_image(image_bytes):
     return image.width >= 1024 and image.height >= 1024 and image.mode != 'L'
 ```
 
+Now our program starts returning much more inspiring photos:
+
 ![Cool landscape]({filename}/images/nasa-aiohttp-landscape-rgb.jpg)
+
+And, occasionally, a robot selfie:
 
 ![Rover's selfie]({filename}/images/nasa-aiohttp-selfie.jpg)
 
 ## Summary
+
+Our program should now look like this:
 
 ```python
 import random
@@ -235,3 +280,11 @@ async def get_mars_photo(request):
 app = web.Application()
 app.router.add_get('/', get_mars_photo, name='mars_photo')
 ```
+
+There are many things we could improve (like getting `max_sol` value from
+the API, passing the rover's name, caching the URLs) but for now it does the job
+done: we can get a random, but still inspiring photo of Mars and feel like we
+are actually there.
+
+I hope you liked this short tutorial. If you spot a mistake or have any questions,
+please let me know.
