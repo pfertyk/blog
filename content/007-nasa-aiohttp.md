@@ -9,15 +9,18 @@ I found out that NASA has a public API for accessing photos taken from Mars rove
 
 ## Creating aiohttp application
 
-Let's start with a simple application, to get aiohttp up and running. First,
+Let's start with a simple application, just to get aiohttp up and running. First,
 create a new virtualenv. It is recommended to use Python 3.5, since we will
 be using new `async def` and `await` syntax. If you want to develop this project
 further and take advantage of asynchronous comprehensions, you can use Python 3.6
 (I did). Next, install aiohttp:
+
 ```bash
 pip install aiohttp
 ```
-Now you can create `nasa.py` file:
+
+Now you can create a source file (call it `nasa.py` ) and put some code inside:
+
 ```python
 from aiohttp import web
 
@@ -30,17 +33,35 @@ app = web.Application()
 app.router.add_get('/', get_mars_photo, name='mars_photo')
 ```
 
+If you are new to aiohttp some things might need explaining:
+
+* `get_mars_photo` coroutine is a request handler; it takes a HTTP request as its
+only argument and is responsible for returning a HTTP response (or raising an
+exception)
+* `app` is a high level server; it supports routers, middleware and signals
+(for this program we are only going to use the router)
+* `app.router.add_get` registers a request handler on HTTP GET method and
+'/' path
+
+Note: request handlers don't have to be coroutines, they can be regular
+functions. But we are going to use the power of asyncio, so most functions
+in this programs are going to be defined with `async def`.
+
 ### Running the application
 
 To run your application you can add this line at the end of your file:
+
 ```python
 web.run_app(app, host='127.0.0.1', port=8080)
 ```
+
 And then run it like any other Python script:
+
 ```bash
 python main.py
 ```
-However, there is a better way. Among numerous third-party libraries
+
+However, there is a better way. Among many third-party libraries
 you will find [aiohttp-devtools](https://github.com/aio-libs/aiohttp-devtools).
 It provides a nice `runserver` command that detects your app automatically
 and supports live reloading:
