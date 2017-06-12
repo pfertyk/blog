@@ -48,7 +48,7 @@ exception)
 
 Note: request handlers don't have to be coroutines, they can be regular
 functions. But we are going to use the power of asyncio, so most functions
-in this programs are going to be defined with `async def`.
+in our program are going to be defined with `async def`.
 
 ### Running the application
 
@@ -61,7 +61,7 @@ web.run_app(app, host='127.0.0.1', port=8080)
 And then run it like any other Python script:
 
 ```bash
-python main.py
+python nasa.py
 ```
 
 However, there is a better way. Among many third-party libraries
@@ -76,7 +76,7 @@ adev runserver -p 8080 nasa.py
 
 Now, if you visit [localhost:8080](localhost:8080), you should see *A photo of Mars* text in your browser.
 
-## Using NASA Open API
+## Using NASA API
 
 Of course, this is not the end. If you are a keen observer, you noticed that
 we are not getting an actual image, but rather some text. Let's fix that.
@@ -85,10 +85,10 @@ To get photos from Mars, we will use [NASA API](https://api.nasa.gov/api.html#Ma
 
 * `sol`: the Martian rotation or day on which a photo was taken, counting up
 from the rover's landing date (the maximum value can be found in
-*rover/max_sol* part of the response)
+`rover/max_sol` part of the response)
 * `API_KEY`: API key provided by NASA (you can use the default one: `DEMO_KEY`)
 
-In return we will get the list of photos, each with a URL, camera info and rover
+In return we will get a list of photos, each with a URL, camera info and rover
 manifest.
 
 Modify the `nasa.py` file to look like this:
@@ -129,7 +129,7 @@ Here is what's going on:
 of writing this post)
 * `ClientSession` creates a session that we can use to get the response
 from NASA API
-* we obtain the returned JSON using `resp.json()`
+* we obtain the JSON response using `resp.json()`
 * we check if the 'photos' key is present in the response; if not, we have
 reached the limit of hourly calls and we need to wait a bit
 * if there are no photos taken on given day, we check again, for a different
@@ -179,14 +179,14 @@ async def get_mars_photo(request):
 
 Some new things happened here:
 
-* we get the URL using the previously defined method and read the raw bytes from
+* we get the URL using the previously defined function and we read the raw bytes from
 the image using `resp.read()`
 * we check if our image is good enough; if not, we keep looking
 * once we have a satisfying photo we put it in the response (notice we still
 use the same `web.Response` as before, but this time we specify the `body`
-instead of `text`)
+instead of `text` and we define the `content_type`)
 
-Note: in this code we have removed the redirection (`HTTPFound`),
+Note: in this code we removed the redirection (`HTTPFound`),
 so now we can easily refresh the page to get another image.
 
 Now we need to figure out how to validate the photos.
