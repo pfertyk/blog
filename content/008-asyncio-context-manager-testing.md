@@ -5,13 +5,12 @@ Tags: python, asyncio, aiohttp, tests
 
 Recently I wrote a small aiohttp application that calls NASA API to get
 photos from Mars (you can read about it [here](http://pfertyk.me/2017/06/getting-mars-photos-from-nasa-using-aiohttp/)).
-After initial prototyping, I started writing tests for it. It turned out to
-be much more difficult than I could imagine. I wrote this post to help you
-if you are having similar problems.
+Every good application needs tests, but in this case a process of writing one
+turned out to be much more difficult than I imagined. HELLO
 
 ## Code under test
 
-This is a simplified version of the code from Mars photos application:
+This is a simplified version of the code from my NASA API application:
 
 ```python
 import random
@@ -29,7 +28,7 @@ async def get_random_photo_url():
         return random.choice(photos)['img_src']
 ```
 
-The coroutine calls the 'random.photos' API and gets JSON response in return.
+The coroutine calls the `random.photos` API and gets a JSON response in return.
 In that response, there is a 'photos' key with a list of images.
 The problem is, since the API returns random photos, sometimes there are no photos (the list is there, but it's
 empty). In that case we keep calling the API until we get any images and return a URL of a random one.
@@ -38,7 +37,7 @@ Note: the original program required a param that specified a day on which
 the photo was taken, and subsequent API calls used random values of
 this param and thus returned different lists of photos. The code was
 simplified for the purpose of this post, so you just have to assume that
-'random.photos' API returns a different set of photos each time it is called.
+`random.photos` returns a different set of photos each time it is called.
 
 ## Testing
 
@@ -52,7 +51,7 @@ The asynctest module enhances standard unittest.mock to deal with coroutines,
 and pytest-aiohttp provides an event loop to run asynchronous tests as if they were normal tests.
 
 Now, I've got some bad news. There is no utility for mocking ClientSession.
-Python responses module is useless here (it will only work with requests), and
+Python responses module is useless here (it will only work with requests module), and
 aiohttp doesn't have anything similar available. So, we need to patch it:
 
 ```python
@@ -73,10 +72,9 @@ async def test_call_api_again_if_photos_not_found(mock_get):
     assert image_url == 'a.jpg'
 ```
 
-The test is going to provide an empty list first and a list with one item on a
-second call. We are going to check if the API and the resp.json() method were in fact called twice and if
-the URL of the second call was read correctly.
-But when you run this test, you will see an error:
+The mock is first going to provide an empty list and then a list with one item. We are going to check if the API and the `json` method were in fact called twice and if
+the image URL of the second call was read correctly.
+The problem is, this test doesn't work:
 
 ```text
     async def get_random_photo_url():
@@ -88,7 +86,7 @@ E               AttributeError: __aexit__
 
 ## Problems with context managers
 
-To understand what's going on, let's try fiddling with the MagicMock object:
+To understand what's going on, let's try fiddling with the `MagicMock` object:
 
 ```text
 +>>> from asynctest import MagicMock
@@ -112,7 +110,7 @@ Traceback (most recent call last):
 AttributeError: __aexit__
 ```
 
-As you can see, MagicMock mocks standard magic methods, but not the `__aenter__` and `__aexit__` required by asynchronous context managers.
+As you can see, standard magic methods are mocked, but not the `__aenter__` and `__aexit__` methods required by asynchronous context managers.
 There is a [GitHub issue](https://github.com/Martiusweb/asynctest/issues/29)
 for this problem, but it's still open. Instead of waiting we can write our own solution:
 
@@ -143,7 +141,7 @@ async def test_call_api_again_if_photos_not_found(mock_get):
 ```
 
 Our own implementation will return `aenter` value when used as a context manager. If we don't specify it, it will be a
-MagicMock, so we can just go on and assign the results of subsequent `json` method calls. There is just one problem with that solution:
+`MagicMock` object, so we can just go on and assign the results of subsequent `json` method calls. There is just one problem with that solution:
 
 ```text
     async def get_random_photo_url():
@@ -182,7 +180,9 @@ async def test_call_api_again_if_photos_not_found(mock_get):
     assert image_url == 'a.jpg'
 ```
 
-And now the test should pass without any problems.
+And now the test should pass without problems.
 
-This is, of course, just a rought solution for testing aiohttp, but I hope it
-will help you. If you know a better one, please let me know.
+I hope this post will save you some time.
+It shows, of course, just a rough solution for testing aiohttp, but it should
+work until the asynctest issue is fixed. 
+If you know a better alternative, please let me know.
