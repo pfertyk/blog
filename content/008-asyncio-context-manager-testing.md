@@ -1,9 +1,17 @@
 Title: Testing asynchronous context managers in Python
-Date: 2017-06-13
-Summary: 
+Date: 2017-06-14
+Summary: A bit harder than it looks
 Tags: python, asyncio, aiohttp, tests
 
-[link](http://pfertyk.me/2017/06/getting-mars-photos-from-nasa-using-aiohttp/)
+Recently I wrote a small aiohttp application that calls NASA API to get
+photos from Mars (you can read about it [here](http://pfertyk.me/2017/06/getting-mars-photos-from-nasa-using-aiohttp/)).
+After initial prototyping, I started writing tests for it. It turned out to
+be much more difficult than I could imagine. I wrote this post to help you
+if you are having similar problems.
+
+## Code under test
+
+This is a simplified version of the code from Mars photos application:
 
 ```python
 import random
@@ -21,11 +29,31 @@ async def get_random_photo_url():
         return random.choice(photos)['img_src']
 ```
 
-Python responses won't work (they are only good for testing Python requests).
+The coroutine calls the 'random.photos' API and gets JSON response in return.
+In that response, there is a 'photos' key with a list of images.
+The problem is, since the API returns random photos, sometimes there are no photos (the list is there, but it's
+empty). In that case we keep calling the API until we get any images and return a URL of a random one.
+
+Note: the original program required a param that specified a day on which
+the photo was taken, and subsequent API calls used random values of
+this param and thus returned different lists of photos. The code was
+simplified for the purpose of this post, so you just have to assume that
+'random.photos' API returns a different set of photos each time it is called.
+
+## Testing
+
+Start with installing some helpful modules:
 
 ```bash
 pip install asynctest pytest-aiohttp
 ```
+
+The asynctest module enhances standard unittest.mock to deal with coroutines,
+and pytest-aiohttp provides an event loop to run asynchronous tests as if they were normal tests.
+
+Now, I've got some bad news. There is no utility for mocking ClientSession.
+Python responses module is useless here (it will only work with requests), and
+aiohttp doesn't have anything similar available. So, we need to patch it:
 
 ```python
 from asynctest import patch
@@ -45,6 +73,11 @@ async def test_call_api_again_if_photos_not_found(mock_get):
     assert image_url == 'a.jpg'
 ```
 
+The test is going to provide an empty list first and a list with one item on a
+second call. We are going to check if the API and the resp.json() method were in fact called twice and if
+the URL of the second call was read correctly.
+But when you run this test, you will see an error:
+
 ```text
     async def get_random_photo_url():
         while True:
@@ -53,12 +86,16 @@ async def test_call_api_again_if_photos_not_found(mock_get):
 E               AttributeError: __aexit__
 ```
 
+## Problems with context managers
+
+To understand what's going on, let's try fiddling with the MagicMock object:
+
 ```text
 +>>> from asynctest import MagicMock
 +>>> m = MagicMock()
 +>>>
-+>>> m.__next__
-<MagicMock id='139959347457160'>
++>>> m.__enter__
+<MagicMock id='139882982853768'>
 +>>>
 +>>> m.__aenter__
 Traceback (most recent call last):
@@ -75,14 +112,9 @@ Traceback (most recent call last):
 AttributeError: __aexit__
 ```
 
-```python
-class AsyncContextManagerMock(MagicMock):
-    async def __aenter__(self):
-        return self.aenter
-
-    async def __aexit__(self, *args):
-        pass
-```
+As you can see, MagicMock mocks standard magic methods, but not the `__aenter__` and `__aexit__` required by asynchronous context managers.
+There is a [GitHub issue](https://github.com/Martiusweb/asynctest/issues/29)
+for this problem, but it's still open. Instead of waiting we can write our own solution:
 
 ```python
 from asynctest import MagicMock, patch
@@ -110,6 +142,9 @@ async def test_call_api_again_if_photos_not_found(mock_get):
     assert image_url == 'a.jpg'
 ```
 
+Our own implementation will return `aenter` value when used as a context manager. If we don't specify it, it will be a
+MagicMock, so we can just go on and assign the results of subsequent `json` method calls. There is just one problem with that solution:
+
 ```text
     async def get_random_photo_url():
         while True:
@@ -118,6 +153,8 @@ async def test_call_api_again_if_photos_not_found(mock_get):
 >                   json = await resp.json()
 E                   TypeError: object dict can't be used in 'await' expression
 ```
+
+Using `side_effect` turns our `json` method into a normal function, while it should be a coroutine. To fix this, we can use `CoroutineMock`:
 
 ```python
 from asynctest import CoroutineMock, MagicMock, patch
@@ -144,3 +181,8 @@ async def test_call_api_again_if_photos_not_found(mock_get):
     assert mock_get.return_value.aenter.json.call_count == 2
     assert image_url == 'a.jpg'
 ```
+
+And now the test should pass without any problems.
+
+This is, of course, just a rought solution for testing aiohttp, but I hope it
+will help you. If you know a better one, please let me know.
