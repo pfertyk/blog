@@ -12,7 +12,7 @@ I'm going to guide you through them in this post.
 
 ## Code under test
 
-This is a simplified version of a method from my NASA API application:
+This is a simplified version of a function from my NASA API application:
 
 ```python
 import random
@@ -32,7 +32,7 @@ async def get_random_photo_url():
 
 This coroutine calls the `random.photos` API and gets a JSON response in return.
 In that response, there is a 'photos' key with a list of images.
-The problem is, since the API returns random photos, sometimes there are no photos (the list is there, but it's
+The problem is, since the API returns random results, sometimes there are no photos (the list is there, but it's
 empty). In that case we keep calling the API until we get any images and return a URL of a random one.
 
 Note: the original program required a param that specified a day on which
@@ -50,9 +50,9 @@ pip install asynctest pytest-aiohttp
 ```
 
 The asynctest module enhances standard unittest.mock to deal with coroutines,
-and pytest-aiohttp provides an event loop to run asynchronous tests as if they were normal tests.
+and pytest-aiohttp provides an event loop to run asynchronous tests with the `pytest` command as if they were normal tests.
 
-Now, I've got some bad news. There is no utility for mocking ClientSession.
+For our test we are going to mock the `ClientSession.get` method. Now, I've got some bad news. There is no utility for mocking `ClientSession.get`.
 Python responses module is useless here (it will only work with requests module), and
 aiohttp doesn't have anything similar available. So, we need to patch it:
 
