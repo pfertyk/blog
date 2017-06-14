@@ -4,7 +4,7 @@ Summary: A bit harder than it looks
 Tags: python, asyncio, aiohttp, tests
 
 Recently I wrote a small aiohttp application that calls NASA API to get
-photos from Mars (you can read about it [here](http://pfertyk.me/2017/06/getting-mars-photos-from-nasa-using-aiohttp/)).
+photos from Mars (you can read about it [here]({filename}/007-nasa-aiohttp.md)).
 Every good application needs tests, but in this case a process of writing one
 turned out to be slightly more difficult than I imagined. Since asyncio client
 methods are mostly context managers, testing them requires some special steps.
