@@ -83,6 +83,9 @@ nav ul li {
 .about .social-links {
   text-align: center;
 }
+.about a {
+  text-decoration: underline;
+}
 .social-links a {
   display: inline-block;
   text-indent: -9999px;
