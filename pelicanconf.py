@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from urllib.parse import quote
 
-SITENAME = 'pfertyk'
+SITENAME = 'Paweł Fertyk'
 SITEURL = 'http://pfertyk.me'
 SITE_DESCTIPTION = "Paweł Fertyk's blog on programming"
 
