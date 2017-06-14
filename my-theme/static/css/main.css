@@ -79,7 +79,8 @@ nav ul li {
   border-radius: 0.5rem;
   font-weight: bold;
 }
-.about {
+.about h1,
+.about .social-links {
   text-align: center;
 }
 .social-links a {
@@ -88,6 +89,8 @@ nav ul li {
   width: 4rem;
   height: 4rem;
   margin: 0.5rem;
+  background-position: center;
+  background-size: 4rem;
 }
 .social-links .github {
   background-image: url(../images/github.svg);
@@ -98,8 +101,8 @@ nav ul li {
 .social-links .twitter {
   background-image: url(../images/twitter.svg);
 }
-.about .email {
-  font-family: "DejaVu Sans Mono", monospace;
+.social-links .email {
+  background-image: url(../images/email.svg);
 }
 .about .photo {
   border-radius: 50%;
