@@ -24,14 +24,14 @@ and removing third party services from my life.
 * **Java Software Developer** XTM International Ltd (2013&ndash;2016)  
  Developing XTM Cloud backend, implementing various file processors, designing new features for translation software, providing support for clients.
 * **Python Developer** STX Next (2016&ndash;)  
-Implementing RESTful APIs, developing front-end applications, configuring search engines and task queues, specifying software requirements, designing architecture for new features.
+Implementing RESTful APIs, developing front-end applications, configuring search engines and task queues, refining software requirements, designing architecture for new features.
 
 ## Projects and contributions:
 
 * [**khal**](https://github.com/pimutils/khal) command line CalDAV client
-* [**numonic**](https://github.com/pfertyk/numonic) tool for memorizing numbers
 * [**ray tracer**](https://github.com/pfertyk/ray_tracer) Python 3D graphics generator
 * [**hex generator**](https://github.com/pfertyk/hex_generator) board editor for tabletop games
+* [**numonic**](https://github.com/pfertyk/numonic) tool for memorizing numbers
 
 ## Talks and workshops:
 
