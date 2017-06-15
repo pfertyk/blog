@@ -24,6 +24,7 @@ and removing third party services from my life.
 * **Java Software Developer** XTM International Ltd (2013&ndash;2016)  
  Developing XTM Cloud backend, implementing various file processors, designing new features for translation software, providing support for clients.
 * **Python Developer** STX Next (2016&ndash;)  
+Implementing RESTful APIs, developing front-end applications, configuring search engines and task queues, specifying software requirements, designing architecture for new features.
 
 ## Projects and contributions:
 
