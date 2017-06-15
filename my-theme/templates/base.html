@@ -29,7 +29,7 @@
   </head>
   <body>
     <div class="page-wrapper">
-      <nav>
+      <nav class="no-print">
         <header><a href="{{ SITEURL }}">{{ SITENAME }}</a></header>
         <ul>
           <li><a href="{{ SITEURL }}">Blog</a></li><li><a href="{{ SITEURL }}{{ TAGS_URL }}">Tags</a></li><li><a href="{{ SITEURL }}/about/">About</a></li>
@@ -37,7 +37,7 @@
       </nav>
       {% block content %}
       {% endblock %}
-      <div class="footer">
+      <div class="footer no-print">
         <div class="copyright">&copy; 2017 Paweł Fertyk</div>
       </div>
     </div>

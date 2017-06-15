@@ -148,3 +148,8 @@ p,
 .description {
   line-height: 1.4;
 }
+@media print {
+  .no-print, .no-print * {
+    display: none !important;
+  }
+}
