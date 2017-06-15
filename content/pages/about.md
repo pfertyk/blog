@@ -13,17 +13,24 @@ slug: about
 
 I'm a software developer from Poznań, Poland.
 I work mostly with Python, but I used to tamper with Java and C++.
-I'm a huge fan of automated tests, refactoring, and removing third party
-services from my life.
+I'm a huge fan of automated tests, open source,refactoring,
+and removing third party services from my life.
 
 ## Career highlights:
-* **Co-developer of eIntern system** *Poznań University of Technology* (2012)  
+* **Co-developer of eIntern system** Poznań University of Technology (2012)  
  Implementing, testing and documenting the internship monitoring system for the university.
-* **Junior Software Engineer** *Samsung Electronics Poland* (2012&ndash;2013)  
+* **Junior Software Engineer** Samsung Electronics Poland (2012&ndash;2013)  
  Debugging and configuring Smart TV software.
-* **Java Software Developer** *XTM International Ltd* (2013&ndash;2016)  
+* **Java Software Developer** XTM International Ltd (2013&ndash;2016)  
  Developing XTM Cloud backend, implementing various file processors, designing new features for translation software, providing support for clients.
-* **Python Developer** *STX Next* (2016&ndash;)  
+* **Python Developer** STX Next (2016&ndash;)  
+
+## Projects and contributions:
+
+* [**khal**](https://github.com/pimutils/khal) command line CalDAV client
+* [**numonic**](https://github.com/pfertyk/numonic) tool for memorizing numbers
+* [**ray tracer**](https://github.com/pfertyk/ray_tracer) Python 3D graphics generator
+* [**hex generator**](https://github.com/pfertyk/hex_generator) board editor for tabletop games
 
 ## Talks and workshops:
 
