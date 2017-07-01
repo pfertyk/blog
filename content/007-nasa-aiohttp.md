@@ -1,6 +1,6 @@
 Title: Getting Mars photos from NASA using aiohttp
 Date: 2017-06-12
-Summary: One small step for coders, one big step for *The Martian* fans
+Summary: One small step for coders, one giant leap for *The Martian* fans
 Tags: python, aiohttp, nasa
 
 I am a huge fan of the book *The Martian* by Andy Weir.
