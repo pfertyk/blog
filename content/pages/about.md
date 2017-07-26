@@ -29,9 +29,9 @@ Implementing RESTful APIs, developing front-end applications, configuring search
 ## Projects and contributions:
 
 * [**khal**](https://github.com/pimutils/khal) command line CalDAV client
+* [**Mauve**](https://github.com/pfertyk/mauve) a very simple Markdown viewer
 * [**ray tracer**](https://github.com/pfertyk/ray_tracer) Python 3D graphics generator
 * [**hex generator**](https://github.com/pfertyk/hex_generator) board editor for tabletop games
-* [**numonic**](https://github.com/pfertyk/numonic) tool for memorizing numbers
 
 ## Talks and workshops:
 
