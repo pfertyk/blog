@@ -1,10 +1,14 @@
-Title: VIM for sane people
+Title: Vim for sane people
 Date: 2017-08-09
 Summary: Because not only your production code deserves tenderness
 Tags: vim
 
+Long time ago, I tried to learn Vim. I started with the vimtutor,
 
 ### Leader
+
+Leader is a special key in Vim. By default, the leader key is the backslash.
+But you are going to use the leader key very often, so it should be changed to something more convinient, something that you can use with any hand, something bigger than the usual key. Space key is an excellent choice:
 
 ```vim
 let mapleader = ' '
@@ -116,6 +120,8 @@ map <leader>s :SyntasticToggleMode<cr>
 
 ### Clipboard
 
+One of the things that annoyed me the most when I started using Vim was copying and pasting text. Vim has its own registers, and they have nothing to do with clipboard. Fortunately, there is a way to fix it:
+
 ```vim
 vmap <Leader>y "+y
 vmap <Leader>d "+d
@@ -124,6 +130,8 @@ nmap <Leader>P "+P
 vmap <Leader>p "+p
 vmap <Leader>P "+P
 ```
+
+
 
 ### Whitespaces
 
