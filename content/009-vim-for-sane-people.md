@@ -1,20 +1,61 @@
 Title: Vim for sane people
 Date: 2017-08-09
-Summary: Because not only your production code deserves tenderness
+Summary: When you want something powerful but still normal
 Tags: vim
 
-Long time ago, I tried to learn Vim. I started with the vimtutor,
+Long time ago, I tried to learn Vim. I started with the vimtutor, played aroun with the editor a bit and then decided to use it for 
 
 ### Leader
 
-Leader is a special key in Vim. By default, the leader key is the backslash.
-But you are going to use the leader key very often, so it should be changed to something more convinient, something that you can use with any hand, something bigger than the usual key. Space key is an excellent choice:
+Leader is a special key in Vim. You can define different commands
+that will be activated by pressing it and another key/keys.
+By default, the leader key is the backslash.
+But you are going to use the leader key very often,
+so it should be changed to something more convinient,
+something that you can use with any hand,
+something bigger than the usual key.
+Space key is an excellent choice:
 
 ```vim
 let mapleader = ' '
 ```
 
+### Clipboard
+
+One of the things that annoyed me the most when I started using Vim was
+copying and pasting text. Vim has its own registers, and they have nothing
+to do with standard clipboard. Fortunately, there is a way to fix it:
+
+```vim
+vmap <Leader>y "+y
+vmap <Leader>d "+d
+nmap <Leader>p "+p
+nmap <Leader>P "+P
+vmap <Leader>p "+p
+vmap <Leader>P "+P
+```
+
+Now pressing `Space + y` will copy the selected text to clipboard, `space + p` will paste the text from clipboard and so on. I've got to say, this made my work with Vim a lot easier.
+
+### Search
+
+Vim has excellent search tools, but they could use some tuning. The most problematic thing I encountered was searching text with regular expressions.
+
+```vim
+nnoremap / /\v
+vnoremap / /\v
+vnoremap // y/<c-r>"<cr>
+set ignorecase
+set smartcase
+set gdefault
+set hls
+```
+
+Using `\v` by default will make our regular expressions much simpler. `gdefault` will make the search global, which is almost surely what you want.
+
 ### Windows
+
+Vim lets you 
 
 ```vim
 map <a-j> :m+1<cr>
@@ -54,18 +95,6 @@ function! SaveVimProject()
         mksession! Project.vim
     endif
 endfunction
-```
-
-### Search
-
-```vim
-nnoremap / /\v
-vnoremap / /\v
-vnoremap // y/<c-r>"<cr>
-set ignorecase
-set smartcase
-set gdefault
-set hls
 ```
 
 Plugin 'ctrlpvim/ctrlp.vim'
@@ -116,19 +145,6 @@ let g:syntastic_javascript_checkers = ['eslint']
 let g:syntastic_javascript_eslint_exec = 'eslint'
 
 map <leader>s :SyntasticToggleMode<cr>
-```
-
-### Clipboard
-
-One of the things that annoyed me the most when I started using Vim was copying and pasting text. Vim has its own registers, and they have nothing to do with clipboard. Fortunately, there is a way to fix it:
-
-```vim
-vmap <Leader>y "+y
-vmap <Leader>d "+d
-nmap <Leader>p "+p
-nmap <Leader>P "+P
-vmap <Leader>p "+p
-vmap <Leader>P "+P
 ```
 
 
