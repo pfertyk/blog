@@ -1,9 +1,30 @@
 Title: Vim for sane people
 Date: 2017-08-09
-Summary: When you want something powerful but still normal
+Summary: When you want something powerful but also something normal
 Tags: vim
 
-Long time ago, I tried to learn Vim. I started with the vimtutor, played aroun with the editor a bit and then decided to use it for 
+Long time ago, I tried to learn Vim. Like many before me, I started with the vimtutor, played around with the editor a bit and then decided to use it for actual work. But I couldn't.
+
+But there was something else.
+
+Vim was significantly different than other editors that I used by far. I could do some stuff easily, but normal thing like keeping the list of last open files or pasting from the clipboard or searching using regular expressions was extremely difficult.
+
+Note: I'm a Python/JavaScript developer, so some of my configuration is prepared especially for those languages. But you can still find some useful hints if you are using a different language
+
+### Plugins
+
+I recommend you to use a plugin manager. There are several plugin managers for Vim. Vundle is one of them, and it works just fine.
+
+```vim
+set nocompatible
+filetype off
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
+Plugin 'VundleVim/Vundle.vim'
+" other plugins go here
+call vundle#end()
+filetype plugin indent on
+```
 
 ### Leader
 
@@ -51,7 +72,7 @@ set gdefault
 set hls
 ```
 
-Using `\v` by default will make our regular expressions much simpler. `gdefault` will make the search global, which is almost surely what you want.
+Using `\v` by default will make our regular expressions much simpler. Thanks to `set gdefault` you don't have to add a `/g` flag to make the search global (let's be honest, when was the last time you wanted to search something only in the current line?).
 
 ### Windows
 
@@ -157,19 +178,6 @@ set listchars=tab:>-,trail:~
 set smartindent
 
 map <leader>l :set list!<cr>
-```
-
-### Plugins
-
-```vim
-set nocompatible
-filetype off
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
-Plugin 'VundleVim/Vundle.vim'
-" other plugins go here
-call vundle#end()
-filetype plugin indent on
 ```
 
 ### Color scheme
