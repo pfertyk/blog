@@ -69,7 +69,7 @@ Now pressing `Space + y` will copy the selected text to clipboard, `space + p` w
 
 ### Search
 
-Vim has excellent search tools, but they could use some tuning. The most problematic thing I encountered was searching text with regular expressions.
+Vim has excellent search tools, but they could use some tuning:
 
 ```vim
 nnoremap / /\v
@@ -79,9 +79,18 @@ set ignorecase
 set smartcase
 set gdefault
 set hls
+set incsearch
 ```
 
-Using `\v` by default will make our regular expressions much simpler. Thanks to `set gdefault` you don't have to add a `/g` flag to make the search global (let's be honest, when was the last time you wanted to search something only in the current line?).
+First 2 lines set `\v` ('very-magic') as default option for searching. It will cause all characters except `a-zA-Z0-9_` to have special meaning, so if you want to use their literal meaning you will have to use the backslash. That makes it a lot easier to work with regular expressions.
+
+The `//` mapping makes it easy to search the currently selected text.
+
+Next 2 lines make the searching case insensitive by default, unless you start typing characters with different case. So searching for `base` will match both `base` and `Base`, but searching for `Base` will only match the latter. I find it quite useful.
+
+By default Vim searches only the current line. It is very unintuitive. Setting `gdefault` fixes this issue.
+
+Lastly, `hls` and `incsearch` highlight the search results as you type and move the coursor to the next available match.
 
 ### Windows
 
