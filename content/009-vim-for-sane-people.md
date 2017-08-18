@@ -128,17 +128,19 @@ To automate project management a bit, I created a function. It detects the `Proj
 :mksession Project.vim
 ```
 
-When you leave Vim, the project will be automatically saved. Next time you want to work on it again, all you have to do to open the project file and all your opened windows and files will be restored:
+When you leave Vim, the project will be automatically saved. Next time you want to work on it again, all you have to do is import the project file and all your opened windows and files will be restored:
 
 ```vim
 :so /path/to/your/project/Project.vim
 ```
 
-
+Another thing is searching for files. There are several tree based file explorers for Vim, but I never used them. In my opinion, they take unnecessary space on the screen and don't bring much value. Instead of searching a file in a directory tree, I prefer to look for it by typing a fuzzy path. And that's what `CtrlP` plugin is for. You can add it to Vim like this:
 
 ```vim
 Plugin 'ctrlpvim/ctrlp.vim'
 ```
+
+Here is the configuration I use:
 
 ```vim
 let g:ctrlp_cmd = 'CtrlPMixed'
@@ -149,38 +151,39 @@ let g:ctrlp_custom_ignore = '__pycache__\|node_modules'
 map \ :CtrlPLine<cr>
 ```
 
+First line enables searching both the already opened files and other files (putting the most recently used files on top of the search list). Next line disables the working path mode feature, making sure that we always search the entire current directory (that's why we made sure earlier to store the current directory in our `Project.vim` files). Setting `g:ctrlp_max_files` to 0 means that `CtrlP` will scan all the files in the current directory. Usually, there is no need to search inside `node_modules` (JavaScript) or `__pycache__` (Python) folders, so we can ignore them.
+
+Last line adds a nice bonus: fuzzy searching the file content. Thanks to it you can easily find lines like 'The quick brown fox jumps over the lazy dog' just by typing 'quickjumps'. I don't use it very often, but sometimes it comes in handy.
+
 ### Windows
 
-Vim lets you split the window easily with 
+Usually I work with multiple windows and very often I want to resize them. To make the process easier, I created the following mapping:
 
 ```vim
 map <a-l> :res +1<cr>
 map <a-L> :res -1<cr>
 map <a-h> :vertical res +1<cr>
 map <a-H> :vertical res -1<cr>
-
-map <a-j> :m+1<cr>
-map <a-k> :m-2<cr>
-
-set cursorline
-set colorcolumn=80
-set nu
-set autoread
-set guioptions-=m
-set shortmess+=I
-
-nnoremap j gj
-nnoremap k gk
 ```
 
+This configuration lets me change the window width/height without touching the mouse.
+
 ### Indentation
+
+PEP8 specifies that one indentation level should be 4 spaces, and I'm not going to argue with that. For javascript/html files, I prefer 2 spaces:
 
 ```vim
 au FileType python setl ts=4 sw=4 sts=4 et
 au FileType javascript,htmldjango,html,css,cucumber setl ts=2 sw=2 sts=2 et
+
+set smartindent
 ```
 
+The `smartindent` flag makes your life easier by detecting the current indentation level before you start a new line.
+
 ### Status line
+
+I used a status line plugin for some time, but I didn't like it. It was bothersome to configure, but didn't bring any additional information. So I uninstalled the plugin and decided to instead configure my status line to show everything I need to know:
 
 ```vim
 set laststatus=2
@@ -194,11 +197,23 @@ set statusline+=%*%=
 set statusline+=%l:%c(%p%%)
 ```
 
-Plugin 'mgedmin/pythonhelper.vim'
+First line makes the status line always visible. Next, we clear any existing status line configuration and display what follows:
+* the name of the current file and the modified flag ('[+]')
+* current class and function name (only for Python files, requires `mgedmin/pythonhelper.vim` plugin)
+* any warning message
+* Syntastic flag (showing, by default, first error line and total number of errors)
+* restore normal highlight and align the rest of the status line right
+* the current line, column and percentage through the file
 
 ### Syntax
 
+For syntax highlighting I use the fantascit plugin called `syntastic`:
+
+```vim
 Plugin 'scrooloose/syntastic'
+```
+
+The configuration looks like this:
 
 ```vim
 let g:syntastic_check_on_open = 1
@@ -208,23 +223,32 @@ let g:syntastic_python_flake8_exec = 'python3'
 let g:syntastic_python_flake8_args = ['-m', 'flake8']
 let g:syntastic_javascript_checkers = ['eslint']
 let g:syntastic_javascript_eslint_exec = 'eslint'
-
-map <leader>s :SyntasticToggleMode<cr>
 ```
 
-
+It check the syntax when the file is opened (not when you close Vim) and sets the linters for Python and JavaScript files.
 
 ### Whitespaces
+
+I can't remember the last time that I actually wanted to leave some trailing whitespaces. So I configured Vim to display them:
 
 ```vim
 set list
 set listchars=tab:>-,trail:~
-set smartindent
 
 map <leader>l :set list!<cr>
 ```
 
+The mapping allows you to toggle displaying whitespaces (but I can't imagine why you would want to turn it off).
+
 ### Color scheme
+
+I initially used `solarized` theme, but I switched to `gruvbox`. You can install it like a normal plugin:
+
+```vim
+Plugin 'morhetz/gruvbox'
+```
+
+Additional configuration looks like this:
 
 ```vim
 syntax enable
@@ -232,33 +256,72 @@ set background=dark
 colorscheme gruvbox
 ```
 
-### Other
+### Git
+
+To make working with Git a bit easier, I recommend these plugins:
 
 ```vim
+Plugin 'airblade/vim-gitgutter'
+Plugin 'tpope/vim-fugitive'
+```
+
+The first one marks modified lines and allows to stage/undo/preview them (it has a lot of other features as well). The second is very useful for tracking authors of changes (`:GBlame`).
+
+There are probably many other Vim plugins, but I prefer working with Git using the command line.
+
+### Python
+
+Vim makes for a great Python IDE, if you add some plugins and configuration:
+
+```vim
+Plugin 'fisadev/vim-isort'
+Plugin 'davidhalter/jedi-vim'
+Plugin 'python-rope/ropevim'
+
+set colorcolumn=80
+
+au FileType python map <buffer> <leader>b oimport ipdb; ipdb.set_trace()<esc>
+au FileType python map <buffer> <leader>B Oimport ipdb; ipdb.set_trace()<esc>
+```
+
+The `vim-isort` plugin helps you with sorting Python imports (but it doesn't always work the right way, and you need to install `isort` module first). Jedi and Rope are Python autocompletion and refactoring tools. They add most of the IDE functionality to Vim (search for occurences, rename, go to definition and so on). Highlighting the 80th column helps a lot with keeping the line width withing recommended 79 characters. Last 2 lines create a mapping for adding breakpoints easily.
+
+### Other
+
+There are several other plugins I use on daily basis:
+* `scrooloose/nerdcommenter` makes commenting lines of code very easy
+* `jiangmiao/auto-pairs` automatically creates a closing bracket when you open one
+* `tpope/vim-surround` lets you easily surround text with brackets, quotes, HTML tags, change the selection and so on
+* `tpope/vim-abolish` it has a lot of options, but I usually use it to change variable names from snake case to upper case
+
+Here is some additional configuration that might make your life easy:
+
+```vim
+map <a-j> :m+1<cr>
+map <a-k> :m-2<cr>
+
+set cursorline
+set nu
+set autoread
+set guioptions-=m
+set shortmess+=I
+
+nnoremap j gj
+nnoremap k gk
+
 command! XmlPrettyPrint :%!xmllint --format -
 command! JsonPrettyPrint :%!python -m json.tool
 command! Bd :bp<bar>bd#
 ```
-Plugin 'jiangmiao/auto-pairs'
-Plugin 'tpope/vim-surround'
-Plugin 'tpope/vim-abolish'
-Plugin 'scrooloose/nerdcommenter'
 
-### Git
+First 2 lines create a mapping for moving the current line up and down (unfortunately, since I mapped Alt key, it only works in GVim).
 
-Plugin 'airblade/vim-gitgutter'
-Plugin 'tpope/vim-fugitive'
+Next we tell Vim to always highlight the current line, always show the line numbers, automatically reload the files if they were modified outside of Vim, hide the meny bar (GVim only) and do not display the intro message when starting Vim.
 
-### Python
+Sometimes the line you are editing will not fit in the window and will instead be wrapped. Using `gj` and `gk` lets you navigate through such lines (instead of moving to the next line, pressing `j` will move the cursor down, but still in the same line; that's the behavior you can expect from a normal editor).
 
-Plugin 'fisadev/vim-isort'
-Plugin 'davidhalter/jedi-vim'
-Plugin 'python-rope/ropevim'
-Plugin 'mgedmin/pythonhelper.vim'
+If you work with JSON and XML files, you might want to format them. That's what the next 2 commands do.
 
-```vim
-au FileType python map <buffer> <leader>b oimport ipdb; ipdb.set_trace()<esc>
-au FileType python map <buffer> <leader>B Oimport ipdb; ipdb.set_trace()<esc>
-```
+Finally, the `Bd` command closes the current buffer (removes it from buffer list) without closing the current window. I find that command to be very helpful.
 
 ### Summary
