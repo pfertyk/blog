@@ -325,3 +325,5 @@ If you work with JSON and XML files, you might want to format them. That's what 
 Finally, the `Bd` command closes the current buffer (removes it from buffer list) without closing the current window. I find that command to be very helpful.
 
 ### Summary
+
+Vim is a very powerful editor. If you ever tried it and failed (like I did), maybe you can give it another chance with these hints. If you know other useful tricks or spot an error in this post, please let me know.
