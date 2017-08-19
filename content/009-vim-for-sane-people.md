@@ -7,7 +7,7 @@ Long time ago, I decided to master Vim. Like many before me, I started with `vim
 
 But there was also something else.
 
-Vim was significantly different than other editors I used by far. Things I took for granted become difficult. Keeping the list of previously opened files? Not easy. Searching in the whole document? Unintuitive. Pasting content from the clipboard? I had to use a mouse for that. A mouse in Vim! All of those problems made me come back to other editors and not spend enough time with Vim to learn it properly.
+Vim was significantly different than other editors I used by far. Things I took for granted became difficult. Keeping the list of previously opened files? Not easy. Searching in the whole document? Unintuitive. Pasting content from the clipboard? I had to use a mouse for that. A mouse in Vim! All of those problems made me come back to other editors and not spend enough time with Vim to learn it properly.
 
 I realized that those problems were keeping me from using Vim on daily basis. I had to solve them, otherwise I would keep coming back to other editors and never really master Vim. So I searched through documentation and available plugins and, after many days of tweaking my `.vimrc` file, I finally came up with configuration that made Vim an editor I could use. Here I'd like to share that configuration with you and explain how it works.
 
@@ -92,11 +92,11 @@ By default Vim searches only the current line. This behavior is very unintuitive
 
 Lastly, `hls` and `incsearch` highlight the search results as you type and move the cursor to the next available match.
 
-### Buffers and sessions
+### Buffers, sessions and projects
 
 Instead of having files opened in tabs (like normal editors do), Vim has tabs that can contain windows, and each window can display one buffer, where buffer is a file. Multiple windows can display the same buffer, and the buffer can be replaced by another one without closing the window.
 
-At first, it confused me a lot, but after a while it become quite natural and convinient. I realized that I don't really need tabs: I can just split windows using `:split` or `:vsplit` and then navigate between them with `Ctrl+W` and `hjkl`. Still, there is room for improvement here:
+At first, it confused me a lot, but after a while it became quite natural and convinient. I realized that I don't really need tabs: I can just split windows using `:split` or `:vsplit` and then navigate between them with `Ctrl+W` and `hjkl`. Still, there was room for improvement here:
 
 ```vim
 set directory^=$HOME/.vim/swp//
@@ -120,7 +120,7 @@ Vim uses `.viminfo` file to store information from the previous editing session.
 
 Another one of the most annoying things I discovered about Vim is that it didn't let me hide the buffer (e.g. by loading another one into the window) if the buffer was modified. It's the equivalent of a normal editor not letting you switch to another tab unless you save the current file. Setting the `hidden` flag fixed this issue (Vim still complained if I wanted to close the program with unsaved modifications, but that's the behavior I wanted to keep).
 
-The `Bd` command closes the current buffer (removes it from the buffer list) without closing the current window. I find that command to be very helpful.
+The `Bd` command closes the current buffer (removes it from the buffer list) without closing the current window. That way you can close files without changing your window layouts. I find that command to be very helpful.
 
 What comes next is my attempt to add project management to Vim. The `mksession` command creates a file with current session information. What exactly is stored in that file is defined by `sessionoptions`. I chose to store the empty windows, all of the buffers (not only the ones displayed in windows), current directory (very useful for file searching, which will be explained in a moment), size and position of the whole Vim window (useful for GVim), and the sizes of all open windows. That combination is sufficient for me to feel that I pick the project up where I left off.
 
@@ -131,7 +131,7 @@ To automate project management a bit, I created a function. If it finds a file c
 :mksession Project.vim
 ```
 
-When you leave Vim, the project will be saved automatically. Next time you want to work on it again, all you have to do is import the project file and all your opened windows and files will be restored:
+When you leave Vim, the project will be saved automatically. Next time you want to work on it again, all you have to do is import the project file and all your windows and files will be restored:
 
 ```vim
 :so /path/to/your/project/Project.vim
@@ -154,7 +154,7 @@ let g:ctrlp_custom_ignore = '__pycache__\|node_modules'
 map \ :CtrlPLine<cr>
 ```
 
-The first line enables searching both the already opened files and other files (putting the most recently used ones on top of the search results). The next line disables working path mode feature, so we always search the entire current directory (that's why we made sure earlier to store the current directory in our `Project.vim` file). Setting `g:ctrlp_max_files` to 0 means that `CtrlP` will scan all the files in the current directory. Usually, there is no need to search inside `node_modules` (JavaScript) or `__pycache__` (Python) folders, so we can ignore them.
+The first line enables searching both the already opened files and other files (putting the most recently used ones on top of the search results). The next line disables working path mode feature, so we always search the entire current directory (that's why we made sure earlier to store the current directory in our `Project.vim` file). Setting `g:ctrlp_max_files` to 0 means that `CtrlP` will scan all the files in the current directory. Usually, there is no need to search inside `node_modules` (JavaScript) or `__pycache__` (Python) folders, so we can ignore them. With this configuration you can quickly find files like `auth/users/test_main.py` by pressing `Ctrl+P` and typing `usetesm`.
 
 The last line adds a nice bonus: fuzzy searching the content of the file. Thanks to it you can easily find lines like *The quick brown fox jumps over the lazy dog* just by typing *quickjumps*. I don't use it very often, but sometimes it comes in handy.
 
@@ -169,7 +169,7 @@ map <a-h> :vertical res +1<cr>
 map <a-H> :vertical res -1<cr>
 ```
 
-This configuration lets me change the window width/height without touching the mouse.
+This configuration lets me change the window width/height without touching the mouse (unfortunately, mapping the `Alt` key makes it work only in GVim).
 
 ### Indentation
 
@@ -205,7 +205,7 @@ The first line makes the status line always visible. Next, we clear any existing
 * the name of the current file and the modified flag (`[+]`)
 * current class and function name (only for Python files, requires `mgedmin/pythonhelper.vim` plugin)
 * any warning messages
-* Syntastic flag (showing, by default, first error line and the total number of errors)
+* `syntastic` flag (showing, by default, first error line number and the total number of errors)
 * restore the normal highlight color and right align the rest of the status line
 * the current line, column and percentage through the file
 
@@ -229,11 +229,11 @@ let g:syntastic_javascript_checkers = ['eslint']
 let g:syntastic_javascript_eslint_exec = 'eslint'
 ```
 
-It makes `syntactic` check the syntax when a file is opened (but not when you close Vim) and sets the linters for Python and JavaScript files.
+It makes `syntactic` check the syntax when a file is opened (but not when you close Vim) and sets the linters for Python and JavaScript files (you need to install them first).
 
 ### Whitespaces
 
-I can't remember the last time that I actually wanted to leave some trailing whitespaces. So I configured Vim to display them:
+I can't remember the last time I actually wanted to leave some trailing whitespaces. So I configured Vim to display them:
 
 ```vim
 set list
@@ -292,7 +292,7 @@ au FileType python map <buffer> <leader>b oimport ipdb; ipdb.set_trace()<esc>
 au FileType python map <buffer> <leader>B Oimport ipdb; ipdb.set_trace()<esc>
 ```
 
-Highlighting the 80th column helps a lot with keeping the line width withing the recommended 79 characters. Next 2 lines create a mapping for adding breakpoints easily.
+Highlighting the 80th column helps a lot with keeping the line width withing the recommended 79 characters. Next 2 lines create a mapping for adding breakpoints.
 
 ### Other
 
