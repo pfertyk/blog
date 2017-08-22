@@ -3,7 +3,7 @@ Date: 2016-11-08
 Summary: Because, sooner or later, you will have to use JavaScript
 Tags: bot, heroku, javascript
 
-In one of my [previous posts]({filename}/000-pep8-github-linting-bot.md)
+In one of my [previous posts]({filename}/pep8-github-linting-bot.md)
 I described how to automatically check for PEP-8 violations on pull requests.
 But sometimes Python is not enough, and your project will require some JavaScript as well.
 Fortunately, you can modify the `PEPing-tom` bot to also use ESlint to ensure the quality of your whole codebase.
