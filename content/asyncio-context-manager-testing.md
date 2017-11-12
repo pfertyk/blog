@@ -10,6 +10,10 @@ turned out to be slightly more difficult than I imagined. Since asyncio client
 methods are mostly context managers, testing them requires some special steps.
 I'm going to guide you through them in this post.
 
+EDIT: A [GitHub issue](https://github.com/Martiusweb/asynctest/issues/29)
+mentioned in this post has been resolved and as of version 0.11.1
+asynctest supports asynchronous context managers out of the box.
+
 ## Code under test
 
 This is a simplified version of a function from my NASA API application:
