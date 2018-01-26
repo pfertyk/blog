@@ -1,12 +1,10 @@
 #!/usr/bin/env python
-from urllib.parse import quote
 
 SITENAME = 'Paweł Fertyk'
 SITEURL = 'http://pfertyk.me'
 SITE_DESCTIPTION = "Paweł Fertyk's blog on programming"
 
 AUTHOR_NAME = 'Paweł Fertyk'
-TWITTER_USERNAME = 'pfertyk'
 
 PATH = 'content'
 
@@ -38,14 +36,3 @@ TAG_FEED_ATOM = 'feeds/%s.atom.xml'
 TAG_FEED_RSS = 'feeds/%s.rss.xml'
 TRANSLATION_FEED_ATOM = None
 CATEGORY_FEED_ATOM = None
-
-
-def twitter_link(article):
-    return 'https://twitter.com/intent/tweet?text={}&url={}&via={}'.format(
-        quote(article.title),
-        quote(SITEURL + '/' + article.url),
-        TWITTER_USERNAME
-    )
-
-
-JINJA_FILTERS = {'twitter_link': twitter_link}

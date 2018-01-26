@@ -13,9 +13,4 @@
 {% endfor %}
 </div>
 {{ article.content }}
-{% if TWITTER_USERNAME %}
-<div class="share-twitter">
-  <a href="{{ article|twitter_link }}">Tweet</a>
-</div>
-{% endif %}
 {% endblock %}

@@ -7,7 +7,6 @@ slug: about
 <div class="social-links" markdown="1">
 [Github](https://github.com/pfertyk){: .github}
 [Exercism](http://exercism.io/pfertyk){: .exercism}
-[Twitter](https://twitter.com/pfertyk){: .twitter}
 [Email](mailto:pfertyk@pfertyk.me){: .email}
 </div>
 

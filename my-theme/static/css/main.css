@@ -68,17 +68,6 @@ nav ul li {
   padding: 0 0.2rem;
   border-radius: 0.3rem;
 }
-.share-twitter {
-  text-align: center;
-  margin-top: 4rem;
-}
-.share-twitter a {
-  background-color: #1da1f2;
-  color: #fff;
-  padding: 0.4rem 0.8rem;
-  border-radius: 0.5rem;
-  font-weight: bold;
-}
 .about h1,
 .about .social-links {
   text-align: center;
@@ -100,9 +89,6 @@ nav ul li {
 }
 .social-links .exercism {
   background-image: url(../images/exercism.svg);
-}
-.social-links .twitter {
-  background-image: url(../images/twitter.svg);
 }
 .social-links .email {
   background-image: url(../images/email.svg);
