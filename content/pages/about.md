@@ -17,13 +17,17 @@ and removing third party services from my life.
 
 ## Career highlights:
 * **Co-developer of eIntern system** Poznań University of Technology (2012)  
- Implementing, testing and documenting the internship monitoring system for the university.
+Implementing, testing and documenting the internship monitoring system for the university.
 * **Junior Software Engineer** Samsung Electronics Poland (2012&ndash;2013)  
- Debugging and configuring Smart TV software.
+Debugging and configuring Smart TV software.
 * **Java Software Developer** XTM International Ltd (2013&ndash;2016)  
- Developing XTM Cloud backend, implementing various file processors, designing new features for translation software, providing support for clients.
-* **Python Developer** STX Next (2016&ndash;)  
+Developing XTM Cloud backend, implementing various file processors, designing new features for translation software, providing support for clients.
+* **Python Developer** STX Next (2016&ndash;2017)  
 Implementing RESTful APIs, developing front-end applications, configuring search engines and task queues, refining software requirements, designing architecture for new features.
+* **Python Developer** Unhaggle Inc. (2017)  
+Developing automotive buying and pricing service, managing deployments, testing, providing code reviews for other developers.
+* **Python Developer** Spreenauten GmbH (2017&ndash;)  
+Developing internal resource management system, estimating tasks, refining software requirements, providing code reviews for other developers.
 
 ## Projects and contributions:
 
