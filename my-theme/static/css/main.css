@@ -44,6 +44,9 @@ nav ul li {
   margin-top: 4rem;
   text-align: center;
 }
+.copyright a {
+  text-decoration: underline;
+}
 .highlight,
 .highlight pre {
   border-radius: 0.5rem;
