@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 SITENAME = 'Paweł Fertyk'
-SITEURL = 'http://pfertyk.me'
+SITEURL = 'https://pfertyk.me'
 SITE_DESCTIPTION = "Paweł Fertyk's blog on programming"
 
 AUTHOR_NAME = 'Paweł Fertyk'
@@ -12,7 +12,7 @@ TIMEZONE = 'Europe/Warsaw'
 DEFAULT_LANG = 'en'
 
 DELETE_OUTPUT_DIRECTORY = True
-RELATIVE_URLS = False
+RELATIVE_URLS = True
 
 THEME = 'my-theme'
 

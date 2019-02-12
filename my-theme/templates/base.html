@@ -14,24 +14,24 @@
     {% endif %}
 
     <title>{% block title %}{{ SITENAME }}{% endblock %}</title>
-    <link rel="stylesheet" href="{{ SITEURL }}/theme/css/{{ CSS_FILE }}" type="text/css"/>
-    <link rel="shortcut icon" href="{{ SITEURL }}/theme/favicon.ico" type="image/x-icon">
-    <link rel="icon" href="{{ SITEURL }}/theme/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="/theme/css/{{ CSS_FILE }}" type="text/css"/>
+    <link rel="shortcut icon" href="/theme/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/theme/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Ubuntu"/>
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro"/>
     <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=DejaVu+Sans+Mono"/>
 
     <meta name="twitter:card" content="summary" />
-    <meta name="twitter:image" content="{{ SITEURL }}/theme/images/pfertyk.jpg" />
+    <meta name="twitter:image" content="/theme/images/pfertyk.jpg" />
     <meta name="twitter:title" content="{% block twitter_title %}{{ SITENAME }}{% endblock %}" />
     <meta name="twitter:description" content="{% block twitter_description %}{{ SITE_DESCTIPTION }}{% endblock %}" />
   </head>
   <body>
     <div class="page-wrapper">
       <nav class="no-print">
-        <header><a href="{{ SITEURL }}">{{ SITENAME }}</a></header>
+        <header><a href="/">{{ SITENAME }}</a></header>
         <ul>
-          <li><a href="{{ SITEURL }}">Blog</a></li><li><a href="{{ SITEURL }}{{ TAGS_URL }}">Tags</a></li><li><a href="{{ SITEURL }}/about/">About</a></li>
+          <li><a href="/">Blog</a></li><li><a href="{{ TAGS_URL }}">Tags</a></li><li><a href="/about/">About</a></li>
         </ul>
       </nav>
       {% block content %}
