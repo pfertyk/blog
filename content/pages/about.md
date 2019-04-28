@@ -10,7 +10,7 @@ slug: about
 [Email](mailto:pfertyk@pfertyk.me){: .email}
 </div>
 
-I'm a software developer from Poznań, Poland.
+I'm a software developer from Berlin, Germany.
 I work mostly with Python, but I used to tamper with Java and C++.
 I'm a huge fan of automated tests, open source, refactoring,
 and removing third party services from my life.
