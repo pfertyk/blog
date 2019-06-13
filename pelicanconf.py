@@ -11,6 +11,9 @@ PATH = 'content'
 TIMEZONE = 'Europe/Warsaw'
 DEFAULT_LANG = 'en'
 
+# This is required by GitHub Pages hosting
+OUTPUT_PATH = ''
+
 DELETE_OUTPUT_DIRECTORY = True
 RELATIVE_URLS = True
 
