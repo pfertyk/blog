@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Paweł Fertyk">
+    <meta name="description" content="Because, sooner or later, you will have to use JavaScript" />
+
+    <link type="application/atom+xml" rel="alternate" href="/feeds/all.atom.xml"  title="Paweł Fertyk's blog on programming - Atom Feed">
+    <link type="application/rss+xml" rel="alternate" href="/feeds/all.rss.xml" title="Paweł Fertyk's blog on programming - RSS Feed">
+
+    <title>Run ESlint on each pull request / Paweł Fertyk</title>
+    <link rel="stylesheet" href="/theme/css/main.css" type="text/css"/>
+    <link rel="shortcut icon" href="/theme/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/theme/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Ubuntu"/>
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro"/>
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=DejaVu+Sans+Mono"/>
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:image" content="/theme/images/pfertyk.jpg" />
+    <meta name="twitter:title" content="Run ESlint on each pull request" />
+    <meta name="twitter:description" content="Because, sooner or later, you will have to use JavaScript" />
+  </head>
+  <body>
+    <div class="page-wrapper">
+      <nav class="no-print">
+        <header><a href="/">Paweł Fertyk</a></header>
+        <ul>
+          <li><a href="/">Blog</a></li><li><a href="/tags/">Tags</a></li><li><a href="/about/">About</a></li>
+        </ul>
+      </nav>
+<h2 class="article-title">
+  Run ESlint on each pull request
+</h2>
+<div class="date-posted">2016-11-08
+<a href="//tag/bot/">bot</a>
+<a href="//tag/heroku/">heroku</a>
+<a href="//tag/javascript/">javascript</a>
+</div>
+<p>In one of my <a href="/2016/10/detect-pep-8-violations-on-pull-requests/">previous posts</a>
+I described how to automatically check for PEP-8 violations on pull requests.
+But sometimes Python is not enough, and your project will require some JavaScript as well.
+Fortunately, you can modify the <code>PEPing-tom</code> bot to also use ESlint to ensure the quality of your whole codebase.</p>
+<p>In this post I will show you how to update your linter to check also JavaScript files using <a href="https://github.com/airbnb/javascript">Airbnb JavaScript Style Guide</a>. To proceed you should first configure an automatic PEP-8 linter mentioned earlier.</p>
+<h2>Heroku configuration</h2>
+<p>First thing you need to do is add another buildpack. As you remember, last time you
+specifically told Heroku that your linter is a Python application. Now you need to
+treat is also as a JavaScript application, so the dependencies in <code>package.json</code> file
+can be properly installed.</p>
+<p>Go to your app's <strong>Settings</strong> and click <strong>Add buildpack</strong> button. Next, select <strong>nodejs</strong> buildpack:</p>
+<p><img alt="Node.js buildpack" src="../../../images/eslint-bot-nodejs-buildpack.png"></p>
+<p>Now your app should have two buildpacks:</p>
+<p><img alt="Two buildpacks" src="../../../images/eslint-bot-double-buildpack.png"></p>
+<p>If you are passionate about the command line (like me), you can achieve the same effect this way:</p>
+<div class="highlight"><pre><span></span>heroku buildpacks:add heroku/nodejs
+</pre></div>
+
+
+<p>Now check if it worked:</p>
+<div class="highlight"><pre><span></span>$ heroku <span class="nv">buildpacks</span>
+<span class="o">===</span> pep8-linter Buildpack URLs
+<span class="m">1</span>. heroku/python
+<span class="m">2</span>. heroku/nodejs
+</pre></div>
+
+
+<h2>Code changes</h2>
+<p>Next you need to update your linter. New version is already available in my
+<a href="github.com/pfertyk/lint-review">repository</a>, you can just clone it and push it to Heroku. The only modification was to put proper
+modules in <code>package.json</code> file:</p>
+<div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;lint-review&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;version&quot;</span><span class="p">:</span> <span class="s2">&quot;0.1.14&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;private&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+  <span class="nt">&quot;dependencies&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;eslint&quot;</span><span class="p">:</span> <span class="s2">&quot;^3.9.1&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;eslint-config-airbnb&quot;</span><span class="p">:</span> <span class="s2">&quot;^12.0.0&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;eslint-plugin-import&quot;</span><span class="p">:</span> <span class="s2">&quot;^2.1.0&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;eslint-plugin-jsx-a11y&quot;</span><span class="p">:</span> <span class="s2">&quot;^2.2.3&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;eslint-plugin-react&quot;</span><span class="p">:</span> <span class="s2">&quot;^6.6.0&quot;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>Of course, if you decide to use another linter (ESlint is not the only available option), then you will have to change the list of packages you want to install.</p>
+<h2>New configuration</h2>
+<p>Now you need to modify the configuration in the repository you want to be checked by your linter.
+Add <code>eslint</code> to the list of linters in <code>.lintrc</code> file:</p>
+<div class="highlight"><pre><span></span><span class="k">[tools]</span>
+<span class="na">linters</span> <span class="o">=</span> <span class="s">flake8, eslint</span>
+</pre></div>
+
+
+<p>Next create a new file with ESlint configuration (call it <code>.eslintrc</code>):</p>
+<div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nt">&quot;extends&quot;</span><span class="p">:</span> <span class="s2">&quot;airbnb&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;rules&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;no-use-before-define&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;error&quot;</span><span class="p">,</span> <span class="p">{</span><span class="nt">&quot;functions&quot;</span><span class="p">:</span><span class="kc">false</span><span class="p">}],</span>
+    <span class="nt">&quot;no-unused-vars&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;error&quot;</span><span class="p">,</span> <span class="p">{</span><span class="nt">&quot;vars&quot;</span><span class="p">:</span> <span class="s2">&quot;all&quot;</span><span class="p">,</span> <span class="nt">&quot;args&quot;</span><span class="p">:</span> <span class="s2">&quot;none&quot;</span><span class="p">}],</span>
+    <span class="nt">&quot;prefer-const&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;error&quot;</span><span class="p">,</span> <span class="p">{</span>
+      <span class="nt">&quot;destructuring&quot;</span><span class="p">:</span> <span class="s2">&quot;all&quot;</span>
+    <span class="p">}],</span>
+    <span class="nt">&quot;no-else-return&quot;</span><span class="p">:</span> <span class="s2">&quot;off&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;class-methods-use-this&quot;</span><span class="p">:</span> <span class="s2">&quot;off&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;no-continue&quot;</span><span class="p">:</span> <span class="s2">&quot;off&quot;</span>
+  <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>This is of course my choice of linting rules. You can configure anything you like or anything your team agreed to use.</p>
+<h2>New bot in action</h2>
+<p>Now let's check if your modified bot actually works. Create a new file <code>main.js</code> and put the following
+code in it:</p>
+<div class="highlight"><pre><span></span><span class="kd">var</span> <span class="nx">x</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="nx">a</span> <span class="o">=</span> <span class="nx">x</span>
+</pre></div>
+
+
+<p>Soon after creating a pull request with this file, you should notice that your bot is not very happy:</p>
+<p><img alt="ESlint comments" src="../../../images/eslint-bot-comments.png"></p>
+<p>You might also notice that the name <code>PEPing-tom</code> no longer suits your bot, since now it can also use ESlint.
+Maybe <code>ESPEP</code> would be better?</p>
+<p>That's it! Your linter is up and running. Now it should keep both Python and JavaScript developers on their toes.</p>
+<p>I hope this tutorial will make your life a bit easier. If any instructions are unclear or not working, please let me know.</p>
+      <div class="footer no-print">
+        <div class="copyright">This work is <a href="https://creativecommons.org/publicdomain/zero/1.0/">public domain</a> (<a href="https://github.com/pfertyk/blog">source</a>)</div>
+      </div>
+    </div>
+  </body>
+</html>

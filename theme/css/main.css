@@ -1,0 +1,144 @@
+@import url("gruvbox.css");
+
+nav, h1, h2, h3, h4, h5, h6 {
+  font-family: "Ubuntu", Sans-Serif;
+}
+body {
+  font-family: "Source Sans Pro", Sans-Serif;
+  font-size: 1.1rem;
+  color: #333;
+}
+nav {
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+}
+a:link,
+a:visited,
+a:active {
+  color: #333;
+  text-decoration: none;
+}
+a:hover {
+  color: #777;
+}
+nav header {
+  text-align: center;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 3rem;
+}
+nav ul {
+  padding: 0;
+}
+nav ul li {
+  display: inline-block;
+  width: 33%;
+  text-align: center;
+  text-transform: uppercase;
+}
+.page-wrapper {
+  max-width: 42rem;
+  margin: 0 auto;
+}
+.copyright {
+  margin-top: 4rem;
+  text-align: center;
+}
+.copyright a {
+  text-decoration: underline;
+}
+.highlight,
+.highlight pre {
+  border-radius: 0.5rem;
+}
+.highlight pre {
+  overflow-x: auto;
+  font-size: 1rem;
+  background-color: #282828;
+  padding: 0.5rem;
+  font-size: 1rem;
+}
+.article-title {
+  margin: 0;
+}
+.date-posted {
+  font-style: italic;
+  color: #888;
+}
+.date-posted a {
+  background-color: #ccc;
+  color: #fff;
+  padding: 0 0.2rem;
+  border-radius: 0.3rem;
+}
+.about h1,
+.about .social-links {
+  text-align: center;
+}
+.about a {
+  text-decoration: underline;
+}
+.social-links a {
+  display: inline-block;
+  text-indent: -9999px;
+  width: 4rem;
+  height: 4rem;
+  margin: 0.5rem;
+  background-position: center;
+  background-size: 4rem;
+}
+.social-links .github {
+  background-image: url(../images/github.svg);
+}
+.social-links .exercism {
+  background-image: url(../images/exercism.svg);
+}
+.social-links .email {
+  background-image: url(../images/email.svg);
+}
+.about .photo {
+  border-radius: 50%;
+  width: 16rem;
+  height: 16rem;
+  margin: 1rem auto;
+  background-image: url(../images/pfertyk.jpg);
+  background-position: center;
+  background-size: 16rem;
+}
+.about .description {
+  margin-top: 4rem;
+}
+code {
+  font-family: "DejaVu Sans Mono", monospace;
+  background-color: #ccc;
+  padding: 0 0.2rem;
+  font-size: 1rem;
+  border-radius: 0.3rem;
+}
+.page-wrapper p a {
+  text-decoration: underline;
+}
+table {
+  border-collapse: collapse;
+}
+td, th {
+  padding: 0.25rem;
+  border: 2px solid #ccc;
+}
+.page-wrapper p img,
+.page-wrapper table {
+  max-width: 100%;
+  margin: 0 auto;
+}
+.page-wrapper p img {
+  display: block;
+}
+p,
+.description {
+  line-height: 1.4;
+}
+@media print {
+  .no-print, .no-print * {
+    display: none !important;
+  }
+}

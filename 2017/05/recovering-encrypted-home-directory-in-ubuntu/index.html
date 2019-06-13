@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Paweł Fertyk">
+    <meta name="description" content="If you forget your password, but still have the mount passphrase" />
+
+    <link type="application/atom+xml" rel="alternate" href="/feeds/all.atom.xml"  title="Paweł Fertyk's blog on programming - Atom Feed">
+    <link type="application/rss+xml" rel="alternate" href="/feeds/all.rss.xml" title="Paweł Fertyk's blog on programming - RSS Feed">
+
+    <title>Recovering encrypted home directory in Ubuntu / Paweł Fertyk</title>
+    <link rel="stylesheet" href="/theme/css/main.css" type="text/css"/>
+    <link rel="shortcut icon" href="/theme/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/theme/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Ubuntu"/>
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro"/>
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=DejaVu+Sans+Mono"/>
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:image" content="/theme/images/pfertyk.jpg" />
+    <meta name="twitter:title" content="Recovering encrypted home directory in Ubuntu" />
+    <meta name="twitter:description" content="If you forget your password, but still have the mount passphrase" />
+  </head>
+  <body>
+    <div class="page-wrapper">
+      <nav class="no-print">
+        <header><a href="/">Paweł Fertyk</a></header>
+        <ul>
+          <li><a href="/">Blog</a></li><li><a href="/tags/">Tags</a></li><li><a href="/about/">About</a></li>
+        </ul>
+      </nav>
+<h2 class="article-title">
+  Recovering encrypted home directory in Ubuntu
+</h2>
+<div class="date-posted">2017-05-10
+<a href="//tag/linux/">linux</a>
+<a href="//tag/ecryptfs/">ecryptfs</a>
+</div>
+<p>An embarrassing thing happened to me lately: I forgot the password to my PC.
+The connection between my neurons responsible for keeping it suddenly disappeared.
+And no matter how hard I tried, I couldn't bring it back.</p>
+<p>Of course I make backups, but this time I skipped one and I had
+some important files that were not copied to my external drive.
+Normally I would just use a Live USB stick to access the hard drive,
+recover my data and install a fresh Xubuntu on my PC.</p>
+<p>The problem was that I encrypted my home directory. To decrypt it, I needed
+a password (which, as I mentioned, was gone). Hopefully I recalled that
+during the encryption process a mount passphrase was generated, and I was informed
+that I should keep it in case I forget the password. So I could just use this
+passphrase to get my precious data and the problem was solved.</p>
+<p>Well, not exactly. The process of decrypting my home directory was a bit more
+complicated than I expected and I ran into some problems. Here is how I overcame
+them.</p>
+<h2>Approach #1: <code>ecryptfs-recover-private</code> (not brilliant)</h2>
+<p>The solution recommended by most people on the Internet was to use <code>ecryptfs-recover-private</code>. I did that (running from a Live USB stick), and I discovered my first problem:</p>
+<div class="highlight"><pre><span></span>xubuntu@xubuntu:~$ sudo ecryptfs-recover-private
+INFO: Searching for encrypted private directories (this might take a while)...
+find: ‘/run/user/999/gvfs’: Permission denied
+find: File system loop detected; ‘/sys/kernel/debug/pinctrl’ is part of the same file system loop as ‘/sys/kernel/debug’.
+</pre></div>
+
+
+<p>Apparently, I had to run this command from my PC's root directory, not from my
+Live USB. Nothing a small <code>chroot</code> couldn't fix:</p>
+<div class="highlight"><pre><span></span>xubuntu@xubuntu:~$ sudo chroot /media/xubuntu/c1ecb1af-7c15-470f-a777-48ed5eb60247/
+root@xubuntu:/# ecryptfs-recover-private 
+INFO: Searching for encrypted private directories (this might take a while)...
+INFO: Found [/home/.ecryptfs/pawel/.Private].
+Try to recover this directory? [Y/n]:
+/usr/bin/ecryptfs-recover-private: 63: /usr/bin/ecryptfs-recover-private: cannot create /dev/null: Permission denied
+INFO: Found your wrapped-passphrase
+Do you know your LOGIN passphrase? [Y/n] n
+INFO: To recover this directory, you MUST have your original MOUNT passphrase.
+INFO: When you first setup your encrypted private directory, you were told to record
+INFO: your MOUNT passphrase.
+INFO: It should be 32 characters long, consisting of [0-9] and [a-f].
+
+Enter your MOUNT passphrase:
+INFO: Success!  Private data mounted at [/tmp/ecryptfs.z7cibvV4].
+</pre></div>
+
+
+<p>The encrypted home directory was found without a problem. Without my
+password, I had to use my mount passphrase, and the files were successfully
+decrypted!</p>
+<p>Or so I thought. The content of the mounted directory looked like this:</p>
+<p><img alt="Encrypted filenames" src="../../../images/ecryptfs-encrypted-filenames.png"></p>
+<p>The files might have been available now, but they were rather useless
+without their original names. So I had to find something better.</p>
+<h2>Approach #2: <code>mount -t ecryptfs</code> (good enough)</h2>
+<p>Another solution was to mount the encrypted directory. To do this, I first had to add
+the filename encryption key (fnek) to the keyring (using the mount passphrase):</p>
+<div class="highlight"><pre><span></span>xubuntu@xubuntu:~$ sudo ecryptfs-add-passphrase --fnek
+Passphrase: 
+Inserted auth tok with sig [9b15cb67b475a9e1] into the user session keyring
+Inserted auth tok with sig [d06fa6176f780bdb] into the user session keyring
+</pre></div>
+
+
+<p>The important key signature here is the second one (<code>d06fa6176f780bdb</code>).</p>
+<p>Next I could mount my home directory:</p>
+<div class="highlight"><pre><span></span>xubuntu@xubuntu:~$ sudo mount -t ecryptfs /media/xubuntu/c1ecb1af-7c15-470f-a777-48ed5eb60247/home/.ecryptfs/pawel/.Private/ /mnt
+Passphrase: 
+Select cipher: 
+ 1) aes: blocksize = 16; min keysize = 16; max keysize = 32
+ 2) blowfish: blocksize = 8; min keysize = 16; max keysize = 56
+ 3) des3_ede: blocksize = 8; min keysize = 24; max keysize = 24
+ 4) twofish: blocksize = 16; min keysize = 16; max keysize = 32
+ 5) cast6: blocksize = 16; min keysize = 16; max keysize = 32
+ 6) cast5: blocksize = 8; min keysize = 5; max keysize = 16
+Selection [aes]: 
+Select key bytes: 
+ 1) 16
+ 2) 32
+ 3) 24
+Selection [16]: 
+Enable plaintext passthrough (y/n) [n]: 
+Enable filename encryption (y/n) [n]: y
+Filename Encryption Key (FNEK) Signature [9b15cb67b475a9e1]: d06fa6176f780bdb
+Attempting to mount with the following options:
+  ecryptfs_unlink_sigs
+  ecryptfs_fnek_sig=d06fa6176f780bdb
+  ecryptfs_key_bytes=16
+  ecryptfs_cipher=aes
+  ecryptfs_sig=9b15cb67b475a9e1
+Mounted eCryptfs
+</pre></div>
+
+
+<p>In the first step I provided the mount passphrase. I kept the default
+values of most of the other options, except for <strong>Enable filename encryption</strong>.
+I then entered the key signature generated by <code>ecryptfs-add-passphrase</code>.
+My files were finally decrypted and they kept their original names!
+Now I could copy them and install Xubuntu on my PC.</p>
+<h2>Summary</h2>
+<p>The decryption process using the mount passphrase turned out to be possible,
+but not as straigtforward as I expected. I investigated one more approach, one
+I think would be perfect for this situation: changing the login password for
+the encrypted home directory. Unfortunately, I couldn't find a way to do this
+without knowing the old password.</p>
+<p>I hope that this post will help you with decrypting your data. If you find a better
+solution or spot a mistake in this post, please let me know.</p>
+      <div class="footer no-print">
+        <div class="copyright">This work is <a href="https://creativecommons.org/publicdomain/zero/1.0/">public domain</a> (<a href="https://github.com/pfertyk/blog">source</a>)</div>
+      </div>
+    </div>
+  </body>
+</html>

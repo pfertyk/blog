@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Paweł Fertyk - nginx</title><link href="https://pfertyk.me/" rel="alternate"></link><link href="https://pfertyk.me/feeds/nginx.atom.xml" rel="self"></link><id>https://pfertyk.me/</id><updated>2017-04-04T00:00:00+02:00</updated><entry><title>Redirections in Nginx</title><link href="/2017/04/redirections-in-nginx/" rel="alternate"></link><published>2017-04-04T00:00:00+02:00</published><updated>2017-04-04T00:00:00+02:00</updated><author><name></name></author><id>tag:None,2017-04-04:/2017/04/redirections-in-nginx/</id><summary type="html">&lt;p&gt;Host different resources on port 80 using subdomains&lt;/p&gt;</summary><content type="html">&lt;p&gt;Some time ago, I decided to host a &lt;a href="http://clean-tests.pfertyk.me"&gt;presentation &lt;/a&gt;
+on my server. The idea was to have a nice URL (like &lt;code&gt;awesome-slides.pfertyk.me&lt;/code&gt;)
+that would point to a location handled by Nginx (like: &lt;code&gt;pfertyk.me/awesome-slides&lt;/code&gt;).
+This simple task turned out to be a bit more complicated.&lt;/p&gt;
+&lt;p&gt;The first problem that I stumbled upon was that the &lt;code&gt;/&lt;/code&gt; location was already in use. As you
+probably guessed, that is where my blog is (the one you are reading right now).
+That caused Nginx to try to find other locations (like &lt;code&gt;/awesome-slides&lt;/code&gt;) inside
+by blog directory. There is probably a workaround for this problem,
+but I couldn't find it in a reasonable amount of time. So I decided to solve
+this other way.&lt;/p&gt;
+&lt;p&gt;I configured Nginx to host the slides on port 8000 (&lt;code&gt;pfertyk.me:8000&lt;/code&gt;).
+The configuration looked like this:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;server&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="kn"&gt;listen&lt;/span&gt; &lt;span class="mi"&gt;8000&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+    &lt;span class="kn"&gt;location&lt;/span&gt; &lt;span class="s"&gt;/&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="kn"&gt;root&lt;/span&gt; &lt;span class="s"&gt;/path/to/awesome/slides&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="kn"&gt;index&lt;/span&gt; &lt;span class="s"&gt;index.html&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Now I just needed to add a subdomain redirection:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;awesome&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;slides&lt;/span&gt; &lt;span class="mi"&gt;60&lt;/span&gt; &lt;span class="k"&gt;IN&lt;/span&gt; &lt;span class="n"&gt;TXT&lt;/span&gt; &lt;span class="ss"&gt;&amp;quot;2|pfertyk.me:8000&amp;quot;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;and my presentation was available to the public. Everything seemed fine until I
+opened the web console:&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Ugly redirection" src="https://pfertyk.me/images/nginx-ugly-redirection.png"&gt;&lt;/p&gt;
+&lt;p&gt;The first call was made to &lt;code&gt;awesome-slides.pfertyk.me&lt;/code&gt;, but all the
+subsequent ones used the domain &lt;code&gt;pfertyk.me:8000&lt;/code&gt;. I know that normal users don't usually
+open the web console, so it shouldn't be a problem. But it felt like I was doing
+this wrong, like there was a way to hide that ugly port number.&lt;/p&gt;
+&lt;p&gt;So I dug deeper into this problem and, with some help, I found a solution.
+I had to set &lt;code&gt;server_name&lt;/code&gt; properly, so that Nginx would handle requests
+from different subdomains. The new configuration looked like this:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;server&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="kn"&gt;listen&lt;/span&gt; &lt;span class="mi"&gt;80&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="kn"&gt;server_name&lt;/span&gt; &lt;span class="s"&gt;actually-awesome-slides.pfertyk.me&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+    &lt;span class="kn"&gt;location&lt;/span&gt; &lt;span class="s"&gt;/&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="kn"&gt;root&lt;/span&gt; &lt;span class="s"&gt;/path/to/awesome/slides&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="kn"&gt;index&lt;/span&gt; &lt;span class="s"&gt;index.html&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;I had to change the DNS record too:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;actually&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;awesome&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;slides&lt;/span&gt; &lt;span class="k"&gt;IN&lt;/span&gt; &lt;span class="n"&gt;CNAME&lt;/span&gt; &lt;span class="n"&gt;pfertyk&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;me&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;And there it was:&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Pretty redirection" src="https://pfertyk.me/images/nginx-pretty-redirection.png"&gt;&lt;/p&gt;
+&lt;p&gt;The configuration was simple and elegant. The port number was hidden.
+In fact, Nginx was now using port 80 for all the
+resources (currently I have more than one presentation
+hosted that way).&lt;/p&gt;
+&lt;p&gt;I hope this short tutorial helped you in some way. Please contact me if you
+have any questions.&lt;/p&gt;</content><category term="nginx"></category></entry></feed>

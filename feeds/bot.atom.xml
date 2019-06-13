@@ -1,0 +1,465 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Paweł Fertyk - bot</title><link href="https://pfertyk.me/" rel="alternate"></link><link href="https://pfertyk.me/feeds/bot.atom.xml" rel="self"></link><id>https://pfertyk.me/</id><updated>2016-11-08T00:00:00+01:00</updated><entry><title>Run ESlint on each pull request</title><link href="/2016/11/run-eslint-on-each-pull-request/" rel="alternate"></link><published>2016-11-08T00:00:00+01:00</published><updated>2016-11-08T00:00:00+01:00</updated><author><name></name></author><id>tag:None,2016-11-08:/2016/11/run-eslint-on-each-pull-request/</id><summary type="html">&lt;p&gt;Because, sooner or later, you will have to use JavaScript&lt;/p&gt;</summary><content type="html">&lt;p&gt;In one of my &lt;a href="/2016/10/detect-pep-8-violations-on-pull-requests/"&gt;previous posts&lt;/a&gt;
+I described how to automatically check for PEP-8 violations on pull requests.
+But sometimes Python is not enough, and your project will require some JavaScript as well.
+Fortunately, you can modify the &lt;code&gt;PEPing-tom&lt;/code&gt; bot to also use ESlint to ensure the quality of your whole codebase.&lt;/p&gt;
+&lt;p&gt;In this post I will show you how to update your linter to check also JavaScript files using &lt;a href="https://github.com/airbnb/javascript"&gt;Airbnb JavaScript Style Guide&lt;/a&gt;. To proceed you should first configure an automatic PEP-8 linter mentioned earlier.&lt;/p&gt;
+&lt;h2&gt;Heroku configuration&lt;/h2&gt;
+&lt;p&gt;First thing you need to do is add another buildpack. As you remember, last time you
+specifically told Heroku that your linter is a Python application. Now you need to
+treat is also as a JavaScript application, so the dependencies in &lt;code&gt;package.json&lt;/code&gt; file
+can be properly installed.&lt;/p&gt;
+&lt;p&gt;Go to your app's &lt;strong&gt;Settings&lt;/strong&gt; and click &lt;strong&gt;Add buildpack&lt;/strong&gt; button. Next, select &lt;strong&gt;nodejs&lt;/strong&gt; buildpack:&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Node.js buildpack" src="https://pfertyk.me/images/eslint-bot-nodejs-buildpack.png"&gt;&lt;/p&gt;
+&lt;p&gt;Now your app should have two buildpacks:&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Two buildpacks" src="https://pfertyk.me/images/eslint-bot-double-buildpack.png"&gt;&lt;/p&gt;
+&lt;p&gt;If you are passionate about the command line (like me), you can achieve the same effect this way:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;heroku buildpacks:add heroku/nodejs
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Now check if it worked:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ heroku &lt;span class="nv"&gt;buildpacks&lt;/span&gt;
+&lt;span class="o"&gt;===&lt;/span&gt; pep8-linter Buildpack URLs
+&lt;span class="m"&gt;1&lt;/span&gt;. heroku/python
+&lt;span class="m"&gt;2&lt;/span&gt;. heroku/nodejs
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;Code changes&lt;/h2&gt;
+&lt;p&gt;Next you need to update your linter. New version is already available in my
+&lt;a href="github.com/pfertyk/lint-review"&gt;repository&lt;/a&gt;, you can just clone it and push it to Heroku. The only modification was to put proper
+modules in &lt;code&gt;package.json&lt;/code&gt; file:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="nt"&gt;&amp;quot;name&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;lint-review&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="nt"&gt;&amp;quot;version&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;0.1.14&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="nt"&gt;&amp;quot;private&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="nt"&gt;&amp;quot;dependencies&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;eslint&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;^3.9.1&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;eslint-config-airbnb&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;^12.0.0&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;eslint-plugin-import&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;^2.1.0&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;eslint-plugin-jsx-a11y&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;^2.2.3&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;eslint-plugin-react&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;^6.6.0&amp;quot;&lt;/span&gt;
+  &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Of course, if you decide to use another linter (ESlint is not the only available option), then you will have to change the list of packages you want to install.&lt;/p&gt;
+&lt;h2&gt;New configuration&lt;/h2&gt;
+&lt;p&gt;Now you need to modify the configuration in the repository you want to be checked by your linter.
+Add &lt;code&gt;eslint&lt;/code&gt; to the list of linters in &lt;code&gt;.lintrc&lt;/code&gt; file:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;[tools]&lt;/span&gt;
+&lt;span class="na"&gt;linters&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;flake8, eslint&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Next create a new file with ESlint configuration (call it &lt;code&gt;.eslintrc&lt;/code&gt;):&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="nt"&gt;&amp;quot;extends&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;airbnb&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="nt"&gt;&amp;quot;rules&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;no-use-before-define&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;error&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="nt"&gt;&amp;quot;functions&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="kc"&gt;false&lt;/span&gt;&lt;span class="p"&gt;}],&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;no-unused-vars&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;error&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="nt"&gt;&amp;quot;vars&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;all&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nt"&gt;&amp;quot;args&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;none&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;}],&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;prefer-const&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;error&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+      &lt;span class="nt"&gt;&amp;quot;destructuring&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;all&amp;quot;&lt;/span&gt;
+    &lt;span class="p"&gt;}],&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;no-else-return&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;off&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;class-methods-use-this&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;off&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;no-continue&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;off&amp;quot;&lt;/span&gt;
+  &lt;span class="p"&gt;},&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This is of course my choice of linting rules. You can configure anything you like or anything your team agreed to use.&lt;/p&gt;
+&lt;h2&gt;New bot in action&lt;/h2&gt;
+&lt;p&gt;Now let's check if your modified bot actually works. Create a new file &lt;code&gt;main.js&lt;/code&gt; and put the following
+code in it:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kd"&gt;var&lt;/span&gt; &lt;span class="nx"&gt;x&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;5&lt;/span&gt;
+&lt;span class="nx"&gt;a&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;x&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Soon after creating a pull request with this file, you should notice that your bot is not very happy:&lt;/p&gt;
+&lt;p&gt;&lt;img alt="ESlint comments" src="https://pfertyk.me/images/eslint-bot-comments.png"&gt;&lt;/p&gt;
+&lt;p&gt;You might also notice that the name &lt;code&gt;PEPing-tom&lt;/code&gt; no longer suits your bot, since now it can also use ESlint.
+Maybe &lt;code&gt;ESPEP&lt;/code&gt; would be better?&lt;/p&gt;
+&lt;p&gt;That's it! Your linter is up and running. Now it should keep both Python and JavaScript developers on their toes.&lt;/p&gt;
+&lt;p&gt;I hope this tutorial will make your life a bit easier. If any instructions are unclear or not working, please let me know.&lt;/p&gt;</content><category term="bot"></category><category term="heroku"></category><category term="javascript"></category></entry><entry><title>Automatically respond to Slack messages containing specific text</title><link href="/2016/11/automatically-respond-to-slack-messages-containing-specific-text/" rel="alternate"></link><published>2016-11-01T00:00:00+01:00</published><updated>2016-11-01T00:00:00+01:00</updated><author><name></name></author><id>tag:None,2016-11-01:/2016/11/automatically-respond-to-slack-messages-containing-specific-text/</id><summary type="html">&lt;p&gt;Yeah, that would be great&lt;/p&gt;</summary><content type="html">&lt;p&gt;Recently I tried to create a Slack bot. It's job was to read messages and, if &lt;em&gt;'that would be great'&lt;/em&gt; was detected in the content, respond to the message with a picture of Bill Lumbergh from &lt;em&gt;Office Space&lt;/em&gt; (yeah, I'm a funny guy). But I found out that the learning resources are somewhat scattered around the Internet. It was difficult for a person not familiar with Slack API and with bots in general to quickly create nothing more than a simple bot. I finally put together the information from different sources and decided to describe the process here.&lt;/p&gt;
+&lt;p&gt;This post will show you how to integrate with Slack in two ways: using bot users and outgoing webhooks. You don't have to know anything about Slack or Python frameworks, but basic Python skills are required (also a Heroku account or your own server would be helpful). The code will be simple and will do the one and only task that I mentioned: detect the phrase and respond with an image. Let't get right to it!&lt;/p&gt;
+&lt;h2&gt;Bot users&lt;/h2&gt;
+&lt;p&gt;Slack allows you to create &lt;a href="https://api.slack.com/bot-users"&gt;bot users&lt;/a&gt;. They are very similar to normal users, except they can be controlled using the API token.&lt;/p&gt;
+&lt;h3&gt;Create a bot user&lt;/h3&gt;
+&lt;p&gt;To create a new bot user, visit &lt;a href="https://my.slack.com/services/new/bot"&gt;this link&lt;/a&gt; (of course, you have to be a full member of your team to do that). First, you need to pick a name for your bot:&lt;/p&gt;
+&lt;p&gt;&lt;img alt="New bot's name" src="https://pfertyk.me/images/slack-lumbergh-bot-creation.png"&gt;&lt;/p&gt;
+&lt;p&gt;Then, you can access your bot's settings. It is possible (and advised!) to give it a nice name and a proper icon. But the important part here is the token:&lt;/p&gt;
+&lt;p&gt;&lt;img alt="New bot's token" src="https://pfertyk.me/images/slack-lumbergh-bot-token.png"&gt;&lt;/p&gt;
+&lt;p&gt;This will be required for your Python code to post messages to Slack channels. From now on, I'm going to assume that your token is &lt;code&gt;xoxo-123token&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Now that your bot is created, go ahead and invite it:&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Inviting the bot" src="https://pfertyk.me/images/slack-lumbergh-bot-invite.png"&gt;&lt;/p&gt;
+&lt;p&gt;The bot should be more than happy to accept the invitation:&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Bot accepted invitation" src="https://pfertyk.me/images/slack-lumbergh-bot-accept-invitation.png"&gt;&lt;/p&gt;
+&lt;h3&gt;Write the code&lt;/h3&gt;
+&lt;p&gt;First, you need to create a new virtualenv and install &lt;code&gt;slackclient&lt;/code&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;mkvirtualenv -p /usr/bin/python3 slack-bot
+pip install slackclient
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Next you have to actually create a Slack client, using your bot's token. For security reasons set the environment variable with the token:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nb"&gt;export&lt;/span&gt; &lt;span class="nv"&gt;SLACKBOT_LUMBERGH_TOKEN&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;xoxo-123token
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;and then use it in Python:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;slackclient&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;SlackClient&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;os&lt;/span&gt;
+
+
+&lt;span class="n"&gt;token&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;os&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;environ&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;SLACKBOT_LUMBERGH_TOKEN&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;slack_client&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;SlackClient&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;token&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;There are many methods provided by &lt;code&gt;slackclient&lt;/code&gt; (you can check the &lt;a href="http://python-slackclient.readthedocs.io/en/latest/"&gt;documentation&lt;/a&gt;). For this example, we are going to use just 3 of them.&lt;/p&gt;
+&lt;p&gt;To start working with Slack use &lt;code&gt;rtm_connect&lt;/code&gt;. It will open a websocket connection and start to listen for events.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;slack_client&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;rtm_connect&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+    &lt;span class="c1"&gt;# proceed&lt;/span&gt;
+&lt;span class="k"&gt;else&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;Connection failed, invalid token?&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;To get the list of events, use &lt;code&gt;rtm_read&lt;/code&gt;. It will return a list of events since the last call.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;events&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;slack_client&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;rtm_read&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;event&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;events&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="c1"&gt;# process event&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;There are different types of events. You want to intercept those that have a &lt;code&gt;message&lt;/code&gt; type, come from a specific channel and contain some text:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;
+    &lt;span class="s1"&gt;&amp;#39;channel&amp;#39;&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;event&lt;/span&gt; &lt;span class="ow"&gt;and&lt;/span&gt;
+    &lt;span class="s1"&gt;&amp;#39;text&amp;#39;&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;event&lt;/span&gt; &lt;span class="ow"&gt;and&lt;/span&gt;
+    &lt;span class="n"&gt;event&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;type&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;message&amp;#39;&lt;/span&gt;
+&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="c1"&gt;# this is the event you are looking for&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Now that you have an actual message, you can check if the text contains the phrase &lt;em&gt;'that would be great'&lt;/em&gt;. If so, you can post a new message to a Slack channel the message came from. To do this, use &lt;code&gt;api_call&lt;/code&gt; method:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;link&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;&amp;lt;https://cdn.meme.am/instances/400x/33568413.jpg|That would be great&amp;gt;&amp;#39;&lt;/span&gt;
+
+&lt;span class="n"&gt;slack_client&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;api_call&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+    &lt;span class="s1"&gt;&amp;#39;chat.postMessage&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;channel&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;event&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;channel&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
+    &lt;span class="n"&gt;text&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;link&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;as_user&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;true:&amp;#39;&lt;/span&gt;
+&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Some things might require an explaination:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;'chat.postMessage'&lt;/code&gt; defines that type of the API call you are going to make (in this case, you want to post a message)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;as_user='true:'&lt;/code&gt; will make your bot's messages appear as they were sent by a normal Slack user&lt;/li&gt;
+&lt;li&gt;link's format is &lt;code&gt;&amp;lt;actual_url|Displayed text&amp;gt;&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;You code by far should look like this:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;slackclient&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;SlackClient&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;time&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;os&lt;/span&gt;
+
+&lt;span class="n"&gt;token&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;os&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;environ&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;SLACKBOT_LUMBERGH_TOKEN&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;slack_client&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;SlackClient&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;token&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;link&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;&amp;lt;https://cdn.meme.am/instances/400x/33568413.jpg|That would be great&amp;gt;&amp;#39;&lt;/span&gt;
+
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;slack_client&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;rtm_connect&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+    &lt;span class="k"&gt;while&lt;/span&gt; &lt;span class="bp"&gt;True&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;events&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;slack_client&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;rtm_read&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+        &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;event&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;events&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+            &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;
+                &lt;span class="s1"&gt;&amp;#39;channel&amp;#39;&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;event&lt;/span&gt; &lt;span class="ow"&gt;and&lt;/span&gt;
+                &lt;span class="s1"&gt;&amp;#39;text&amp;#39;&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;event&lt;/span&gt; &lt;span class="ow"&gt;and&lt;/span&gt;
+                &lt;span class="n"&gt;event&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;type&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;message&amp;#39;&lt;/span&gt;
+            &lt;span class="p"&gt;):&lt;/span&gt;
+                &lt;span class="n"&gt;channel&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;event&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;channel&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+                &lt;span class="n"&gt;text&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;event&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;text&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+                &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;that would be great&amp;#39;&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;text&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;lower&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="ow"&gt;and&lt;/span&gt; &lt;span class="n"&gt;link&lt;/span&gt; &lt;span class="ow"&gt;not&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;text&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+                    &lt;span class="n"&gt;slack_client&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;api_call&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+                        &lt;span class="s1"&gt;&amp;#39;chat.postMessage&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+                        &lt;span class="n"&gt;channel&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;channel&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+                        &lt;span class="n"&gt;text&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;link&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+                        &lt;span class="n"&gt;as_user&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;true:&amp;#39;&lt;/span&gt;
+                    &lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="n"&gt;time&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sleep&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;else&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;Connection failed, invalid token?&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;The &lt;code&gt;sleep(1)&lt;/code&gt; fragment was added to slow down the loop a bit. Notice that the text is also checked for the presence of the link itself (otherwise your bot would start answering its own messages).&lt;/p&gt;
+&lt;p&gt;Assuming that you named your file &lt;code&gt;main.py&lt;/code&gt; you can now run the program:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;python main.py
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;and see your bot in action:&lt;/p&gt;
+&lt;p&gt;&lt;img alt="User bot in action" src="https://pfertyk.me/images/slack-lumbergh-bot-answer.png"&gt;&lt;/p&gt;
+&lt;p&gt;It works quite nicely, except for that awful endless loop. That is not how the code should look like. If only there was a way to react to actual messages instead of reading all the events...&lt;/p&gt;
+&lt;h2&gt;Outgoing webhooks&lt;/h2&gt;
+&lt;p&gt;Fortunately, Slack provides another way of integrating with other services: webhooks. Thanks to them you can receive a call each time a message is sent to a channel.&lt;/p&gt;
+&lt;h3&gt;Create a webhook&lt;/h3&gt;
+&lt;p&gt;Go to &lt;a href="https://my.slack.com/services/new/outgoing-webhook"&gt;Outgoing WebHooks&lt;/a&gt; page and click &lt;strong&gt;Add Outgoing WebHooks integration&lt;/strong&gt;. You will be redirected to the &lt;strong&gt;Edit configuration&lt;/strong&gt; page, and you will immediately notice some limitations:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;the integration can only be enabled for one specific channel or for all messages starting with specific (trigger) words&lt;/li&gt;
+&lt;li&gt;you will need a server with a public IP address to send the messages to (you need to provide a URL that Slack can find)&lt;/li&gt;
+&lt;li&gt;you can still customize the name and the icon, but you will have to repeat the process for each channel (unless you are going to use trigger words)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;So, is it even worth the effort to use this outgoing webhook instead of a bot user? I think it is. Infinite loops without breaking conditions are evil and you should avoid them. Besides, the downsides are not really that troublesome (you probably will use this integration on one or two channels anyway, and setting up the server with Heroku is quite easy).&lt;/p&gt;
+&lt;p&gt;Let's proceed with the configuration. Select the channel and leave the &lt;strong&gt;Trigger Word(s)&lt;/strong&gt; section empty (you don't want to restrict the messages that will be answered). I'm going to assume for a moment that you have your own public IP address and that it is &lt;code&gt;123.1.2.3&lt;/code&gt; (don't worry, in just a moment you will deploy your program to Heroku and that will take care of the public IP problem). Put &lt;code&gt;123.1.2.3/lumbergh&lt;/code&gt; in the &lt;strong&gt;URL(s)&lt;/strong&gt; field. You can also customize the name and the icon.&lt;/p&gt;
+&lt;p&gt;There is another important section here: &lt;strong&gt;Token&lt;/strong&gt;. It contains the token that will be added to each API call send to the URLs you provided. You will get back to it in a moment.&lt;/p&gt;
+&lt;p&gt;Click &lt;strong&gt;Save Settings&lt;/strong&gt; button. Notice that you don't need to invite an integration to a channel, it will be added automatically when you create the webhook (also, unlike bot users, integrations can have names starting with a capital letter):&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Webhook integration enabled" src="https://pfertyk.me/images/slack-lumbergh-webhook-enabled.png"&gt;&lt;/p&gt;
+&lt;h3&gt;Write the code&lt;/h3&gt;
+&lt;p&gt;The new version of your program will not require &lt;code&gt;slackclient&lt;/code&gt; at all. Instead, you are going to use &lt;code&gt;flask&lt;/code&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pip install flask
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;A very simple application would look like this:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;flask&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;Flask&lt;/span&gt;
+
+&lt;span class="n"&gt;app&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Flask&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="vm"&gt;__name__&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="vm"&gt;__name__&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;__main__&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;app&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;run&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;host&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;0.0.0.0&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;  &lt;span class="c1"&gt;# make the app externally visible&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This of course will not do anything useful, so let's create an endpoint:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nd"&gt;@app.route&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;/lumbergh&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;methods&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;POST&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;lumbergh&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+    &lt;span class="n"&gt;text&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;request&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;form&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;text&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;that would be great&amp;#39;&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;text&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;lower&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="ow"&gt;and&lt;/span&gt; &lt;span class="n"&gt;link&lt;/span&gt; &lt;span class="ow"&gt;not&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;text&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;jsonify&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;text&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;link&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;Response&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt; &lt;span class="mi"&gt;200&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Now every time Slack calls &lt;code&gt;123.1.2.3/lumbergh&lt;/code&gt;, the program will check if the message contains the phrase &lt;em&gt;'it would be great'&lt;/em&gt;. If so, a link to the image will be returned. Notice that you no longer need to use &lt;code&gt;api_call&lt;/code&gt; here: the response with a text will be automatically converted to a new message by Slack.&lt;/p&gt;
+&lt;p&gt;The code of your program should look like this:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;flask&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;Flask&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;request&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Response&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;jsonify&lt;/span&gt;
+
+&lt;span class="n"&gt;app&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Flask&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="vm"&gt;__name__&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;link&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;&amp;lt;https://cdn.meme.am/instances/400x/33568413.jpg|That would be great&amp;gt;&amp;#39;&lt;/span&gt;
+
+
+&lt;span class="nd"&gt;@app.route&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;/lumbergh&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;methods&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;POST&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;lumbergh&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+    &lt;span class="n"&gt;text&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;request&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;form&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;text&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;that would be great&amp;#39;&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;text&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;lower&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="ow"&gt;and&lt;/span&gt; &lt;span class="n"&gt;link&lt;/span&gt; &lt;span class="ow"&gt;not&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;text&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;jsonify&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;text&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;link&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;Response&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt; &lt;span class="mi"&gt;200&lt;/span&gt;
+
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="vm"&gt;__name__&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;__main__&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;app&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;run&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;host&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;0.0.0.0&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Do you remember the token that Slack created for your outgoing webhook? You might notice that there is no token validation here. If you want, you can check if the call was made by Slack:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;lumbergh&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;request&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;form&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;token&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="n"&gt;os&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;environ&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;WEBHOOK_TOKEN&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="c1"&gt;# process the message&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;Response&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt; &lt;span class="mi"&gt;200&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;I decided however to skip the validation. That way one instance of a program can be used with multiple channels.&lt;/p&gt;
+&lt;p&gt;You can run the your new app (on a publicly available server):&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;python main.py
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;and check if it works:&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Webhook integration response" src="https://pfertyk.me/images/slack-lumbergh-webhook-working.png"&gt;&lt;/p&gt;
+&lt;p&gt;The problem is that you still need to have a public IP address. Let's solve this problem with Heroku.&lt;/p&gt;
+&lt;h3&gt;Deploying on Heroku&lt;/h3&gt;
+&lt;p&gt;I'm going to assume that you already have a Heroku account and that you installed &lt;strong&gt;Heroku CLI&lt;/strong&gt;. Create a new app and give it a nice name (I picked &lt;em&gt;lumbergh&lt;/em&gt;). Go to &lt;strong&gt;Settings&lt;/strong&gt;, check the git URL and configure the git remote accordingly:&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Webhook integration git URL" src="https://pfertyk.me/images/slack-lumbergh-webhook-git.png"&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;git init
+git remote add heroku https://git.heroku.com/lumbergh.git
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;To run the program you will need a server, for example &lt;code&gt;gunicorn&lt;/code&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pip install gunicorn
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;For a program to work with Heroku, you have to create an additional file called &lt;code&gt;Procfile&lt;/code&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="na"&gt;web: gunicorn lumbergh:app&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Also, since &lt;a href="https://wiki.python.org/moin/Python2orPython3"&gt;Python 2.x is legacy and Python 3.x is the present and future of the language&lt;/a&gt;, you should inform Heroku that you want to use the proper version of Python by creating a &lt;code&gt;runtime.txt&lt;/code&gt; file:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="na"&gt;python-3.4.3&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Now you can deploy to Heroku (remember that first you need to use &lt;code&gt;heroku login&lt;/code&gt;):&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;git push heroku master
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Check the &lt;strong&gt;Overview&lt;/strong&gt; to see if the program is working:&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Webhook integration status" src="https://pfertyk.me/images/slack-lumbergh-webhook-status.png"&gt;&lt;/p&gt;
+&lt;p&gt;Now you can change the URL for the Slack webhook to the one provided by Heroku (you will find it in &lt;strong&gt;Settings&lt;/strong&gt;):&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Webhook integration Heroku address" src="https://pfertyk.me/images/slack-lumbergh-webhook-heroku-url.png"&gt;
+&lt;img alt="Webhook integration new Slack URL" src="https://pfertyk.me/images/slack-lumbergh-webhook-slack-url.png"&gt;&lt;/p&gt;
+&lt;h2&gt;Summary&lt;/h2&gt;
+&lt;p&gt;As it turns out, answering messages automatically on Slack is very easy. Bot users can be enabled for many channels, but they need an infinite loop to process events. Outgoing webhooks can be called for each message, but they need a public IP and have to be added to each channel separately. And both of these solutions can be implemented in less than 31 lines of code.&lt;/p&gt;
+&lt;p&gt;The source code for this Slack bot can be found &lt;a href="https://github.com/pfertyk/lumbergh-slackbot"&gt;here&lt;/a&gt;. The latest version contains the webhook integration, but the first commit shows the bot user program. If you don't have the time to configure the bot by yourself, you can use my Heroku instance (just add a new outgoing webhook with &lt;code&gt;https://lumbergh.herokuapp.com/lumbergh&lt;/code&gt; URL).&lt;/p&gt;
+&lt;p&gt;If you find any problems with this tutorial, please let me know.&lt;/p&gt;</content><category term="bot"></category><category term="python"></category><category term="slack"></category></entry><entry><title>Detect PEP-8 violations on pull requests</title><link href="/2016/10/detect-pep-8-violations-on-pull-requests/" rel="alternate"></link><published>2016-10-14T00:00:00+02:00</published><updated>2016-10-14T00:00:00+02:00</updated><author><name></name></author><id>tag:None,2016-10-14:/2016/10/detect-pep-8-violations-on-pull-requests/</id><summary type="html">&lt;p&gt;Your own automatic GitHub linter&lt;/p&gt;</summary><content type="html">&lt;p&gt;I like the Zen of Python. &lt;em&gt;There should be one - and preferably only one - obvious way to do it&lt;/em&gt; reflects perfectly my philosophy of life. That is why I also like PEP-8: it solves the problem of different coding conventions across many teams. Sure, you have to sacrifice a bit of your freedom as a developer, and sometimes it is difficult to keep the line under 79 characters, but still I think it is worth it in the long run.&lt;/p&gt;
+&lt;p&gt;Every Python developer has an editor or an IDE configured to display all PEP-8 violations
+(initially, of course, since in time you learn those rules by heart and you no longer need any hints).
+But sometimes you need to push changes before you can install a linter plugin
+or you simply don't notice that &lt;code&gt;imported but unused [F401]&lt;/code&gt; message.
+What then? How to ensure that no PEP-8 violations will ever find their way into your codebase?&lt;/p&gt;
+&lt;p&gt;Don't worry, you don't have to manually validate every pull request.
+You can configure an automatic linter. Once in place, it will analyse the changes
+in a branch once a pull request is created. If no errors are found, it will
+add a comment with a nice message. If there are any errors, it will add a comment with a
+full description for each incorrect line of code.&lt;/p&gt;
+&lt;h2&gt;Application setup&lt;/h2&gt;
+&lt;p&gt;First you need to create an app on Heroku. In case you haven't used Heroku before,
+&lt;a href="https://devcenter.heroku.com/articles/getting-started-with-python#introduction"&gt;here&lt;/a&gt;
+is a guide that will help you get started.&lt;/p&gt;
+&lt;p&gt;To create a new app, go to &lt;strong&gt;Dashboard&lt;/strong&gt; -&amp;gt; &lt;strong&gt;New&lt;/strong&gt; -&amp;gt; &lt;strong&gt;Create new app&lt;/strong&gt;.
+You can specify the name of your app if you want.&lt;/p&gt;
+&lt;p&gt;&lt;img alt="PEP-8 bot Heroku app name" src="https://pfertyk.me/images/pep8-bot-heroku-app-name.png"&gt;&lt;/p&gt;
+&lt;p&gt;Once the app is created, provide it with the &lt;strong&gt;RabbitMQ Bigwig&lt;/strong&gt; add-on.
+Go to &lt;strong&gt;Resources&lt;/strong&gt;, find the add-on and click &lt;strong&gt;Provision&lt;/strong&gt;. Unfortunately,
+the process requires you to provide billing information (you need to
+configure a credit card for your account). But don't worry, the add-on itself is free.&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Provisioning PEP-8 bot with rabbitmq plugin" src="https://pfertyk.me/images/pep8-bot-rabbitmq-provision.png"&gt;&lt;/p&gt;
+&lt;p&gt;Now we move to the command line. First, you should install &lt;strong&gt;Heroku CLI&lt;/strong&gt;.
+Just run this command:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;wget -O- https://toolbelt.heroku.com/install-ubuntu.sh &lt;span class="p"&gt;|&lt;/span&gt; sh
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Next you will need to clone the repository with PEP-8 linter bot:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;git clone https://github.com/pfertyk/lint-review.git
+&lt;span class="nb"&gt;cd&lt;/span&gt; lint-review
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;The time has come to tell Heroku who you are. Run &lt;code&gt;heroku login&lt;/code&gt; an provide
+it with your Heroku credentials (email and password). Next you have to
+configure a git remote to be able to push the code to Heroku.
+The name of the remote can be found in your app's &lt;strong&gt;Settings&lt;/strong&gt;:&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Heroku Git URL for PEP-8 bot" src="https://pfertyk.me/images/pep8-bot-heroku-git-url.png"&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;git remote add heroku https://git.heroku.com/pep8-linter.git
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;For some reason, when I tried to deploy this app, Heroku insisted on
+treating it as if it was written in Ruby. So, to be sure that it will be
+recognized as Python code, you should set a proper buildpack:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;heroku buildpacks:set heroku/python
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;When this is done, you can deploy the app to Heroku:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;git push heroku master
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Bear in mind that this process can take a while.&lt;/p&gt;
+&lt;h2&gt;Configuration&lt;/h2&gt;
+&lt;p&gt;Once the app is deployed, you will notice that the celery worker's status if &lt;code&gt;OFF&lt;/code&gt;:&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Disabled celery worker" src="https://pfertyk.me/images/pep8-bot-disabled-celery-worker.png"&gt;&lt;/p&gt;
+&lt;p&gt;To fix this, go to &lt;strong&gt;Resources&lt;/strong&gt;, click the edit icon next to &lt;code&gt;worker&lt;/code&gt;,
+switch the state and confirm.&lt;/p&gt;
+&lt;p&gt;Next go to &lt;strong&gt;Settings&lt;/strong&gt; and click &lt;strong&gt;Reveal Config Vars&lt;/strong&gt;.
+You should see the following variables:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;RABBITMQ_BIGWIG_URL&lt;/li&gt;
+&lt;li&gt;RABBITMQ_BIGWIG_TX_URL&lt;/li&gt;
+&lt;li&gt;RABBITMQ_BIGWIG_RX_URL&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;You need to configure the settings file and workspace for your app.
+You also have to specify the name of the server, which is the same as your
+app's domain (you can find it in &lt;strong&gt;Settings&lt;/strong&gt; -&amp;gt; &lt;strong&gt;Domains&lt;/strong&gt;).
+In my case, the additional configuration looked like this:&lt;/p&gt;
+&lt;table&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;LINTREVIEW_SERVER_NAME&lt;/td&gt;
+      &lt;td&gt;pep8-linter.herokuapp.com&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;LINTREVIEW_SETTINGS&lt;/td&gt;
+      &lt;td&gt;./settings.py&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;LINTREVIEW_WORKSPACE&lt;/td&gt;
+      &lt;td&gt;./workspace&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h2&gt;New GitHub account&lt;/h2&gt;
+&lt;p&gt;Your automatic linter will need a GitHub account.
+You can use your own, but it's more fun to create a new one.&lt;/p&gt;
+&lt;p&gt;&lt;img alt="PEP-8 bot profile" src="https://pfertyk.me/images/pep8-bot-github-profile.png"&gt;&lt;/p&gt;
+&lt;p&gt;Once the account is created, you will have to generate a token.
+Go to &lt;strong&gt;Settings&lt;/strong&gt; -&amp;gt; &lt;strong&gt;Personal access tokens&lt;/strong&gt; -&amp;gt; &lt;strong&gt;Generate new token&lt;/strong&gt;.
+Choose a good description and select the &lt;strong&gt;notifications&lt;/strong&gt; scope and the whole &lt;strong&gt;repo&lt;/strong&gt; scope
+(or just &lt;strong&gt;public_repo&lt;/strong&gt; if you are going to use this bot only for public repositories).&lt;/p&gt;
+&lt;p&gt;Copy the token and go back to your Heroku app's &lt;strong&gt;Settings&lt;/strong&gt;.
+Add two new config variables: &lt;code&gt;GITHUB_USER&lt;/code&gt; with the name of newly created GitHub
+profile (in my case &lt;code&gt;PEPing-tom&lt;/code&gt;) and &lt;code&gt;GITHUB_OAUTH_TOKEN&lt;/code&gt;
+with the token you just generated.&lt;/p&gt;
+&lt;h2&gt;Testing&lt;/h2&gt;
+&lt;p&gt;Let's see your new bot in action. Create a test repository on GitHub.
+The bot will look for linter configuration in a file called &lt;code&gt;.lintrc&lt;/code&gt;,
+so let's create one with the following content:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;[tools]&lt;/span&gt;
+&lt;span class="na"&gt;linters&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;flake8&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;There are two more things you need to configure in every repository that you want
+this linter to check. First, you have to add your bot's GitHub profile as a collaborator
+(&lt;strong&gt;Settings&lt;/strong&gt; -&amp;gt; &lt;strong&gt;Collaborators&lt;/strong&gt;), and the bot has to accept the invitation.
+Second, you need to add a webhook to your repository to inform the bot about pull requests.
+Go to &lt;strong&gt;Settings&lt;/strong&gt; -&amp;gt; &lt;strong&gt;Webhooks&lt;/strong&gt; -&amp;gt; &lt;strong&gt;Add webhook&lt;/strong&gt;.
+The value in &lt;strong&gt;Payload URL&lt;/strong&gt; should be &lt;code&gt;{HEROKU_APP_DOMAIN}/review/start&lt;/code&gt;
+(in my case it was &lt;code&gt;https://pep8-linter.herokuapp.com/review/start&lt;/code&gt;).
+Leave &lt;code&gt;application/json&lt;/code&gt; as content type and choose &lt;strong&gt;Let me select individual events&lt;/strong&gt;.
+The only event you need is &lt;strong&gt;Pull request&lt;/strong&gt;.
+Make sure that &lt;strong&gt;Active&lt;/strong&gt; is checked and add a webhook.&lt;/p&gt;
+&lt;p&gt;Now let's see how it works in practice. Create a new branch in your test repository
+and add some atrocious Python code:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;x&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+    &lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Push the new branch to GitHub and create a new pull request. A moment later, you should see some comments:&lt;/p&gt;
+&lt;p&gt;&lt;img alt="PEP8 bot in action" src="https://pfertyk.me/images/pep8-bot-github-error-comments.png"&gt;&lt;/p&gt;
+&lt;p&gt;Let's fix these errors:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;x&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+    &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+    &lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Now your bot informs you that there are no problems:&lt;/p&gt;
+&lt;p&gt;&lt;img alt="PEP8 bot is content" src="https://pfertyk.me/images/pep8-bot-github-nice-comment.png"&gt;&lt;/p&gt;
+&lt;p&gt;That's it! Now you can be sure that no PEP-8 violation will sneak into your clean and standard-compliant codebase. Unless, of course, you decide to ignore these comments...&lt;/p&gt;
+&lt;p&gt;I hope that you found this tutorial useful. Please contact me if there is anything missing or if you encounter any problems with the whole process.&lt;/p&gt;</content><category term="bot"></category><category term="heroku"></category><category term="python"></category></entry></feed>

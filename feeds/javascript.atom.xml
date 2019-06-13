@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Paweł Fertyk - javascript</title><link href="https://pfertyk.me/" rel="alternate"></link><link href="https://pfertyk.me/feeds/javascript.atom.xml" rel="self"></link><id>https://pfertyk.me/</id><updated>2016-11-08T00:00:00+01:00</updated><entry><title>Run ESlint on each pull request</title><link href="/2016/11/run-eslint-on-each-pull-request/" rel="alternate"></link><published>2016-11-08T00:00:00+01:00</published><updated>2016-11-08T00:00:00+01:00</updated><author><name></name></author><id>tag:None,2016-11-08:/2016/11/run-eslint-on-each-pull-request/</id><summary type="html">&lt;p&gt;Because, sooner or later, you will have to use JavaScript&lt;/p&gt;</summary><content type="html">&lt;p&gt;In one of my &lt;a href="/2016/10/detect-pep-8-violations-on-pull-requests/"&gt;previous posts&lt;/a&gt;
+I described how to automatically check for PEP-8 violations on pull requests.
+But sometimes Python is not enough, and your project will require some JavaScript as well.
+Fortunately, you can modify the &lt;code&gt;PEPing-tom&lt;/code&gt; bot to also use ESlint to ensure the quality of your whole codebase.&lt;/p&gt;
+&lt;p&gt;In this post I will show you how to update your linter to check also JavaScript files using &lt;a href="https://github.com/airbnb/javascript"&gt;Airbnb JavaScript Style Guide&lt;/a&gt;. To proceed you should first configure an automatic PEP-8 linter mentioned earlier.&lt;/p&gt;
+&lt;h2&gt;Heroku configuration&lt;/h2&gt;
+&lt;p&gt;First thing you need to do is add another buildpack. As you remember, last time you
+specifically told Heroku that your linter is a Python application. Now you need to
+treat is also as a JavaScript application, so the dependencies in &lt;code&gt;package.json&lt;/code&gt; file
+can be properly installed.&lt;/p&gt;
+&lt;p&gt;Go to your app's &lt;strong&gt;Settings&lt;/strong&gt; and click &lt;strong&gt;Add buildpack&lt;/strong&gt; button. Next, select &lt;strong&gt;nodejs&lt;/strong&gt; buildpack:&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Node.js buildpack" src="https://pfertyk.me/images/eslint-bot-nodejs-buildpack.png"&gt;&lt;/p&gt;
+&lt;p&gt;Now your app should have two buildpacks:&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Two buildpacks" src="https://pfertyk.me/images/eslint-bot-double-buildpack.png"&gt;&lt;/p&gt;
+&lt;p&gt;If you are passionate about the command line (like me), you can achieve the same effect this way:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;heroku buildpacks:add heroku/nodejs
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Now check if it worked:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ heroku &lt;span class="nv"&gt;buildpacks&lt;/span&gt;
+&lt;span class="o"&gt;===&lt;/span&gt; pep8-linter Buildpack URLs
+&lt;span class="m"&gt;1&lt;/span&gt;. heroku/python
+&lt;span class="m"&gt;2&lt;/span&gt;. heroku/nodejs
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;Code changes&lt;/h2&gt;
+&lt;p&gt;Next you need to update your linter. New version is already available in my
+&lt;a href="github.com/pfertyk/lint-review"&gt;repository&lt;/a&gt;, you can just clone it and push it to Heroku. The only modification was to put proper
+modules in &lt;code&gt;package.json&lt;/code&gt; file:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="nt"&gt;&amp;quot;name&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;lint-review&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="nt"&gt;&amp;quot;version&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;0.1.14&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="nt"&gt;&amp;quot;private&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="nt"&gt;&amp;quot;dependencies&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;eslint&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;^3.9.1&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;eslint-config-airbnb&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;^12.0.0&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;eslint-plugin-import&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;^2.1.0&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;eslint-plugin-jsx-a11y&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;^2.2.3&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;eslint-plugin-react&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;^6.6.0&amp;quot;&lt;/span&gt;
+  &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Of course, if you decide to use another linter (ESlint is not the only available option), then you will have to change the list of packages you want to install.&lt;/p&gt;
+&lt;h2&gt;New configuration&lt;/h2&gt;
+&lt;p&gt;Now you need to modify the configuration in the repository you want to be checked by your linter.
+Add &lt;code&gt;eslint&lt;/code&gt; to the list of linters in &lt;code&gt;.lintrc&lt;/code&gt; file:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;[tools]&lt;/span&gt;
+&lt;span class="na"&gt;linters&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;flake8, eslint&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Next create a new file with ESlint configuration (call it &lt;code&gt;.eslintrc&lt;/code&gt;):&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="nt"&gt;&amp;quot;extends&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;airbnb&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="nt"&gt;&amp;quot;rules&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;no-use-before-define&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;error&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="nt"&gt;&amp;quot;functions&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="kc"&gt;false&lt;/span&gt;&lt;span class="p"&gt;}],&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;no-unused-vars&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;error&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="nt"&gt;&amp;quot;vars&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;all&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nt"&gt;&amp;quot;args&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;none&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;}],&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;prefer-const&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;error&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+      &lt;span class="nt"&gt;&amp;quot;destructuring&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;all&amp;quot;&lt;/span&gt;
+    &lt;span class="p"&gt;}],&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;no-else-return&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;off&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;class-methods-use-this&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;off&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;no-continue&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;off&amp;quot;&lt;/span&gt;
+  &lt;span class="p"&gt;},&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This is of course my choice of linting rules. You can configure anything you like or anything your team agreed to use.&lt;/p&gt;
+&lt;h2&gt;New bot in action&lt;/h2&gt;
+&lt;p&gt;Now let's check if your modified bot actually works. Create a new file &lt;code&gt;main.js&lt;/code&gt; and put the following
+code in it:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kd"&gt;var&lt;/span&gt; &lt;span class="nx"&gt;x&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;5&lt;/span&gt;
+&lt;span class="nx"&gt;a&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nx"&gt;x&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Soon after creating a pull request with this file, you should notice that your bot is not very happy:&lt;/p&gt;
+&lt;p&gt;&lt;img alt="ESlint comments" src="https://pfertyk.me/images/eslint-bot-comments.png"&gt;&lt;/p&gt;
+&lt;p&gt;You might also notice that the name &lt;code&gt;PEPing-tom&lt;/code&gt; no longer suits your bot, since now it can also use ESlint.
+Maybe &lt;code&gt;ESPEP&lt;/code&gt; would be better?&lt;/p&gt;
+&lt;p&gt;That's it! Your linter is up and running. Now it should keep both Python and JavaScript developers on their toes.&lt;/p&gt;
+&lt;p&gt;I hope this tutorial will make your life a bit easier. If any instructions are unclear or not working, please let me know.&lt;/p&gt;</content><category term="bot"></category><category term="heroku"></category><category term="javascript"></category></entry></feed>

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Paweł Fertyk">
+    <meta name="description" content="One small step for coders, one giant leap for The Martian fans" />
+
+    <link type="application/atom+xml" rel="alternate" href="/feeds/all.atom.xml"  title="Paweł Fertyk's blog on programming - Atom Feed">
+    <link type="application/rss+xml" rel="alternate" href="/feeds/all.rss.xml" title="Paweł Fertyk's blog on programming - RSS Feed">
+
+    <title>Getting Mars photos from NASA using aiohttp / Paweł Fertyk</title>
+    <link rel="stylesheet" href="/theme/css/main.css" type="text/css"/>
+    <link rel="shortcut icon" href="/theme/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/theme/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Ubuntu"/>
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro"/>
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=DejaVu+Sans+Mono"/>
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:image" content="/theme/images/pfertyk.jpg" />
+    <meta name="twitter:title" content="Getting Mars photos from NASA using aiohttp" />
+    <meta name="twitter:description" content="One small step for coders, one giant leap for The Martian fans" />
+  </head>
+  <body>
+    <div class="page-wrapper">
+      <nav class="no-print">
+        <header><a href="/">Paweł Fertyk</a></header>
+        <ul>
+          <li><a href="/">Blog</a></li><li><a href="/tags/">Tags</a></li><li><a href="/about/">About</a></li>
+        </ul>
+      </nav>
+<h2 class="article-title">
+  Getting Mars photos from NASA using aiohttp
+</h2>
+<div class="date-posted">2017-06-12
+<a href="//tag/python/">python</a>
+<a href="//tag/aiohttp/">aiohttp</a>
+<a href="//tag/nasa/">nasa</a>
+</div>
+<p>I am a huge fan of the book <em>The Martian</em> by Andy Weir.
+Reading it I wondered how did Mark Watney feel when he walked around the Red Planet.
+Recently, thanks to
+<a href="https://www.twilio.com/blog/2017/04/texting-robots-on-mars-using-python-flask-nasa-apis-and-twilio-mms.html">this Twilio blog post</a>
+I found out that NASA has a public API for accessing photos taken by Mars rovers. However, not being a huge fan of MMS,
+I decided to write my own application to get the inspiring images delivered straight to my browser.</p>
+<h2>Creating aiohttp application</h2>
+<p>Let's start with a simple application, just to get aiohttp up and running. First,
+create a new virtualenv. It is recommended to use Python 3.5, since we will
+be using new <code>async def</code> and <code>await</code> syntax. If you want to develop this project
+further and take advantage of asynchronous comprehensions, you can use Python 3.6
+(I did). Next, install aiohttp:</p>
+<div class="highlight"><pre><span></span>pip install aiohttp
+</pre></div>
+
+
+<p>Now create a source file (call it <code>nasa.py</code> ) and put some code inside:</p>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">aiohttp</span> <span class="kn">import</span> <span class="n">web</span>
+
+
+<span class="n">async</span> <span class="k">def</span> <span class="nf">get_mars_photo</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">web</span><span class="o">.</span><span class="n">Response</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s1">&#39;A photo of Mars&#39;</span><span class="p">)</span>
+
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">web</span><span class="o">.</span><span class="n">Application</span><span class="p">()</span>
+<span class="n">app</span><span class="o">.</span><span class="n">router</span><span class="o">.</span><span class="n">add_get</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="n">get_mars_photo</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;mars_photo&#39;</span><span class="p">)</span>
+</pre></div>
+
+
+<p>If you are new to aiohttp some things might need explaining:</p>
+<ul>
+<li><code>get_mars_photo</code> coroutine is a request handler; it takes a HTTP request as its
+only argument and is responsible for returning a HTTP response (or raising an
+exception)</li>
+<li><code>app</code> is a high level server; it supports routers, middleware and signals
+(for this program we are only going to use the router)</li>
+<li><code>app.router.add_get</code> registers a request handler on HTTP GET method and
+'/' path</li>
+</ul>
+<p>Note: request handlers don't have to be coroutines, they can be regular
+functions. But we are going to use the power of asyncio, so most functions
+in our program are going to be defined with <code>async def</code>.</p>
+<h3>Running the application</h3>
+<p>To run your application you can add this line at the end of your file:</p>
+<div class="highlight"><pre><span></span><span class="n">web</span><span class="o">.</span><span class="n">run_app</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">8080</span><span class="p">)</span>
+</pre></div>
+
+
+<p>And then run it like any other Python script:</p>
+<div class="highlight"><pre><span></span>python nasa.py
+</pre></div>
+
+
+<p>However, there is a better way. Among many third-party libraries
+you will find <a href="https://github.com/aio-libs/aiohttp-devtools">aiohttp-devtools</a>.
+It provides a nice <code>runserver</code> command that detects your app automatically
+and supports live reloading:</p>
+<div class="highlight"><pre><span></span>pip install aiohttp-devtools
+adev runserver -p <span class="m">8080</span> nasa.py
+</pre></div>
+
+
+<p>Now, if you visit <a href="localhost:8080">localhost:8080</a>, you should see <em>A photo of Mars</em> text in your browser.</p>
+<h2>Using NASA API</h2>
+<p>Of course, this is not the end. If you are a keen observer, you noticed that
+we are not getting an actual image, but rather some text. Let's fix that.</p>
+<p>To get photos from Mars, we will use <a href="https://api.nasa.gov/api.html#MarsPhotos">NASA API</a>. Each rover has its own URL (for Curiosity it's <code>https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos</code>). We have to provide at least 2 params for each call:</p>
+<ul>
+<li><code>sol</code>: the Martian rotation or day on which a photo was taken, counting up
+from the rover's landing date (the maximum value can be found in
+<code>rover/max_sol</code> part of the response)</li>
+<li><code>API_KEY</code>: API key provided by NASA (you can use the default one: <code>DEMO_KEY</code>)</li>
+</ul>
+<p>In return we will get a list of photos, each with a URL, camera info and rover
+manifest.</p>
+<p>Modify the <code>nasa.py</code> file to look like this:</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">random</span>
+
+<span class="kn">from</span> <span class="nn">aiohttp</span> <span class="kn">import</span> <span class="n">web</span><span class="p">,</span> <span class="n">ClientSession</span>
+<span class="kn">from</span> <span class="nn">aiohttp.web</span> <span class="kn">import</span> <span class="n">HTTPFound</span>
+
+<span class="n">NASA_API_KEY</span> <span class="o">=</span> <span class="s1">&#39;DEMO_KEY&#39;</span>
+<span class="n">ROVER_URL</span> <span class="o">=</span> <span class="s1">&#39;https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos&#39;</span>
+
+
+<span class="n">async</span> <span class="k">def</span> <span class="nf">get_mars_image_url_from_nasa</span><span class="p">():</span>
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="n">sol</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1722</span><span class="p">)</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;sol&#39;</span><span class="p">:</span> <span class="n">sol</span><span class="p">,</span> <span class="s1">&#39;api_key&#39;</span><span class="p">:</span> <span class="n">NASA_API_KEY</span><span class="p">}</span>
+        <span class="n">async</span> <span class="k">with</span> <span class="n">ClientSession</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+            <span class="n">async</span> <span class="k">with</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ROVER_URL</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span> <span class="k">as</span> <span class="n">resp</span><span class="p">:</span>
+                <span class="n">resp_dict</span> <span class="o">=</span> <span class="n">await</span> <span class="n">resp</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s1">&#39;photos&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">resp_dict</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span>
+        <span class="n">photos</span> <span class="o">=</span> <span class="n">resp_dict</span><span class="p">[</span><span class="s1">&#39;photos&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">photos</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">photos</span><span class="p">)[</span><span class="s1">&#39;img_src&#39;</span><span class="p">]</span>
+
+
+<span class="n">async</span> <span class="k">def</span> <span class="nf">get_mars_photo</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="n">await</span> <span class="n">get_mars_image_url_from_nasa</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">HTTPFound</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Here is what's going on:</p>
+<ul>
+<li>we select a random sol (for Curiosity the <code>max_sol</code> value is 1722 at the moment
+of writing this post)</li>
+<li><code>ClientSession</code> creates a session that we can use to get the response
+from NASA API</li>
+<li>we obtain the JSON response using <code>resp.json()</code></li>
+<li>we check if the 'photos' key is present in the response; if not, we have
+reached the limit of hourly calls and we need to wait a bit</li>
+<li>if there are no photos taken on given day, we check again, for a different
+random sol</li>
+<li>we then use <code>HTTPFound</code> response to redirect to the photo we found</li>
+</ul>
+<h3>Getting NASA API key</h3>
+<p>The default <code>DEMO_KEY</code> provided by NASA works fine, but you will soon reach the
+limit of hourly API calls. I recommend you to get your own API key. You can do
+it <a href="https://api.nasa.gov/index.html#apply-for-an-api-key">here</a>
+(the sign up process is very simple and fast).</p>
+<p>Now when you run the application, you will be redirected to a pretty image
+straight from Mars:</p>
+<p><img alt="A rather uninspiring photo" src="../../../images/nasa-aiohttp-not-inspiring.jpg"></p>
+<p>Well, that's not exactly what I meant ...</p>
+<h2>Validating an image</h2>
+<p>The image you just saw is not very inspiring. It turns out that rovers take
+a lot of really boring photos. I wanted to see what Mark Watney saw on his
+incredible journey, and this is just not good enough. Let's find a way to fix
+that.</p>
+<p>We will need some sort of validation for our images. Without specifying the
+criteria yet, we can modify our code:</p>
+<div class="highlight"><pre><span></span><span class="n">async</span> <span class="k">def</span> <span class="nf">get_mars_photo_bytes</span><span class="p">():</span>
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="n">image_url</span> <span class="o">=</span> <span class="n">await</span> <span class="n">get_mars_image_url_from_nasa</span><span class="p">()</span>
+        <span class="n">async</span> <span class="k">with</span> <span class="n">ClientSession</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+            <span class="n">async</span> <span class="k">with</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">image_url</span><span class="p">)</span> <span class="k">as</span> <span class="n">resp</span><span class="p">:</span>
+                <span class="n">image_bytes</span> <span class="o">=</span> <span class="n">await</span> <span class="n">resp</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">await</span> <span class="n">validate_image</span><span class="p">(</span><span class="n">image_bytes</span><span class="p">):</span>
+            <span class="k">break</span>
+    <span class="k">return</span> <span class="n">image_bytes</span>
+
+
+<span class="n">async</span> <span class="k">def</span> <span class="nf">get_mars_photo</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">await</span> <span class="n">get_mars_photo_bytes</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">web</span><span class="o">.</span><span class="n">Response</span><span class="p">(</span><span class="n">body</span><span class="o">=</span><span class="n">image</span><span class="p">,</span> <span class="n">content_type</span><span class="o">=</span><span class="s1">&#39;image/jpeg&#39;</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Some new things happened here:</p>
+<ul>
+<li>we get the URL using the previously defined function and we read the raw bytes from
+the image using <code>resp.read()</code></li>
+<li>we check if our image is good enough; if not, we keep looking</li>
+<li>once we have a satisfying photo we put it in the response (notice we still
+use the same <code>web.Response</code> as before, but this time we specify the <code>body</code>
+instead of <code>text</code> and we define the <code>content_type</code>)</li>
+</ul>
+<p>Note: in this code we removed the redirection (<code>HTTPFound</code>),
+so now we can easily refresh the page to get another image.</p>
+<p>Now we need to figure out how to validate the photos.
+One thing we can do rather easily is to check if the image is big enough.
+It's not a perfect validation, but it should do for now. To process images,
+we will need Pillow (PIL fork):</p>
+<div class="highlight"><pre><span></span>pip install pillow
+</pre></div>
+
+
+<p>Our validation function could look like this:</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">io</span>
+<span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
+
+
+<span class="n">async</span> <span class="k">def</span> <span class="nf">validate_image</span><span class="p">(</span><span class="n">image_bytes</span><span class="p">):</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">image_bytes</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">image</span><span class="o">.</span><span class="n">width</span> <span class="o">&gt;=</span> <span class="mi">1024</span> <span class="ow">and</span> <span class="n">image</span><span class="o">.</span><span class="n">height</span> <span class="o">&gt;=</span> <span class="mi">1024</span>
+</pre></div>
+
+
+<p><img alt="Mars in shades of gray" src="../../../images/nasa-aiohttp-landscape-grayscale.jpg"></p>
+<p>Now that's more like it! We can go one step further and reject grayscale images:</p>
+<div class="highlight"><pre><span></span><span class="n">async</span> <span class="k">def</span> <span class="nf">validate_image</span><span class="p">(</span><span class="n">image_bytes</span><span class="p">):</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">image_bytes</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">image</span><span class="o">.</span><span class="n">width</span> <span class="o">&gt;=</span> <span class="mi">1024</span> <span class="ow">and</span> <span class="n">image</span><span class="o">.</span><span class="n">height</span> <span class="o">&gt;=</span> <span class="mi">1024</span> <span class="ow">and</span> <span class="n">image</span><span class="o">.</span><span class="n">mode</span> <span class="o">!=</span> <span class="s1">&#39;L&#39;</span>
+</pre></div>
+
+
+<p>Now our program starts returning much more inspiring photos:</p>
+<p><img alt="Cool landscape" src="../../../images/nasa-aiohttp-landscape-rgb.jpg"></p>
+<p>And, occasionally, a robot selfie:</p>
+<p><img alt="Rover's selfie" src="../../../images/nasa-aiohttp-selfie.jpg"></p>
+<h2>Summary</h2>
+<p>Our program should now look like this:</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">io</span>
+
+<span class="kn">from</span> <span class="nn">aiohttp</span> <span class="kn">import</span> <span class="n">web</span><span class="p">,</span> <span class="n">ClientSession</span>
+
+<span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
+
+<span class="n">NASA_API_KEY</span> <span class="o">=</span> <span class="s1">&#39;DEMO_KEY&#39;</span>
+<span class="n">ROVER_URL</span> <span class="o">=</span> <span class="s1">&#39;https://api.nasa.gov/mars-photos/api/v1/rovers/curiosity/photos&#39;</span>
+
+
+<span class="n">async</span> <span class="k">def</span> <span class="nf">validate_image</span><span class="p">(</span><span class="n">image_bytes</span><span class="p">):</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">image_bytes</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">image</span><span class="o">.</span><span class="n">width</span> <span class="o">&gt;=</span> <span class="mi">1024</span> <span class="ow">and</span> <span class="n">image</span><span class="o">.</span><span class="n">height</span> <span class="o">&gt;=</span> <span class="mi">1024</span> <span class="ow">and</span> <span class="n">image</span><span class="o">.</span><span class="n">mode</span> <span class="o">!=</span> <span class="s1">&#39;L&#39;</span>
+
+
+<span class="n">async</span> <span class="k">def</span> <span class="nf">get_mars_image_url_from_nasa</span><span class="p">():</span>
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="n">sol</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1722</span><span class="p">)</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;sol&#39;</span><span class="p">:</span> <span class="n">sol</span><span class="p">,</span> <span class="s1">&#39;api_key&#39;</span><span class="p">:</span> <span class="n">NASA_API_KEY</span><span class="p">}</span>
+        <span class="n">async</span> <span class="k">with</span> <span class="n">ClientSession</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+            <span class="n">async</span> <span class="k">with</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ROVER_URL</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span> <span class="k">as</span> <span class="n">resp</span><span class="p">:</span>
+                <span class="n">resp_dict</span> <span class="o">=</span> <span class="n">await</span> <span class="n">resp</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s1">&#39;photos&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">resp_dict</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span>
+        <span class="n">photos</span> <span class="o">=</span> <span class="n">resp_dict</span><span class="p">[</span><span class="s1">&#39;photos&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">photos</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">photos</span><span class="p">)[</span><span class="s1">&#39;img_src&#39;</span><span class="p">]</span>
+
+
+<span class="n">async</span> <span class="k">def</span> <span class="nf">get_mars_photo_bytes</span><span class="p">():</span>
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="n">image_url</span> <span class="o">=</span> <span class="n">await</span> <span class="n">get_mars_image_url_from_nasa</span><span class="p">()</span>
+        <span class="n">async</span> <span class="k">with</span> <span class="n">ClientSession</span><span class="p">()</span> <span class="k">as</span> <span class="n">session</span><span class="p">:</span>
+            <span class="n">async</span> <span class="k">with</span> <span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">image_url</span><span class="p">)</span> <span class="k">as</span> <span class="n">resp</span><span class="p">:</span>
+                <span class="n">image_bytes</span> <span class="o">=</span> <span class="n">await</span> <span class="n">resp</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">await</span> <span class="n">validate_image</span><span class="p">(</span><span class="n">image_bytes</span><span class="p">):</span>
+            <span class="k">break</span>
+    <span class="k">return</span> <span class="n">image_bytes</span>
+
+
+<span class="n">async</span> <span class="k">def</span> <span class="nf">get_mars_photo</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">image</span> <span class="o">=</span> <span class="n">await</span> <span class="n">get_mars_photo_bytes</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">web</span><span class="o">.</span><span class="n">Response</span><span class="p">(</span><span class="n">body</span><span class="o">=</span><span class="n">image</span><span class="p">,</span> <span class="n">content_type</span><span class="o">=</span><span class="s1">&#39;image/jpeg&#39;</span><span class="p">)</span>
+
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">web</span><span class="o">.</span><span class="n">Application</span><span class="p">()</span>
+<span class="n">app</span><span class="o">.</span><span class="n">router</span><span class="o">.</span><span class="n">add_get</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="n">get_mars_photo</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;mars_photo&#39;</span><span class="p">)</span>
+</pre></div>
+
+
+<p>There are many things we could improve (like getting <code>max_sol</code> value from
+the API, passing the rover's name, caching the URLs) but for now it does the job
+done: we can get a random, inspiring photo of Mars and feel like we
+are actually there.</p>
+<p>I hope you liked this short tutorial. If you spot a mistake or have any questions,
+please let me know.</p>
+      <div class="footer no-print">
+        <div class="copyright">This work is <a href="https://creativecommons.org/publicdomain/zero/1.0/">public domain</a> (<a href="https://github.com/pfertyk/blog">source</a>)</div>
+      </div>
+    </div>
+  </body>
+</html>

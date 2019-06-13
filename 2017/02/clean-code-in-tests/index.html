@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Paweł Fertyk">
+    <meta name="description" content="Because not only your production code deserves tenderness" />
+
+    <link type="application/atom+xml" rel="alternate" href="/feeds/all.atom.xml"  title="Paweł Fertyk's blog on programming - Atom Feed">
+    <link type="application/rss+xml" rel="alternate" href="/feeds/all.rss.xml" title="Paweł Fertyk's blog on programming - RSS Feed">
+
+    <title>Clean code in tests / Paweł Fertyk</title>
+    <link rel="stylesheet" href="/theme/css/main.css" type="text/css"/>
+    <link rel="shortcut icon" href="/theme/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/theme/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Ubuntu"/>
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro"/>
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=DejaVu+Sans+Mono"/>
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:image" content="/theme/images/pfertyk.jpg" />
+    <meta name="twitter:title" content="Clean code in tests" />
+    <meta name="twitter:description" content="Because not only your production code deserves tenderness" />
+  </head>
+  <body>
+    <div class="page-wrapper">
+      <nav class="no-print">
+        <header><a href="/">Paweł Fertyk</a></header>
+        <ul>
+          <li><a href="/">Blog</a></li><li><a href="/tags/">Tags</a></li><li><a href="/about/">About</a></li>
+        </ul>
+      </nav>
+<h2 class="article-title">
+  Clean code in tests
+</h2>
+<div class="date-posted">2017-02-16
+<a href="//tag/python/">python</a>
+<a href="//tag/tests/">tests</a>
+</div>
+<p>I like automated tests. I sleep better at night knowing that bugs in my projects will
+be immediately detected. I try to keep the code in my tests clean and readable,
+but I have noticed that (sadly) many developers seem to ignore this issue.</p>
+<p>After all, why would you care about the code quality in tests? Tests are not
+production code. You are not going to be paid for keeping them clean.
+Moreover, usually you write a test once and never modify it later (unless
+the requirements change). And you don't really look into tests
+until something breaks, and then you do it only to check what went wrong.</p>
+<p>Well, this is not entirely true. Test code is code, and it is (hopefully) the
+only <em>untested</em> code in your project. Therefore you should keep it clean, just like anything
+else you write. Also, you need to add new tests often. Nothing should keep you from
+doing that, and badly structured tests will. Moreover, you need to
+read tests quite frequently. Every time a test fails, you probably
+have to dive into it to know what went wrong. And if the test is unreadable,
+you will waste a lot of time just looking for a reason of the failure.</p>
+<p>So in this post I would like to show you some of the problems you can encounter
+in your tests and suggest how to fix them.</p>
+<h2>Unclear names</h2>
+<p>One of the most common mistakes is vague or incorrect naming. Consider a test
+like this one:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_transaction_error</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">transaction_data</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;organization&#39;</span><span class="p">:</span> <span class="s1">&#39;Wayne Industries&#39;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_transaction</span><span class="p">(</span><span class="n">transaction_data</span><span class="p">)</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span> <span class="n">HTTP_422</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Now imagine that it fails. The only information you will receive will probably
+be:</p>
+<div class="highlight"><pre><span></span><span class="o">======</span> <span class="n">FAILURES</span> <span class="o">======</span>
+<span class="n">test_transaction_error</span>
+</pre></div>
+
+
+<p>What does it tell you? That there is an error with transactions. But you already
+know that, since the test failed. The name itself tells you nothing about
+the nature of the problem. So you need to read the code to know what actually
+went wrong. In this case, it is obvious that the test tries to create
+a transaction and assumes that it's not possible. So, let's change the name
+of the test:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_transaction_creation_error</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">transaction_data</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;organization&#39;</span><span class="p">:</span> <span class="s1">&#39;Wayne Industries&#39;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_transaction</span><span class="p">(</span><span class="n">transaction_data</span><span class="p">)</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span> <span class="n">HTTP_422</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Now we know that there is a problem with transaction creation and not, let's
+say, with transaction update or deletion. That's something. But we still don't
+know <em>what</em> is wrong with transaction creation. So we keep on digging.
+After a thorough examination we discover that response has not only the <code>status_code</code>,
+but also some <code>data</code>. And that data contains a message, which says:
+<em>You need to specify the amount</em>.
+So, in order to improve our test, we can add another assertion:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_transaction_creation_error</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">transaction_data</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;organization&#39;</span><span class="p">:</span> <span class="s1">&#39;Wayne Industries&#39;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_transaction</span><span class="p">(</span><span class="n">transaction_data</span><span class="p">)</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span> <span class="n">HTTP_422</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+        <span class="n">response</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;message&#39;</span><span class="p">],</span>
+        <span class="s1">&#39;You need to specify the amount.&#39;</span>
+    <span class="p">)</span>
+</pre></div>
+
+
+<p>Now the name of the test becomes more obvious:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_cannot_create_transaction_without_amount</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">transaction_data</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;organization&#39;</span><span class="p">:</span> <span class="s1">&#39;Wayne Industries&#39;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_transaction</span><span class="p">(</span><span class="n">transaction_data</span><span class="p">)</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span> <span class="n">HTTP_422</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+        <span class="n">response</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;message&#39;</span><span class="p">],</span>
+        <span class="s1">&#39;You need to specify the amount.&#39;</span>
+    <span class="p">)</span>
+</pre></div>
+
+
+<p>Next time the test fails, you will immediately know what went wrong:</p>
+<div class="highlight"><pre><span></span><span class="o">=================</span> <span class="n">FAILURES</span> <span class="o">==================</span>
+<span class="n">test_cannot_create_transaction_without_amount</span>
+</pre></div>
+
+
+<p>Naming things is a very delicate process and it takes a lot time and practice to master it.
+In this example, the name was quite obvious (after a while).
+But in your project it might be way more difficult. Also, if you are working in
+a team, you will need to comply with the style that other developers use
+(for example, you might agree on using shorter but less self-explainatory names).</p>
+<h2>Multiple assertions</h2>
+<p>Another common mistake is putting multiple tests into one. Let's look at an
+example:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_list_transactions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_transactions</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertIn</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span> <span class="p">[</span><span class="n">HTTP_401</span><span class="p">,</span> <span class="n">HTTP_403</span><span class="p">])</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">login_as</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_transactions</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span> <span class="n">HTTP_200</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">create_transaction</span><span class="p">()</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_transactions</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span> <span class="n">HTTP_200</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">data</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<p>If this test fails, do we know that exactly went wrong? Was it the authentication process?
+Or was the new transaction not listed? We will not know that until we put
+some breakpoints in the code and spend (or rather waste) some time figuring it
+out.</p>
+<p>Every test should do 3 things:</p>
+<ul>
+<li>prepare the data</li>
+<li>execute some action</li>
+<li>check if the result was as expected</li>
+</ul>
+<p>Out example actually includes 3 assertions, and therefore it checks 3 things.
+So let's split it into 3 tests, each with a meaningful name:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_transaction_list_requires_authentication</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_transactions</span><span class="p">()</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span> <span class="n">HTTP_401</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">test_transaction_list_is_initially_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">login_as</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_transactions</span><span class="p">()</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span> <span class="n">HTTP_200</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="p">[])</span>
+
+<span class="k">def</span> <span class="nf">test_new_transactions_are_shown_on_transaction_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">login_as</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">user</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">create_transaction</span><span class="p">()</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_transactions</span><span class="p">()</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span> <span class="n">HTTP_200</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">data</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Each of those tests checks just one thing, so if any of them fails, we will know
+where to look for a bug. You might notice that there is a cost: we need to duplicate
+some code (in our case we need to login twice in two different tests). Still,
+it's better than having one huge test that checks many things at once.</p>
+<h2>Complicated fixtures</h2>
+<p>Using overly complicated data in our tests is also a bad practice, although
+a bit less obvious. Consider this example:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_sell_same_stock_twice_in_one_transaction</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">seller</span> <span class="o">=</span> <span class="n">test_helpers</span><span class="o">.</span><span class="n">create_seller</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s1">&#39;Frank&#39;</span><span class="p">,</span> <span class="n">surname</span><span class="o">=</span><span class="s1">&#39;Sinatra&#39;</span><span class="p">,</span> <span class="n">age</span><span class="o">=</span><span class="s1">&#39;33&#39;</span>
+    <span class="p">)</span>
+    <span class="n">stocks</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">Stock</span><span class="p">(</span><span class="n">stock_id</span><span class="o">=</span><span class="mi">35</span><span class="p">,</span> <span class="n">no_of_shares</span><span class="o">=</span><span class="mi">45</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="s1">&#39;First&#39;</span><span class="p">),</span>
+        <span class="n">Stock</span><span class="p">(</span><span class="n">stock_id</span><span class="o">=</span><span class="mi">35</span><span class="p">,</span> <span class="n">no_of_shares</span><span class="o">=</span><span class="mi">34</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="s1">&#39;Second&#39;</span><span class="p">),</span>
+    <span class="p">]</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sell_stocks</span><span class="p">(</span><span class="n">seller</span><span class="p">,</span> <span class="n">stocks</span><span class="p">)</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span> <span class="n">HTTP_422</span><span class="p">)</span>
+</pre></div>
+
+
+<p>At first it doesn't look that bad. It checks only one thing and it has a meaningful
+name. But let's say you have to read it and maybe modify it (because the requirements
+have changed). Which part of this test code is important and which is not? Will you know
+it at first glance?</p>
+<p>Let's start with <code>seller</code>. Why is it Frank Sinatra, age 33? Why not John Connor, age 10?
+The <code>seller</code> is here only because we need someone to sell the stocks. The name and
+age are not important. So, let's simplify the test:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_sell_same_stock_twice_in_one_transaction</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">seller</span> <span class="o">=</span> <span class="n">test_helpers</span><span class="o">.</span><span class="n">create_seller</span><span class="p">()</span>
+    <span class="n">stocks</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">Stock</span><span class="p">(</span><span class="n">stock_id</span><span class="o">=</span><span class="mi">35</span><span class="p">,</span> <span class="n">no_of_shares</span><span class="o">=</span><span class="mi">45</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="s1">&#39;First&#39;</span><span class="p">),</span>
+        <span class="n">Stock</span><span class="p">(</span><span class="n">stock_id</span><span class="o">=</span><span class="mi">35</span><span class="p">,</span> <span class="n">no_of_shares</span><span class="o">=</span><span class="mi">34</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="s1">&#39;Second&#39;</span><span class="p">),</span>
+    <span class="p">]</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sell_stocks</span><span class="p">(</span><span class="n">seller</span><span class="p">,</span> <span class="n">stocks</span><span class="p">)</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span> <span class="n">HTTP_422</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Now we will use a seller created with whatever default data the <code>create_seller</code>
+method provides. And it should not bother us at all, since it's not the seller we are
+testing here, it's stocks.</p>
+<p>But stock creation also looks complicated. What do we need the comment for? Probably nothing.
+Do we really need to specify the number of shares? Probably not.
+The important part is the <code>stock_id</code>, and it should have the simplest possible value
+(not 35, but 1). So let's fix that too:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_sell_same_stock_twice_in_one_transaction</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">seller</span> <span class="o">=</span> <span class="n">test_helpers</span><span class="o">.</span><span class="n">create_ticket_seller</span><span class="p">()</span>
+    <span class="n">stocks</span> <span class="o">=</span> <span class="p">[</span><span class="n">Stock</span><span class="p">(</span><span class="n">stock_id</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">Stock</span><span class="p">(</span><span class="n">stock_id</span><span class="o">=</span><span class="mi">1</span><span class="p">)]</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sell_stocks</span><span class="p">(</span><span class="n">seller</span><span class="p">,</span> <span class="n">stocks</span><span class="p">)</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span> <span class="n">HTTP_422</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Now if we ever need to read this test, we will immediately know what we should
+focus on.</p>
+<h2>Confusing times</h2>
+<p>I have seen many tests that require date or time manipulation. Surprisingly,
+a lot of them is confusing and unclear. Let's take a look:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_view_sellers_for_past_transactions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">past_transaction</span> <span class="o">=</span> <span class="n">test_helpers</span><span class="o">.</span><span class="n">create_transaction</span><span class="p">()</span>
+    <span class="n">test_helpers</span><span class="o">.</span><span class="n">add_seller</span><span class="p">(</span><span class="n">past_transaction</span><span class="p">)</span>
+    <span class="c1"># we cannot add sellers for past transactions</span>
+    <span class="n">past_transaction</span><span class="o">.</span><span class="n">date</span> <span class="o">=</span> <span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">()</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">past_transaction</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+    <span class="n">upcoming_transaction</span> <span class="o">=</span> <span class="n">test_helpers</span><span class="o">.</span><span class="n">create_transaction</span><span class="p">()</span>
+    <span class="n">test_helpers</span><span class="o">.</span><span class="n">add_seller</span><span class="p">(</span><span class="n">upcoming_transaction</span><span class="p">)</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">call_api</span><span class="p">(</span><span class="s1">&#39;/sellers/past&#39;</span><span class="p">)</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">data</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+        <span class="n">response</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;transaction&#39;</span><span class="p">],</span> <span class="n">past_transaction</span>
+    <span class="p">)</span>
+</pre></div>
+
+
+<p>Some explaination is in order. We want to check if <code>sellers/past</code> endpoint
+lists only the sellers associated with past transactions. The problem is, we cannot
+add a seller to a past transaction. So, we create an upcoming transaction
+(<code>create_transaction</code>), we add a seller, and we move it to the past manually.
+Then, we create an upcoming transaction, we add a seller and then we can perform
+an actual test.</p>
+<p>Quite complicated, isn't it? Now imagine you have to find a reason why this test has failed.
+It always takes me way too much time to figure out what a test like
+this actually does. And this is not even the worst example I have encountered.
+The worst one had a <code>sleep(1)</code> inside to make sure that the object we created
+was a past one!</p>
+<p>The solution here is simple: use <a href="https://github.com/spulec/freezegun">freezegun</a>.
+It provides an easy way of controlling the time inside your tests:</p>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">freezegun</span> <span class="kn">import</span> <span class="n">freeze_time</span>
+
+
+<span class="k">def</span> <span class="nf">test_view_sellers_for_past_transactions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">freeze_time</span><span class="p">(</span><span class="s1">&#39;2000-01-01&#39;</span><span class="p">):</span>
+        <span class="n">past_transaction</span> <span class="o">=</span> <span class="n">test_helpers</span><span class="o">.</span><span class="n">create_transaction</span><span class="p">()</span>
+        <span class="n">test_helpers</span><span class="o">.</span><span class="n">add_seller</span><span class="p">(</span><span class="n">past_transaction</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">freeze_time</span><span class="p">(</span><span class="s1">&#39;3000-01-01&#39;</span><span class="p">):</span>
+        <span class="n">upcoming_transaction</span> <span class="o">=</span> <span class="n">test_helpers</span><span class="o">.</span><span class="n">create_transaction</span><span class="p">()</span>
+        <span class="n">test_helpers</span><span class="o">.</span><span class="n">add_seller</span><span class="p">(</span><span class="n">upcoming_transaction</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">freeze_time</span><span class="p">(</span><span class="s1">&#39;2500-01-01&#39;</span><span class="p">):</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">call_api</span><span class="p">(</span><span class="s1">&#39;/sellers/past&#39;</span><span class="p">)</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">data</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span>
+        <span class="n">response</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;transaction&#39;</span><span class="p">],</span> <span class="n">past_transaction</span>
+    <span class="p">)</span>
+</pre></div>
+
+
+<p>Much nicer, isn't it? The freezegun module provides other useful tools,
+that can make date and time manipulation much easier. Check the project's
+GitHub page for more info.</p>
+<h2>Summary</h2>
+<p>These were just some examples I have found while working on different projects.
+I hope that this post will help you with solving similar problems in your code.
+Also, if you encountered a code quality issue that I missed, please let me know.</p>
+      <div class="footer no-print">
+        <div class="copyright">This work is <a href="https://creativecommons.org/publicdomain/zero/1.0/">public domain</a> (<a href="https://github.com/pfertyk/blog">source</a>)</div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Paweł Fertyk - slack</title><link href="https://pfertyk.me/" rel="alternate"></link><link href="https://pfertyk.me/feeds/slack.atom.xml" rel="self"></link><id>https://pfertyk.me/</id><updated>2016-11-01T00:00:00+01:00</updated><entry><title>Automatically respond to Slack messages containing specific text</title><link href="/2016/11/automatically-respond-to-slack-messages-containing-specific-text/" rel="alternate"></link><published>2016-11-01T00:00:00+01:00</published><updated>2016-11-01T00:00:00+01:00</updated><author><name></name></author><id>tag:None,2016-11-01:/2016/11/automatically-respond-to-slack-messages-containing-specific-text/</id><summary type="html">&lt;p&gt;Yeah, that would be great&lt;/p&gt;</summary><content type="html">&lt;p&gt;Recently I tried to create a Slack bot. It's job was to read messages and, if &lt;em&gt;'that would be great'&lt;/em&gt; was detected in the content, respond to the message with a picture of Bill Lumbergh from &lt;em&gt;Office Space&lt;/em&gt; (yeah, I'm a funny guy). But I found out that the learning resources are somewhat scattered around the Internet. It was difficult for a person not familiar with Slack API and with bots in general to quickly create nothing more than a simple bot. I finally put together the information from different sources and decided to describe the process here.&lt;/p&gt;
+&lt;p&gt;This post will show you how to integrate with Slack in two ways: using bot users and outgoing webhooks. You don't have to know anything about Slack or Python frameworks, but basic Python skills are required (also a Heroku account or your own server would be helpful). The code will be simple and will do the one and only task that I mentioned: detect the phrase and respond with an image. Let't get right to it!&lt;/p&gt;
+&lt;h2&gt;Bot users&lt;/h2&gt;
+&lt;p&gt;Slack allows you to create &lt;a href="https://api.slack.com/bot-users"&gt;bot users&lt;/a&gt;. They are very similar to normal users, except they can be controlled using the API token.&lt;/p&gt;
+&lt;h3&gt;Create a bot user&lt;/h3&gt;
+&lt;p&gt;To create a new bot user, visit &lt;a href="https://my.slack.com/services/new/bot"&gt;this link&lt;/a&gt; (of course, you have to be a full member of your team to do that). First, you need to pick a name for your bot:&lt;/p&gt;
+&lt;p&gt;&lt;img alt="New bot's name" src="https://pfertyk.me/images/slack-lumbergh-bot-creation.png"&gt;&lt;/p&gt;
+&lt;p&gt;Then, you can access your bot's settings. It is possible (and advised!) to give it a nice name and a proper icon. But the important part here is the token:&lt;/p&gt;
+&lt;p&gt;&lt;img alt="New bot's token" src="https://pfertyk.me/images/slack-lumbergh-bot-token.png"&gt;&lt;/p&gt;
+&lt;p&gt;This will be required for your Python code to post messages to Slack channels. From now on, I'm going to assume that your token is &lt;code&gt;xoxo-123token&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Now that your bot is created, go ahead and invite it:&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Inviting the bot" src="https://pfertyk.me/images/slack-lumbergh-bot-invite.png"&gt;&lt;/p&gt;
+&lt;p&gt;The bot should be more than happy to accept the invitation:&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Bot accepted invitation" src="https://pfertyk.me/images/slack-lumbergh-bot-accept-invitation.png"&gt;&lt;/p&gt;
+&lt;h3&gt;Write the code&lt;/h3&gt;
+&lt;p&gt;First, you need to create a new virtualenv and install &lt;code&gt;slackclient&lt;/code&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;mkvirtualenv -p /usr/bin/python3 slack-bot
+pip install slackclient
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Next you have to actually create a Slack client, using your bot's token. For security reasons set the environment variable with the token:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nb"&gt;export&lt;/span&gt; &lt;span class="nv"&gt;SLACKBOT_LUMBERGH_TOKEN&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;xoxo-123token
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;and then use it in Python:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;slackclient&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;SlackClient&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;os&lt;/span&gt;
+
+
+&lt;span class="n"&gt;token&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;os&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;environ&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;SLACKBOT_LUMBERGH_TOKEN&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;slack_client&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;SlackClient&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;token&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;There are many methods provided by &lt;code&gt;slackclient&lt;/code&gt; (you can check the &lt;a href="http://python-slackclient.readthedocs.io/en/latest/"&gt;documentation&lt;/a&gt;). For this example, we are going to use just 3 of them.&lt;/p&gt;
+&lt;p&gt;To start working with Slack use &lt;code&gt;rtm_connect&lt;/code&gt;. It will open a websocket connection and start to listen for events.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;slack_client&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;rtm_connect&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+    &lt;span class="c1"&gt;# proceed&lt;/span&gt;
+&lt;span class="k"&gt;else&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;Connection failed, invalid token?&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;To get the list of events, use &lt;code&gt;rtm_read&lt;/code&gt;. It will return a list of events since the last call.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;events&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;slack_client&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;rtm_read&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;event&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;events&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="c1"&gt;# process event&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;There are different types of events. You want to intercept those that have a &lt;code&gt;message&lt;/code&gt; type, come from a specific channel and contain some text:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;
+    &lt;span class="s1"&gt;&amp;#39;channel&amp;#39;&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;event&lt;/span&gt; &lt;span class="ow"&gt;and&lt;/span&gt;
+    &lt;span class="s1"&gt;&amp;#39;text&amp;#39;&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;event&lt;/span&gt; &lt;span class="ow"&gt;and&lt;/span&gt;
+    &lt;span class="n"&gt;event&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;type&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;message&amp;#39;&lt;/span&gt;
+&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="c1"&gt;# this is the event you are looking for&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Now that you have an actual message, you can check if the text contains the phrase &lt;em&gt;'that would be great'&lt;/em&gt;. If so, you can post a new message to a Slack channel the message came from. To do this, use &lt;code&gt;api_call&lt;/code&gt; method:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;link&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;&amp;lt;https://cdn.meme.am/instances/400x/33568413.jpg|That would be great&amp;gt;&amp;#39;&lt;/span&gt;
+
+&lt;span class="n"&gt;slack_client&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;api_call&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+    &lt;span class="s1"&gt;&amp;#39;chat.postMessage&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;channel&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;event&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;channel&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
+    &lt;span class="n"&gt;text&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;link&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;as_user&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;true:&amp;#39;&lt;/span&gt;
+&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Some things might require an explaination:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;'chat.postMessage'&lt;/code&gt; defines that type of the API call you are going to make (in this case, you want to post a message)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;as_user='true:'&lt;/code&gt; will make your bot's messages appear as they were sent by a normal Slack user&lt;/li&gt;
+&lt;li&gt;link's format is &lt;code&gt;&amp;lt;actual_url|Displayed text&amp;gt;&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;You code by far should look like this:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;slackclient&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;SlackClient&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;time&lt;/span&gt;
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;os&lt;/span&gt;
+
+&lt;span class="n"&gt;token&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;os&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;environ&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;SLACKBOT_LUMBERGH_TOKEN&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;slack_client&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;SlackClient&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;token&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;link&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;&amp;lt;https://cdn.meme.am/instances/400x/33568413.jpg|That would be great&amp;gt;&amp;#39;&lt;/span&gt;
+
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;slack_client&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;rtm_connect&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+    &lt;span class="k"&gt;while&lt;/span&gt; &lt;span class="bp"&gt;True&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;events&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;slack_client&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;rtm_read&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+        &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;event&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;events&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+            &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;
+                &lt;span class="s1"&gt;&amp;#39;channel&amp;#39;&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;event&lt;/span&gt; &lt;span class="ow"&gt;and&lt;/span&gt;
+                &lt;span class="s1"&gt;&amp;#39;text&amp;#39;&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;event&lt;/span&gt; &lt;span class="ow"&gt;and&lt;/span&gt;
+                &lt;span class="n"&gt;event&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;type&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;message&amp;#39;&lt;/span&gt;
+            &lt;span class="p"&gt;):&lt;/span&gt;
+                &lt;span class="n"&gt;channel&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;event&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;channel&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+                &lt;span class="n"&gt;text&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;event&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;text&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+                &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;that would be great&amp;#39;&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;text&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;lower&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="ow"&gt;and&lt;/span&gt; &lt;span class="n"&gt;link&lt;/span&gt; &lt;span class="ow"&gt;not&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;text&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+                    &lt;span class="n"&gt;slack_client&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;api_call&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+                        &lt;span class="s1"&gt;&amp;#39;chat.postMessage&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+                        &lt;span class="n"&gt;channel&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;channel&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+                        &lt;span class="n"&gt;text&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;link&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+                        &lt;span class="n"&gt;as_user&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;true:&amp;#39;&lt;/span&gt;
+                    &lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="n"&gt;time&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sleep&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;else&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;Connection failed, invalid token?&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;The &lt;code&gt;sleep(1)&lt;/code&gt; fragment was added to slow down the loop a bit. Notice that the text is also checked for the presence of the link itself (otherwise your bot would start answering its own messages).&lt;/p&gt;
+&lt;p&gt;Assuming that you named your file &lt;code&gt;main.py&lt;/code&gt; you can now run the program:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;python main.py
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;and see your bot in action:&lt;/p&gt;
+&lt;p&gt;&lt;img alt="User bot in action" src="https://pfertyk.me/images/slack-lumbergh-bot-answer.png"&gt;&lt;/p&gt;
+&lt;p&gt;It works quite nicely, except for that awful endless loop. That is not how the code should look like. If only there was a way to react to actual messages instead of reading all the events...&lt;/p&gt;
+&lt;h2&gt;Outgoing webhooks&lt;/h2&gt;
+&lt;p&gt;Fortunately, Slack provides another way of integrating with other services: webhooks. Thanks to them you can receive a call each time a message is sent to a channel.&lt;/p&gt;
+&lt;h3&gt;Create a webhook&lt;/h3&gt;
+&lt;p&gt;Go to &lt;a href="https://my.slack.com/services/new/outgoing-webhook"&gt;Outgoing WebHooks&lt;/a&gt; page and click &lt;strong&gt;Add Outgoing WebHooks integration&lt;/strong&gt;. You will be redirected to the &lt;strong&gt;Edit configuration&lt;/strong&gt; page, and you will immediately notice some limitations:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;the integration can only be enabled for one specific channel or for all messages starting with specific (trigger) words&lt;/li&gt;
+&lt;li&gt;you will need a server with a public IP address to send the messages to (you need to provide a URL that Slack can find)&lt;/li&gt;
+&lt;li&gt;you can still customize the name and the icon, but you will have to repeat the process for each channel (unless you are going to use trigger words)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;So, is it even worth the effort to use this outgoing webhook instead of a bot user? I think it is. Infinite loops without breaking conditions are evil and you should avoid them. Besides, the downsides are not really that troublesome (you probably will use this integration on one or two channels anyway, and setting up the server with Heroku is quite easy).&lt;/p&gt;
+&lt;p&gt;Let's proceed with the configuration. Select the channel and leave the &lt;strong&gt;Trigger Word(s)&lt;/strong&gt; section empty (you don't want to restrict the messages that will be answered). I'm going to assume for a moment that you have your own public IP address and that it is &lt;code&gt;123.1.2.3&lt;/code&gt; (don't worry, in just a moment you will deploy your program to Heroku and that will take care of the public IP problem). Put &lt;code&gt;123.1.2.3/lumbergh&lt;/code&gt; in the &lt;strong&gt;URL(s)&lt;/strong&gt; field. You can also customize the name and the icon.&lt;/p&gt;
+&lt;p&gt;There is another important section here: &lt;strong&gt;Token&lt;/strong&gt;. It contains the token that will be added to each API call send to the URLs you provided. You will get back to it in a moment.&lt;/p&gt;
+&lt;p&gt;Click &lt;strong&gt;Save Settings&lt;/strong&gt; button. Notice that you don't need to invite an integration to a channel, it will be added automatically when you create the webhook (also, unlike bot users, integrations can have names starting with a capital letter):&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Webhook integration enabled" src="https://pfertyk.me/images/slack-lumbergh-webhook-enabled.png"&gt;&lt;/p&gt;
+&lt;h3&gt;Write the code&lt;/h3&gt;
+&lt;p&gt;The new version of your program will not require &lt;code&gt;slackclient&lt;/code&gt; at all. Instead, you are going to use &lt;code&gt;flask&lt;/code&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pip install flask
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;A very simple application would look like this:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;flask&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;Flask&lt;/span&gt;
+
+&lt;span class="n"&gt;app&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Flask&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="vm"&gt;__name__&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="vm"&gt;__name__&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;__main__&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;app&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;run&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;host&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;0.0.0.0&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;  &lt;span class="c1"&gt;# make the app externally visible&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This of course will not do anything useful, so let's create an endpoint:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nd"&gt;@app.route&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;/lumbergh&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;methods&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;POST&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;lumbergh&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+    &lt;span class="n"&gt;text&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;request&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;form&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;text&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;that would be great&amp;#39;&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;text&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;lower&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="ow"&gt;and&lt;/span&gt; &lt;span class="n"&gt;link&lt;/span&gt; &lt;span class="ow"&gt;not&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;text&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;jsonify&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;text&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;link&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;Response&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt; &lt;span class="mi"&gt;200&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Now every time Slack calls &lt;code&gt;123.1.2.3/lumbergh&lt;/code&gt;, the program will check if the message contains the phrase &lt;em&gt;'it would be great'&lt;/em&gt;. If so, a link to the image will be returned. Notice that you no longer need to use &lt;code&gt;api_call&lt;/code&gt; here: the response with a text will be automatically converted to a new message by Slack.&lt;/p&gt;
+&lt;p&gt;The code of your program should look like this:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;flask&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;Flask&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;request&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Response&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;jsonify&lt;/span&gt;
+
+&lt;span class="n"&gt;app&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Flask&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="vm"&gt;__name__&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;link&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;&amp;lt;https://cdn.meme.am/instances/400x/33568413.jpg|That would be great&amp;gt;&amp;#39;&lt;/span&gt;
+
+
+&lt;span class="nd"&gt;@app.route&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;/lumbergh&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;methods&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;POST&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;lumbergh&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+    &lt;span class="n"&gt;text&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;request&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;form&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;text&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;that would be great&amp;#39;&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;text&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;lower&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="ow"&gt;and&lt;/span&gt; &lt;span class="n"&gt;link&lt;/span&gt; &lt;span class="ow"&gt;not&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;text&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;jsonify&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;text&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;link&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;Response&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt; &lt;span class="mi"&gt;200&lt;/span&gt;
+
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="vm"&gt;__name__&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;__main__&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;app&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;run&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;host&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;0.0.0.0&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Do you remember the token that Slack created for your outgoing webhook? You might notice that there is no token validation here. If you want, you can check if the call was made by Slack:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;lumbergh&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;request&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;form&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;token&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="n"&gt;os&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;environ&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;WEBHOOK_TOKEN&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="c1"&gt;# process the message&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;Response&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt; &lt;span class="mi"&gt;200&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;I decided however to skip the validation. That way one instance of a program can be used with multiple channels.&lt;/p&gt;
+&lt;p&gt;You can run the your new app (on a publicly available server):&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;python main.py
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;and check if it works:&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Webhook integration response" src="https://pfertyk.me/images/slack-lumbergh-webhook-working.png"&gt;&lt;/p&gt;
+&lt;p&gt;The problem is that you still need to have a public IP address. Let's solve this problem with Heroku.&lt;/p&gt;
+&lt;h3&gt;Deploying on Heroku&lt;/h3&gt;
+&lt;p&gt;I'm going to assume that you already have a Heroku account and that you installed &lt;strong&gt;Heroku CLI&lt;/strong&gt;. Create a new app and give it a nice name (I picked &lt;em&gt;lumbergh&lt;/em&gt;). Go to &lt;strong&gt;Settings&lt;/strong&gt;, check the git URL and configure the git remote accordingly:&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Webhook integration git URL" src="https://pfertyk.me/images/slack-lumbergh-webhook-git.png"&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;git init
+git remote add heroku https://git.heroku.com/lumbergh.git
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;To run the program you will need a server, for example &lt;code&gt;gunicorn&lt;/code&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;pip install gunicorn
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;For a program to work with Heroku, you have to create an additional file called &lt;code&gt;Procfile&lt;/code&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="na"&gt;web: gunicorn lumbergh:app&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Also, since &lt;a href="https://wiki.python.org/moin/Python2orPython3"&gt;Python 2.x is legacy and Python 3.x is the present and future of the language&lt;/a&gt;, you should inform Heroku that you want to use the proper version of Python by creating a &lt;code&gt;runtime.txt&lt;/code&gt; file:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="na"&gt;python-3.4.3&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Now you can deploy to Heroku (remember that first you need to use &lt;code&gt;heroku login&lt;/code&gt;):&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;git push heroku master
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Check the &lt;strong&gt;Overview&lt;/strong&gt; to see if the program is working:&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Webhook integration status" src="https://pfertyk.me/images/slack-lumbergh-webhook-status.png"&gt;&lt;/p&gt;
+&lt;p&gt;Now you can change the URL for the Slack webhook to the one provided by Heroku (you will find it in &lt;strong&gt;Settings&lt;/strong&gt;):&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Webhook integration Heroku address" src="https://pfertyk.me/images/slack-lumbergh-webhook-heroku-url.png"&gt;
+&lt;img alt="Webhook integration new Slack URL" src="https://pfertyk.me/images/slack-lumbergh-webhook-slack-url.png"&gt;&lt;/p&gt;
+&lt;h2&gt;Summary&lt;/h2&gt;
+&lt;p&gt;As it turns out, answering messages automatically on Slack is very easy. Bot users can be enabled for many channels, but they need an infinite loop to process events. Outgoing webhooks can be called for each message, but they need a public IP and have to be added to each channel separately. And both of these solutions can be implemented in less than 31 lines of code.&lt;/p&gt;
+&lt;p&gt;The source code for this Slack bot can be found &lt;a href="https://github.com/pfertyk/lumbergh-slackbot"&gt;here&lt;/a&gt;. The latest version contains the webhook integration, but the first commit shows the bot user program. If you don't have the time to configure the bot by yourself, you can use my Heroku instance (just add a new outgoing webhook with &lt;code&gt;https://lumbergh.herokuapp.com/lumbergh&lt;/code&gt; URL).&lt;/p&gt;
+&lt;p&gt;If you find any problems with this tutorial, please let me know.&lt;/p&gt;</content><category term="bot"></category><category term="python"></category><category term="slack"></category></entry></feed>

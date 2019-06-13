@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Paweł Fertyk">
+    <meta name="description" content="Host different resources on port 80 using subdomains" />
+
+    <link type="application/atom+xml" rel="alternate" href="/feeds/all.atom.xml"  title="Paweł Fertyk's blog on programming - Atom Feed">
+    <link type="application/rss+xml" rel="alternate" href="/feeds/all.rss.xml" title="Paweł Fertyk's blog on programming - RSS Feed">
+
+    <title>Redirections in Nginx / Paweł Fertyk</title>
+    <link rel="stylesheet" href="/theme/css/main.css" type="text/css"/>
+    <link rel="shortcut icon" href="/theme/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/theme/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Ubuntu"/>
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro"/>
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=DejaVu+Sans+Mono"/>
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:image" content="/theme/images/pfertyk.jpg" />
+    <meta name="twitter:title" content="Redirections in Nginx" />
+    <meta name="twitter:description" content="Host different resources on port 80 using subdomains" />
+  </head>
+  <body>
+    <div class="page-wrapper">
+      <nav class="no-print">
+        <header><a href="/">Paweł Fertyk</a></header>
+        <ul>
+          <li><a href="/">Blog</a></li><li><a href="/tags/">Tags</a></li><li><a href="/about/">About</a></li>
+        </ul>
+      </nav>
+<h2 class="article-title">
+  Redirections in Nginx
+</h2>
+<div class="date-posted">2017-04-04
+<a href="//tag/nginx/">nginx</a>
+</div>
+<p>Some time ago, I decided to host a <a href="http://clean-tests.pfertyk.me">presentation </a>
+on my server. The idea was to have a nice URL (like <code>awesome-slides.pfertyk.me</code>)
+that would point to a location handled by Nginx (like: <code>pfertyk.me/awesome-slides</code>).
+This simple task turned out to be a bit more complicated.</p>
+<p>The first problem that I stumbled upon was that the <code>/</code> location was already in use. As you
+probably guessed, that is where my blog is (the one you are reading right now).
+That caused Nginx to try to find other locations (like <code>/awesome-slides</code>) inside
+by blog directory. There is probably a workaround for this problem,
+but I couldn't find it in a reasonable amount of time. So I decided to solve
+this other way.</p>
+<p>I configured Nginx to host the slides on port 8000 (<code>pfertyk.me:8000</code>).
+The configuration looked like this:</p>
+<div class="highlight"><pre><span></span><span class="k">server</span> <span class="p">{</span>
+    <span class="kn">listen</span> <span class="mi">8000</span><span class="p">;</span>
+
+    <span class="kn">location</span> <span class="s">/</span> <span class="p">{</span>
+        <span class="kn">root</span> <span class="s">/path/to/awesome/slides</span><span class="p">;</span>
+        <span class="kn">index</span> <span class="s">index.html</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>Now I just needed to add a subdomain redirection:</p>
+<div class="highlight"><pre><span></span><span class="n">awesome</span><span class="o">-</span><span class="n">slides</span> <span class="mi">60</span> <span class="k">IN</span> <span class="n">TXT</span> <span class="ss">&quot;2|pfertyk.me:8000&quot;</span>
+</pre></div>
+
+
+<p>and my presentation was available to the public. Everything seemed fine until I
+opened the web console:</p>
+<p><img alt="Ugly redirection" src="../../../images/nginx-ugly-redirection.png"></p>
+<p>The first call was made to <code>awesome-slides.pfertyk.me</code>, but all the
+subsequent ones used the domain <code>pfertyk.me:8000</code>. I know that normal users don't usually
+open the web console, so it shouldn't be a problem. But it felt like I was doing
+this wrong, like there was a way to hide that ugly port number.</p>
+<p>So I dug deeper into this problem and, with some help, I found a solution.
+I had to set <code>server_name</code> properly, so that Nginx would handle requests
+from different subdomains. The new configuration looked like this:</p>
+<div class="highlight"><pre><span></span><span class="k">server</span> <span class="p">{</span>
+    <span class="kn">listen</span> <span class="mi">80</span><span class="p">;</span>
+    <span class="kn">server_name</span> <span class="s">actually-awesome-slides.pfertyk.me</span><span class="p">;</span>
+
+    <span class="kn">location</span> <span class="s">/</span> <span class="p">{</span>
+        <span class="kn">root</span> <span class="s">/path/to/awesome/slides</span><span class="p">;</span>
+        <span class="kn">index</span> <span class="s">index.html</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>I had to change the DNS record too:</p>
+<div class="highlight"><pre><span></span><span class="n">actually</span><span class="o">-</span><span class="n">awesome</span><span class="o">-</span><span class="n">slides</span> <span class="k">IN</span> <span class="n">CNAME</span> <span class="n">pfertyk</span><span class="p">.</span><span class="n">me</span><span class="p">.</span>
+</pre></div>
+
+
+<p>And there it was:</p>
+<p><img alt="Pretty redirection" src="../../../images/nginx-pretty-redirection.png"></p>
+<p>The configuration was simple and elegant. The port number was hidden.
+In fact, Nginx was now using port 80 for all the
+resources (currently I have more than one presentation
+hosted that way).</p>
+<p>I hope this short tutorial helped you in some way. Please contact me if you
+have any questions.</p>
+      <div class="footer no-print">
+        <div class="copyright">This work is <a href="https://creativecommons.org/publicdomain/zero/1.0/">public domain</a> (<a href="https://github.com/pfertyk/blog">source</a>)</div>
+      </div>
+    </div>
+  </body>
+</html>

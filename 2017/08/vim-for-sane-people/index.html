@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Paweł Fertyk">
+    <meta name="description" content="When you want something powerful but also something normal" />
+
+    <link type="application/atom+xml" rel="alternate" href="/feeds/all.atom.xml"  title="Paweł Fertyk's blog on programming - Atom Feed">
+    <link type="application/rss+xml" rel="alternate" href="/feeds/all.rss.xml" title="Paweł Fertyk's blog on programming - RSS Feed">
+
+    <title>Vim for sane people / Paweł Fertyk</title>
+    <link rel="stylesheet" href="/theme/css/main.css" type="text/css"/>
+    <link rel="shortcut icon" href="/theme/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/theme/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Ubuntu"/>
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro"/>
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=DejaVu+Sans+Mono"/>
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:image" content="/theme/images/pfertyk.jpg" />
+    <meta name="twitter:title" content="Vim for sane people" />
+    <meta name="twitter:description" content="When you want something powerful but also something normal" />
+  </head>
+  <body>
+    <div class="page-wrapper">
+      <nav class="no-print">
+        <header><a href="/">Paweł Fertyk</a></header>
+        <ul>
+          <li><a href="/">Blog</a></li><li><a href="/tags/">Tags</a></li><li><a href="/about/">About</a></li>
+        </ul>
+      </nav>
+<h2 class="article-title">
+  Vim for sane people
+</h2>
+<div class="date-posted">2017-08-19
+<a href="//tag/vim/">vim</a>
+</div>
+<p>Long time ago, I decided to master Vim. Like many before me, I started with <code>vimtutor</code> to learn the basics, then played around with the editor a bit and attempted to use it for actual work. I soon realized that it will not be that simple. Vim's commands were powerful, but required some time getting used to. I knew I had to spend a lot more time to become proficient enough to use Vim as my main text editor.</p>
+<p>But there was also something else.</p>
+<p>Vim was significantly different than other editors I used by far. Things I took for granted became difficult. Keeping the list of previously opened files? Not easy. Searching in the whole document? Unintuitive. Pasting content from the clipboard? I had to use a mouse for that. A mouse in Vim! All of those problems made me come back to other editors and not spend enough time with Vim to learn it properly.</p>
+<p>I realized that those problems were keeping me from using Vim on daily basis. I had to solve them, otherwise I would keep coming back to other editors and never really master Vim. So I searched through documentation and available plugins and, after many days of tweaking my <code>.vimrc</code> file, I finally came up with configuration that made Vim an editor I could use. Here I'd like to share that configuration with you and explain how it works.</p>
+<p>Note: This post contains mostly hints as to making Vim more user friendly (like a normal editor), but also some generally useful things you can add to your configuration. Also, I'm a Python/JavaScript developer, so there are sections of my <code>.vimrc</code> file that focus on these languages (but you can still use the rest if you are not working with them). My <code>.vimrc</code> file is available <a href="https://github.com/pfertyk/dotfiles/blob/master/vimrc">here</a>, so you can check the complete configuration anytime you want.</p>
+<h3>Plugins</h3>
+<p>Vim plugins are very powerful and turn this great text editor into a perfect tool for software developers. Using a plugin manager makes it a lot easier to install and update plugins. There are several options available for Vim. <a href="https://github.com/VundleVim/Vundle.vim">Vundle</a> is one of them, and it works just fine.</p>
+<p>To install it, you need to clone the repository:</p>
+<div class="highlight"><pre><span></span>$ git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+</pre></div>
+
+
+<p>Then put this at the top of your <code>.vimrc</code> file:</p>
+<div class="highlight"><pre><span></span><span class="k">set</span> <span class="nb">nocompatible</span>
+<span class="k">filetype</span> off
+<span class="k">set</span> <span class="nb">rtp</span><span class="p">+=~</span><span class="sr">/.vim/</span>bundle/Vundle.<span class="k">vim</span>
+<span class="k">call</span> vundle#begin<span class="p">()</span>
+Plugin <span class="s1">&#39;VundleVim/Vundle.vim&#39;</span>
+<span class="c">&quot; other plugins go here</span>
+<span class="k">call</span> vundle#<span class="k">end</span><span class="p">()</span>
+<span class="k">filetype</span> plugin indent <span class="k">on</span>
+</pre></div>
+
+
+<p>Every time you add a new plugin, run this command in Vim:</p>
+<div class="highlight"><pre><span></span><span class="p">:</span>PluginInstall
+</pre></div>
+
+
+<h3>Leader</h3>
+<p>Leader is a special key in Vim. It's a prefix for sequences of keys that you can map to different commands. Many plugins use it, but you can also configure your own mappings (which I recommend). By default, the leader key is the backslash. But you are going to use this key very often, so it should be changed to something more convinient, something that you can use with any hand, something bigger than usual keys. Space is an excellent choice:</p>
+<div class="highlight"><pre><span></span><span class="k">let</span> mapleader <span class="p">=</span> <span class="s1">&#39; &#39;</span>
+</pre></div>
+
+
+<h3>Clipboard</h3>
+<p>One of the things that annoyed me the most when I started using Vim was
+copying and pasting text. Vim has its own registers, and they have nothing
+to do with standard clipboard. Fortunately, there is a way to fix it:</p>
+<div class="highlight"><pre><span></span>vmap <span class="p">&lt;</span>Leader<span class="p">&gt;</span><span class="k">y</span> <span class="c">&quot;+y</span>
+vmap <span class="p">&lt;</span>Leader<span class="p">&gt;</span><span class="k">d</span> <span class="c">&quot;+d</span>
+nmap <span class="p">&lt;</span>Leader<span class="p">&gt;</span><span class="k">p</span> <span class="c">&quot;+p</span>
+nmap <span class="p">&lt;</span>Leader<span class="p">&gt;</span>P <span class="c">&quot;+P</span>
+vmap <span class="p">&lt;</span>Leader<span class="p">&gt;</span><span class="k">p</span> <span class="c">&quot;+p</span>
+vmap <span class="p">&lt;</span>Leader<span class="p">&gt;</span>P <span class="c">&quot;+P</span>
+</pre></div>
+
+
+<p>Now pressing <code>Space+y</code> will copy the selected text into the clipboard, <code>Space+p</code> will paste the text from the clipboard, and <code>Space+d</code> will delete the text while copying it into the clipboard (the equivalent of <code>Ctrl+X</code> in normal editors). I've got to say, this made my work with Vim a lot easier.</p>
+<h3>Search</h3>
+<p>Vim has excellent search tools, but they could use some tuning:</p>
+<div class="highlight"><pre><span></span><span class="nb">nnoremap</span> <span class="sr">/ /</span>\<span class="k">v</span>
+<span class="nb">vnoremap</span> <span class="sr">/ /</span>\<span class="k">v</span>
+<span class="nb">vnoremap</span> <span class="sr">//</span> <span class="k">y</span>/<span class="p">&lt;</span><span class="k">c</span><span class="p">-</span><span class="k">r</span><span class="p">&gt;</span>&quot;<span class="p">&lt;</span><span class="k">cr</span><span class="p">&gt;</span>
+<span class="k">set</span> <span class="nb">ignorecase</span>
+<span class="k">set</span> <span class="nb">smartcase</span>
+<span class="k">set</span> <span class="nb">gdefault</span>
+<span class="k">set</span> <span class="nb">hls</span>
+<span class="k">set</span> <span class="nb">incsearch</span>
+</pre></div>
+
+
+<p>First 2 lines set <code>\v</code> ('very-magic') as default option for searching. It will cause all characters except 'a-zA-Z0-9_' to have special meaning, so if you want to use their literal meaning, you will have to precede them with the backslash. That makes working with regular expressions a lot more predictable.</p>
+<p>The <code>//</code> mapping makes it easy to search the currently selected text.</p>
+<p>Next 2 lines make searching case insensitive by default, unless you start typing characters with different case. So searching for <code>base</code> will match both <code>base</code> and <code>Base</code>, but searching for <code>Base</code> will only match the latter. I find it quite useful.</p>
+<p>By default Vim searches only the current line. This behavior is very unintuitive. Setting <code>gdefault</code> fixes this issue.</p>
+<p>Lastly, <code>hls</code> and <code>incsearch</code> highlight the search results as you type and move the cursor to the next available match.</p>
+<h3>Buffers, sessions and projects</h3>
+<p>Instead of having files opened in tabs (like normal editors do), Vim has tabs that can contain windows, and each window can display one buffer, where buffer is a file. Multiple windows can display the same buffer, and the buffer can be replaced by another one without closing the window.</p>
+<p>At first, it confused me a lot, but after a while it became quite natural and convinient. I realized that I don't really need tabs: I can just split windows using <code>:split</code> or <code>:vsplit</code> and then navigate between them with <code>Ctrl+W</code> and <code>hjkl</code>. Still, there was room for improvement here:</p>
+<div class="highlight"><pre><span></span><span class="k">set</span> <span class="nb">directory</span>^<span class="p">=</span>$HOME<span class="sr">/.vim/</span>swp<span class="sr">//</span>
+<span class="k">set</span> <span class="nb">viminfo</span>^<span class="p">=</span>%
+<span class="k">set</span> <span class="nb">hidden</span>
+command<span class="p">!</span> Bd :<span class="k">bp</span><span class="p">&lt;</span>bar<span class="p">&gt;</span><span class="k">bd</span>#
+
+<span class="k">set</span> <span class="nb">sessionoptions</span><span class="p">=</span>blank<span class="p">,</span><span class="k">buffers</span><span class="p">,</span>curdir<span class="p">,</span><span class="k">resize</span><span class="p">,</span><span class="k">winpos</span><span class="p">,</span>winsize
+
+<span class="k">au</span> <span class="nb">VimLeave</span> * <span class="k">call</span> SaveVimProject<span class="p">()</span>
+<span class="k">function</span><span class="p">!</span> SaveVimProject<span class="p">()</span>
+    <span class="k">if</span> filereadable<span class="p">(</span><span class="s2">&quot;./Project.vim&quot;</span><span class="p">)</span>
+        <span class="k">mksession</span><span class="p">!</span> Project.<span class="k">vim</span>
+    <span class="k">endif</span>
+<span class="k">endfunction</span>
+</pre></div>
+
+
+<p>The first line puts all the swap files created by Vim into one central directory (you need to create it first), therefore keeping your working directories clean.</p>
+<p>Vim uses <code>.viminfo</code> file to store information from the previous editing session. Adding <code>%</code> option to <code>viminfo</code> keeps the list of last opened buffers.</p>
+<p>Another one of the most annoying things I discovered about Vim is that it didn't let me hide the buffer (e.g. by loading another one into the window) if the buffer was modified. It's the equivalent of a normal editor not letting you switch to another tab unless you save the current file. Setting the <code>hidden</code> flag fixed this issue (Vim still complained if I wanted to close the program with unsaved modifications, but that's the behavior I wanted to keep).</p>
+<p>The <code>Bd</code> command closes the current buffer (removes it from the buffer list) without closing the current window. That way you can close files without changing your window layouts. I find that command to be very helpful.</p>
+<p>What comes next is my attempt to add project management to Vim. The <code>mksession</code> command creates a file with current session information. What exactly is stored in that file is defined by <code>sessionoptions</code>. I chose to store the empty windows, all of the buffers (not only the ones displayed in windows), current directory (very useful for file searching, which will be explained in a moment), size and position of the whole Vim window (useful for GVim), and the sizes of all open windows. That combination is sufficient for me to feel that I pick the project up where I left off.</p>
+<p>To automate project management a bit, I created a function. If it finds a file called  <code>Project.vim</code> in the current directory, it overwrites it with current session settings. This function is called automatically when exiting Vim. So, to create a new project, you need to navigate to a directory with your project's files and create a <code>Project.vim</code> file manually, thus declaring it a project:</p>
+<div class="highlight"><pre><span></span><span class="p">:</span><span class="k">cd</span> <span class="sr">/path/</span><span class="k">to</span><span class="sr">/your/</span>project
+<span class="p">:</span><span class="k">mksession</span> Project.<span class="k">vim</span>
+</pre></div>
+
+
+<p>When you leave Vim, the project will be saved automatically. Next time you want to work on it again, all you have to do is import the project file and all your windows and files will be restored:</p>
+<div class="highlight"><pre><span></span><span class="p">:</span><span class="k">so</span> <span class="sr">/path/</span><span class="k">to</span><span class="sr">/your/</span>project/Project.<span class="k">vim</span>
+</pre></div>
+
+
+<p>Another thing is searching for files. There are several tree based file explorers for Vim, but I never used them. In my opinion, they take unnecessary space on the screen and don't bring much value. Instead of searching a file in a directory tree, I prefer to look for it by typing a fuzzy path. And that's what <code>CtrlP</code> plugin is for. You can add it to Vim like this:</p>
+<div class="highlight"><pre><span></span>Plugin <span class="s1">&#39;ctrlpvim/ctrlp.vim&#39;</span>
+</pre></div>
+
+
+<p>Here is the configuration I use:</p>
+<div class="highlight"><pre><span></span><span class="k">let</span> <span class="k">g</span>:ctrlp_cmd <span class="p">=</span> <span class="s1">&#39;CtrlPMixed&#39;</span>
+<span class="k">let</span> <span class="k">g</span>:ctrlp_working_path_mode <span class="p">=</span> <span class="m">0</span>
+<span class="k">let</span> <span class="k">g</span>:ctrlp_max_files<span class="p">=</span><span class="m">0</span>
+<span class="k">let</span> <span class="k">g</span>:ctrlp_custom_ignore <span class="p">=</span> <span class="s1">&#39;__pycache__\|node_modules&#39;</span>
+
+map \ :CtrlPLine<span class="p">&lt;</span><span class="k">cr</span><span class="p">&gt;</span>
+</pre></div>
+
+
+<p>The first line enables searching both the already opened files and other files (putting the most recently used ones on top of the search results). The next line disables working path mode feature, so we always search the entire current directory (that's why we made sure earlier to store the current directory in our <code>Project.vim</code> file). Setting <code>g:ctrlp_max_files</code> to 0 means that <code>CtrlP</code> will scan all the files in the current directory. Usually, there is no need to search inside <code>node_modules</code> (JavaScript) or <code>__pycache__</code> (Python) folders, so we can ignore them. With this configuration you can quickly find files like <code>auth/users/test_main.py</code> by pressing <code>Ctrl+P</code> and typing <code>usetesm</code>.</p>
+<p>The last line adds a nice bonus: fuzzy searching the content of the file. Thanks to it you can easily find lines like <em>The quick brown fox jumps over the lazy dog</em> just by typing <em>quickjumps</em>. I don't use it very often, but sometimes it comes in handy.</p>
+<h3>Windows</h3>
+<p>Usually I work with multiple windows and very often I want to resize them. To make the process easier, I created the following mapping:</p>
+<div class="highlight"><pre><span></span>map <span class="p">&lt;</span><span class="k">a</span><span class="p">-</span><span class="k">l</span><span class="p">&gt;</span> :<span class="k">res</span> <span class="p">+</span><span class="m">1</span><span class="p">&lt;</span><span class="k">cr</span><span class="p">&gt;</span>
+map <span class="p">&lt;</span><span class="k">a</span><span class="p">-</span>L<span class="p">&gt;</span> :<span class="k">res</span> <span class="m">-1</span><span class="p">&lt;</span><span class="k">cr</span><span class="p">&gt;</span>
+map <span class="p">&lt;</span><span class="k">a</span><span class="p">-</span><span class="k">h</span><span class="p">&gt;</span> :<span class="k">vertical</span> <span class="k">res</span> <span class="p">+</span><span class="m">1</span><span class="p">&lt;</span><span class="k">cr</span><span class="p">&gt;</span>
+map <span class="p">&lt;</span><span class="k">a</span><span class="p">-</span>H<span class="p">&gt;</span> :<span class="k">vertical</span> <span class="k">res</span> <span class="m">-1</span><span class="p">&lt;</span><span class="k">cr</span><span class="p">&gt;</span>
+</pre></div>
+
+
+<p>This configuration lets me change the window width/height without touching the mouse (unfortunately, mapping the <code>Alt</code> key makes it work only in GVim).</p>
+<h3>Indentation</h3>
+<p>PEP-8 specifies that one indentation level should be 4 spaces, and I'm not going to argue with that. For JavaScript/HTML files I prefer 2 spaces:</p>
+<div class="highlight"><pre><span></span><span class="k">au</span> <span class="nb">FileType</span> python <span class="k">setl</span> <span class="k">ts</span><span class="p">=</span><span class="m">4</span> <span class="k">sw</span><span class="p">=</span><span class="m">4</span> <span class="k">sts</span><span class="p">=</span><span class="m">4</span> <span class="nb">et</span>
+<span class="k">au</span> <span class="nb">FileType</span> javascript<span class="p">,</span>htmldjango<span class="p">,</span>html<span class="p">,</span>css<span class="p">,</span>cucumber <span class="k">setl</span> <span class="k">ts</span><span class="p">=</span><span class="m">2</span> <span class="k">sw</span><span class="p">=</span><span class="m">2</span> <span class="k">sts</span><span class="p">=</span><span class="m">2</span> <span class="nb">et</span>
+
+<span class="k">set</span> <span class="nb">smartindent</span>
+</pre></div>
+
+
+<p>The <code>smartindent</code> flag makes your life easier by detecting the current indentation level before you start a new line.</p>
+<h3>Status line</h3>
+<p>I used a status line plugin for some time, but I didn't like it. It was bothersome to configure, and it didn't actually bring any value (except for the nice look). So I uninstalled the plugin and decided to instead configure my status line to show everything I need to know:</p>
+<div class="highlight"><pre><span></span><span class="k">set</span> <span class="nb">laststatus</span><span class="p">=</span><span class="m">2</span>
+
+<span class="k">set</span> <span class="nb">statusline</span><span class="p">=</span>
+<span class="k">set</span> <span class="nb">statusline</span><span class="p">+=</span>%<span class="k">t</span>%<span class="k">m</span>
+<span class="k">set</span> <span class="nb">statusline</span><span class="p">+=</span>%{TagInStatusLine<span class="p">()</span>}
+<span class="k">set</span> <span class="nb">statusline</span><span class="p">+=</span>%#warningmsg#
+<span class="k">set</span> <span class="nb">statusline</span><span class="p">+=</span>%{SyntasticStatuslineFlag<span class="p">()</span>}
+<span class="k">set</span> <span class="nb">statusline</span><span class="p">+=</span>%*%<span class="p">=</span>
+<span class="k">set</span> <span class="nb">statusline</span><span class="p">+=</span>%<span class="k">l</span>:%<span class="k">c</span><span class="p">(</span>%<span class="k">p</span>%%<span class="p">)</span>
+</pre></div>
+
+
+<p>The first line makes the status line always visible. Next, we clear any existing status line configuration and display what follows:</p>
+<ul>
+<li>the name of the current file and the modified flag (<code>[+]</code>)</li>
+<li>current class and function name (only for Python files, requires <code>mgedmin/pythonhelper.vim</code> plugin)</li>
+<li>any warning messages</li>
+<li><code>syntastic</code> flag (showing, by default, first error line number and the total number of errors)</li>
+<li>restore the normal highlight color and right align the rest of the status line</li>
+<li>the current line, column and percentage through the file</li>
+</ul>
+<h3>Syntax</h3>
+<p>For syntax highlighting I use a plugin called <code>syntastic</code>:</p>
+<div class="highlight"><pre><span></span>Plugin <span class="s1">&#39;scrooloose/syntastic&#39;</span>
+</pre></div>
+
+
+<p>The configuration looks like this:</p>
+<div class="highlight"><pre><span></span><span class="k">let</span> <span class="k">g</span>:syntastic_check_on_open <span class="p">=</span> <span class="m">1</span>
+<span class="k">let</span> <span class="k">g</span>:syntastic_check_on_wq <span class="p">=</span> <span class="m">0</span>
+<span class="k">let</span> <span class="k">g</span>:syntastic_python_checkers <span class="p">=</span> [<span class="s1">&#39;flake8&#39;</span>]
+<span class="k">let</span> <span class="k">g</span>:syntastic_python_flake8_exec <span class="p">=</span> <span class="s1">&#39;python3&#39;</span>
+<span class="k">let</span> <span class="k">g</span>:syntastic_python_flake8_args <span class="p">=</span> [<span class="s1">&#39;-m&#39;</span><span class="p">,</span> <span class="s1">&#39;flake8&#39;</span>]
+<span class="k">let</span> <span class="k">g</span>:syntastic_javascript_checkers <span class="p">=</span> [<span class="s1">&#39;eslint&#39;</span>]
+<span class="k">let</span> <span class="k">g</span>:syntastic_javascript_eslint_exec <span class="p">=</span> <span class="s1">&#39;eslint&#39;</span>
+</pre></div>
+
+
+<p>It makes <code>syntactic</code> check the syntax when a file is opened (but not when you close Vim) and sets the linters for Python and JavaScript files (you need to install them first).</p>
+<h3>Whitespaces</h3>
+<p>I can't remember the last time I actually wanted to leave some trailing whitespaces. So I configured Vim to display them:</p>
+<div class="highlight"><pre><span></span><span class="k">set</span> <span class="nb">list</span>
+<span class="k">set</span> <span class="nb">listchars</span><span class="p">=</span><span class="k">tab</span>:<span class="p">&gt;-,</span>trail:<span class="p">~</span>
+
+map <span class="p">&lt;</span>leader<span class="p">&gt;</span><span class="k">l</span> :<span class="k">set</span> <span class="nb">list</span><span class="p">!&lt;</span><span class="k">cr</span><span class="p">&gt;</span>
+</pre></div>
+
+
+<p>The mapping allows you to toggle displaying whitespaces (but I can't imagine why you would want to turn it off).</p>
+<h3>Color scheme</h3>
+<p>I initially used <code>solarized</code> theme, but I switched to <code>gruvbox</code>. You can install it like a normal plugin:</p>
+<div class="highlight"><pre><span></span>Plugin <span class="s1">&#39;morhetz/gruvbox&#39;</span>
+</pre></div>
+
+
+<p>Additional configuration looks like this:</p>
+<div class="highlight"><pre><span></span><span class="nb">syntax</span> enable
+<span class="k">set</span> <span class="nb">background</span><span class="p">=</span><span class="nb">dark</span>
+<span class="k">colorscheme</span> gruvbox
+</pre></div>
+
+
+<h3>Git</h3>
+<p>To make working with Git a bit easier, I recommend these plugins:</p>
+<div class="highlight"><pre><span></span>Plugin <span class="s1">&#39;airblade/vim-gitgutter&#39;</span>
+Plugin <span class="s1">&#39;tpope/vim-fugitive&#39;</span>
+</pre></div>
+
+
+<p>The first one marks modified lines and allows you to stage/undo/preview them (it has a lot of other features as well). The second is very useful for tracking authors of changes (<code>:GBlame</code>).</p>
+<p>There are probably many other Vim plugins, but I prefer working with Git using the command line.</p>
+<h3>Python</h3>
+<p>With some plugins and configuration, you can turn Vim into a powerful Python IDE:</p>
+<div class="highlight"><pre><span></span>Plugin <span class="s1">&#39;fisadev/vim-isort&#39;</span>
+Plugin <span class="s1">&#39;davidhalter/jedi-vim&#39;</span>
+Plugin <span class="s1">&#39;python-rope/ropevim&#39;</span>
+</pre></div>
+
+
+<p>The <code>vim-isort</code> plugin helps you with sorting Python imports (but it doesn't always work the right way, and you need to install the <code>isort</code> module first). Jedi and Rope are Python autocompletion and refactoring tools. They add most of the IDE functionality to Vim (search for occurences, rename, go to definition and so on).</p>
+<div class="highlight"><pre><span></span><span class="k">set</span> <span class="nb">colorcolumn</span><span class="p">=</span><span class="m">80</span>
+
+<span class="k">au</span> <span class="nb">FileType</span> python map <span class="p">&lt;</span>buffer<span class="p">&gt;</span> <span class="p">&lt;</span>leader<span class="p">&gt;</span><span class="k">b</span> oimport ipdb; ipdb.set_trace<span class="p">()&lt;</span>esc<span class="p">&gt;</span>
+<span class="k">au</span> <span class="nb">FileType</span> python map <span class="p">&lt;</span>buffer<span class="p">&gt;</span> <span class="p">&lt;</span>leader<span class="p">&gt;</span>B Oimport ipdb; ipdb.set_trace<span class="p">()&lt;</span>esc<span class="p">&gt;</span>
+</pre></div>
+
+
+<p>Highlighting the 80th column helps a lot with keeping the line width withing the recommended 79 characters. Next 2 lines create a mapping for adding breakpoints.</p>
+<h3>Other</h3>
+<p>There are several other plugins I use on daily basis:</p>
+<ul>
+<li><code>scrooloose/nerdcommenter</code> makes commenting/uncommenting lines very easy</li>
+<li><code>jiangmiao/auto-pairs</code> automatically creates a closing bracket when you open one</li>
+<li><code>tpope/vim-surround</code> lets you easily surround text with brackets, quotes, HTML tags; lets you change the surrounding character, delete it and much more</li>
+<li><code>tpope/vim-abolish</code> it has a lot of options, but I usually use it to change variable names from snake case to upper case</li>
+</ul>
+<p>This additional configuration might also make your life easier:</p>
+<div class="highlight"><pre><span></span>map <span class="p">&lt;</span><span class="k">a</span><span class="p">-</span><span class="k">j</span><span class="p">&gt;</span> :<span class="k">m</span><span class="p">+</span><span class="m">1</span><span class="p">&lt;</span><span class="k">cr</span><span class="p">&gt;</span>
+map <span class="p">&lt;</span><span class="k">a</span><span class="p">-</span><span class="k">k</span><span class="p">&gt;</span> :<span class="k">m</span><span class="m">-2</span><span class="p">&lt;</span><span class="k">cr</span><span class="p">&gt;</span>
+
+<span class="k">set</span> <span class="nb">cursorline</span>
+<span class="k">set</span> <span class="k">nu</span>
+<span class="k">set</span> <span class="nb">autoread</span>
+<span class="k">set</span> <span class="nb">guioptions</span><span class="p">-=</span><span class="k">m</span>
+<span class="k">set</span> <span class="nb">shortmess</span><span class="p">+=</span>I
+
+<span class="nb">nnoremap</span> <span class="k">j</span> gj
+<span class="nb">nnoremap</span> <span class="k">k</span> gk
+
+command<span class="p">!</span> XmlPrettyPrint :%<span class="p">!</span>xmllint <span class="p">--</span>format <span class="p">-</span>
+command<span class="p">!</span> JsonPrettyPrint :%<span class="p">!</span>python <span class="p">-</span><span class="k">m</span> json.tool
+</pre></div>
+
+
+<p>First 2 lines create a mapping for moving the current line up and down (unfortunately, since I mapped the <code>Alt</code> key, it only works in GVim).</p>
+<p>Next we tell Vim to always highlight the current line, always show the line numbers, automatically reload the files if they were modified outside of Vim, hide the menu bar (for GVim) and not to display the intro message on startup.</p>
+<p>Sometimes the line you are editing will not fit in the window and will instead be wrapped. Using <code>gj</code> and <code>gk</code> lets you navigate through such lines (instead of moving to the next line, pressing <code>j</code> will move the cursor down, but still in the same line; that's the behavior you can expect from a normal editor).</p>
+<p>If you work with JSON and XML files, you might want to format them. That's what the next 2 commands do (you need to install <code>json.tool</code> module and <code>xmllint</code> for them to work).</p>
+<h3>Summary</h3>
+<p>Vim is a very powerful editor. If you ever tried it and failed (like I did), maybe you can give it another chance with these hints. If you know other useful tricks or spot an error in this post, please let me know.</p>
+      <div class="footer no-print">
+        <div class="copyright">This work is <a href="https://creativecommons.org/publicdomain/zero/1.0/">public domain</a> (<a href="https://github.com/pfertyk/blog">source</a>)</div>
+      </div>
+    </div>
+  </body>
+</html>

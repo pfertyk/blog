@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Paweł Fertyk - crystal</title><link href="https://pfertyk.me/" rel="alternate"></link><link href="https://pfertyk.me/feeds/crystal.atom.xml" rel="self"></link><id>https://pfertyk.me/</id><updated>2016-11-28T00:00:00+01:00</updated><entry><title>Crystal in real life</title><link href="/2016/11/crystal-in-real-life/" rel="alternate"></link><published>2016-11-28T00:00:00+01:00</published><updated>2016-11-28T00:00:00+01:00</updated><author><name></name></author><id>tag:None,2016-11-28:/2016/11/crystal-in-real-life/</id><summary type="html">&lt;p&gt;Float like a Ruby, sting like a C?&lt;/p&gt;</summary><content type="html">&lt;p&gt;At Polyconf 2016 I attended a workshop (organized by Aleksander Kwiatkowski and Serdar Dogruyol) about Crystal.
+It is a relatively young programming language that's supposed to have both high-level
+syntax (similar to Ruby) and high efficiency (comparable with C). Combining
+these two traits seems difficult, but also very appealing to me.&lt;/p&gt;
+&lt;p&gt;Recently, I decided to try Crystal again, to check on my own if it can keep this
+promise. The best way to test a programming language is to write some code, so
+I decided to create a simple grayscale filter for PNG images (that way I could easily
+test the efficiency). This posts describes the whole process.&lt;/p&gt;
+&lt;h2&gt;Installing Crystal&lt;/h2&gt;
+&lt;p&gt;I'm using Ubuntu 16.04. Crystal is not available there by default, but the
+&lt;a href="https://crystal-lang.org/docs/installation/on_debian_and_ubuntu.html"&gt;installation instructions&lt;/a&gt;
+are very clear and simple:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;curl https://dist.crystal-lang.org/apt/setup.sh &lt;span class="p"&gt;|&lt;/span&gt; sudo bash
+sudo apt-get install crystal
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This installs both the Crystal compiler and the default dependency manager called Shards
+(I already like these names).&lt;/p&gt;
+&lt;h2&gt;Creating a new project&lt;/h2&gt;
+&lt;p&gt;Normally, I could just create a source file (&lt;code&gt;.cr&lt;/code&gt;) and start coding. But image processing
+will almost certainly require some sort of a third party library, so I decided to create a project.&lt;/p&gt;
+&lt;p&gt;Each Crystal project is expected to have a &lt;code&gt;shard.yml&lt;/code&gt; file that contains the
+dependencies and additional information. Fortunately, Crystal already has a neat
+command to set this up:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;crystal init app grayscale
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This creates a Git repository, a directory for dependencies (&lt;code&gt;lib&lt;/code&gt;), &lt;code&gt;.travis.yml&lt;/code&gt; file
+(initially only with the name of the language) and a lot of other stuff. The newly created &lt;code&gt;grayscale&lt;/code&gt;
+directory looks like this:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;.
+├── .git
+│   ├── branches
+│   ├── config
+│   ├── description
+│   ├── HEAD
+│   ├── hooks
+│   │   ├── applypatch-msg.sample
+│   │   ├── commit-msg.sample
+│   │   ├── post-update.sample
+│   │   ├── pre-applypatch.sample
+│   │   ├── pre-commit.sample
+│   │   ├── prepare-commit-msg.sample
+│   │   ├── pre-push.sample
+│   │   ├── pre-rebase.sample
+│   │   └── update.sample
+│   ├── info
+│   │   └── exclude
+│   ├── objects
+│   │   ├── info
+│   │   └── pack
+│   └── refs
+│       ├── heads
+│       └── tags
+├── .gitignore
+├── LICENSE
+├── README.md
+├── shard.yml
+├── spec
+│   ├── grayscale_spec.cr
+│   └── spec_helper.cr
+├── src
+│   ├── grayscale
+│   │   └── version.cr
+│   └── grayscale.cr
+└── .travis.yml
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;I decided that it is a bit of an overkill for a simple grayscale filter.
+Fortunately, there is another way: I created a &lt;code&gt;grayscale&lt;/code&gt; directory manually and
+executed this command inside it:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;shards init
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This creates just the &lt;code&gt;shard.yml&lt;/code&gt; file. By default it looks like this:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;grayscale&lt;/span&gt;
+&lt;span class="n"&gt;version&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="mf"&gt;0.1&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;
+
+&lt;span class="err"&gt;#&lt;/span&gt; &lt;span class="n"&gt;authors&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+&lt;span class="err"&gt;#&lt;/span&gt;   &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;name&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;email&lt;/span&gt;&lt;span class="err"&gt;@&lt;/span&gt;&lt;span class="n"&gt;example&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;com&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
+
+&lt;span class="err"&gt;#&lt;/span&gt; &lt;span class="n"&gt;description&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt;
+&lt;span class="err"&gt;#&lt;/span&gt;   &lt;span class="n"&gt;Short&lt;/span&gt; &lt;span class="n"&gt;description&lt;/span&gt; &lt;span class="n"&gt;of&lt;/span&gt; &lt;span class="n"&gt;grayscale&lt;/span&gt;
+
+&lt;span class="err"&gt;#&lt;/span&gt; &lt;span class="n"&gt;dependencies&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+&lt;span class="err"&gt;#&lt;/span&gt;   &lt;span class="n"&gt;pg&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+&lt;span class="err"&gt;#&lt;/span&gt;     &lt;span class="n"&gt;github&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;will&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;crystal&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;pg&lt;/span&gt;
+&lt;span class="err"&gt;#&lt;/span&gt;     &lt;span class="n"&gt;version&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;~&amp;gt; 0.5&amp;quot;&lt;/span&gt;
+
+&lt;span class="err"&gt;#&lt;/span&gt; &lt;span class="n"&gt;development_dependencies&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+&lt;span class="err"&gt;#&lt;/span&gt;   &lt;span class="n"&gt;webmock&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+&lt;span class="err"&gt;#&lt;/span&gt;     &lt;span class="n"&gt;github&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;manastech&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;webmock&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;cr&lt;/span&gt;
+
+&lt;span class="err"&gt;#&lt;/span&gt; &lt;span class="n"&gt;license&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;MIT&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;So there are two ways of creating a new project and both work out-of-the-box.
+By far, Crystal seems to make my life easier at every step and I like it.
+Now that I have a project ready, let's install the dependency!&lt;/p&gt;
+&lt;h2&gt;Installing the dependency&lt;/h2&gt;
+&lt;p&gt;For a grayscale filter I needed an image processing library (obviously).
+The page &lt;a href="http://crystalshards.xyz/"&gt;crystalshards.xyz&lt;/a&gt; shows 2 results
+when searched by the &lt;em&gt;image&lt;/em&gt; keyword. One project still has &lt;em&gt;TODO&lt;/em&gt; sections in the
+README.md file. The other one is called &lt;a href="https://github.com/l3kn/stumpy_png"&gt;stumpy_png&lt;/a&gt;.
+It looks like a decent piece of code, there is an example of usage provided on GitHub,
+and there is more than one contributor. So I decided to use that one.&lt;/p&gt;
+&lt;p&gt;I tried installing the dependency with this command:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;shards install stumpy_png
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Much to my surprise, this command does nothing. It does not install the dependency and it does not
+print any error message. According to the documentation, &lt;code&gt;shards install&lt;/code&gt; doesn't add
+a new dependency to the project, it only downloads and installs
+all the dependencies from the &lt;code&gt;shard.yml&lt;/code&gt; file.&lt;/p&gt;
+&lt;p&gt;So I started looking for a command like &lt;code&gt;shards add stumpy_png&lt;/code&gt;, to easily add this new
+dependency to &lt;code&gt;shard.yml&lt;/code&gt; (something similar to &lt;code&gt;npm install --save &amp;lt;module&amp;gt;&lt;/code&gt;).
+But there is no such command. It was &lt;a href="https://github.com/crystal-lang/shards/issues/81"&gt;suggested&lt;/a&gt;
+to create one, but the idea was eventually rejected.
+It was also mentioned (in &lt;a href="https://github.com/crystal-lang/shards/issues/81#issuecomment-261747349"&gt;this comment&lt;/a&gt;)
+that Shards should fail when unknown arguments are left on the command line, to
+avoid the confusion (something that will be probably implemented in the future).&lt;/p&gt;
+&lt;p&gt;Crystal is no longer that helpful.
+It seems that I have to edit &lt;code&gt;shard.yml&lt;/code&gt; manually:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;dependencies&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+  &lt;span class="n"&gt;stumpy_png&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;github&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;l3kn&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;stumpy_png&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;Code&lt;/h2&gt;
+&lt;p&gt;Using the trial and error approach (I'm not very familiar with Ruby syntax) I came up with this code:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nb"&gt;require&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;stumpy_png&amp;quot;&lt;/span&gt;
+
+&lt;span class="n"&gt;canvas&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="no"&gt;StumpyPNG&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;read&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;image.png&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;canvas&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;width&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;times&lt;/span&gt; &lt;span class="k"&gt;do&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="o"&gt;|&lt;/span&gt;
+  &lt;span class="n"&gt;canvas&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;height&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;times&lt;/span&gt; &lt;span class="k"&gt;do&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="o"&gt;|&lt;/span&gt;
+    &lt;span class="n"&gt;color&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;canvas&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;
+    &lt;span class="n"&gt;grayscale&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="n"&gt;_u32&lt;/span&gt;
+    &lt;span class="n"&gt;grayscale&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;grayscale&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;color&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;r&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;color&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;g&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;color&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;b&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt;
+    &lt;span class="n"&gt;canvas&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="no"&gt;StumpyPNG&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="no"&gt;RGBA&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;from_gray_n&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;grayscale&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;16&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+
+&lt;span class="no"&gt;StumpyPNG&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;write&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;canvas&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;output.png&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Note: I know that grayscale conversion is a bit more complicated than the average
+value of all 3 colors, but this filter was supposed to be a simple test of Crystal.&lt;/p&gt;
+&lt;p&gt;The code works, but there are some issues:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;in the first line I included the name of the library (&lt;code&gt;stumpy_png&lt;/code&gt;),
+but that allowed me to use the name of the class (&lt;code&gt;StumpyPNG&lt;/code&gt;),
+which is a bit inconsistent (at least for a Python developer, who imports exactly the thing that
+can be used later)&lt;/li&gt;
+&lt;li&gt;the code is still a bit verbose (this particular library doesn't provide a way to apply a function
+to each pixel)&lt;/li&gt;
+&lt;li&gt;I had to manually declare the type of the grayscale color variable (&lt;code&gt;0_u32&lt;/code&gt;)
+and add all 3 colors to this variable,
+otherwise the value was incorrect for bright colors due to integer overflow&lt;/li&gt;
+&lt;li&gt;I needed to create a new color each time I wanted to change its value (this is a
+limitation of stumpy_png, not Crystal itself)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;So, the high-level syntax in this case was a bit of a disappointment.
+I still have to worry about variable types and storing intermediary results.
+The program looks better than the one written in C, but I expected more.
+It seems that Crystal no longer wants to be my friend. However, the goal of this
+language was also to be very fast, and I can forgive code like this if the speed is good.
+So let's check the performance!&lt;/p&gt;
+&lt;h2&gt;Performance&lt;/h2&gt;
+&lt;p&gt;The naive way to run a Crystal program would be something like this:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;crystal&lt;/span&gt; &lt;span class="n"&gt;grayscale&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;cr&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This compiles the code and then executes it, without saving the executable
+on disk. So it actually works like an interpreter that allows to run the program with
+just one simple command. This is another great idea Crystal creators came up with,
+but since I need the speed, I will use another way:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;crystal&lt;/span&gt; &lt;span class="n"&gt;build&lt;/span&gt; &lt;span class="n"&gt;grayscale&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;cr&lt;/span&gt;
+&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;grayscale&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This will compile the code once and save the executable on disk for further use.
+Since I &lt;em&gt;really&lt;/em&gt; want the speed I should also turn on the optimization:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;crystal&lt;/span&gt; &lt;span class="n"&gt;build&lt;/span&gt; &lt;span class="c1"&gt;--release grayscale.cr&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;I executed this program on a 1920x1080 pixels image. I was a bit surprised that the
+execution time was around 1 second. I compared it with the similar program written
+in Python:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;from&lt;/span&gt; &lt;span class="nn"&gt;PIL&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="n"&gt;Image&lt;/span&gt;
+
+&lt;span class="n"&gt;im&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Image&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;open&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;image.png&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;im_gray&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;im&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;convert&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;L&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;im_gray&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;save&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;output.png&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This one does the job done in around 0.2 second.&lt;/p&gt;
+&lt;p&gt;So... Crystal is both more verbose &lt;em&gt;and&lt;/em&gt; slower than Python? That cannot be!
+It has to keep at least part of its promise! There must be a way to make it run faster.
+Maybe if I try to use all of the cores, the processing time will improve?
+I decided to try this approach, however I got stopped by two things.&lt;/p&gt;
+&lt;p&gt;The first one is that Crystal &lt;a href="https://crystal-lang.org/docs/guides/concurrency.html"&gt;does not support parallel code execution&lt;/a&gt;.
+I understand that it will be implemented in the future.
+Still, that's kind of like shooting your own foot for a language that wants to be very fast.&lt;/p&gt;
+&lt;p&gt;The second reason was that I started a &lt;a href="https://github.com/l3kn/stumpy_png/issues/7"&gt;discussion&lt;/a&gt;
+about my problem on GitHub.
+The owner of the project soon found out that the issue was not the processing time, but
+rather the loading and saving times. This table shows the comparison:&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Time spent on (s):&lt;/th&gt;
+&lt;th&gt;Crystal&lt;/th&gt;
+&lt;th&gt;Python&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Loading the image&lt;/td&gt;
+&lt;td&gt;0.4599181&lt;/td&gt;
+&lt;td&gt;0.1104393&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Processing the pixels&lt;/td&gt;
+&lt;td&gt;0.0112788&lt;/td&gt;
+&lt;td&gt;0.0521736&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Saving the output&lt;/td&gt;
+&lt;td&gt;0.2979503&lt;/td&gt;
+&lt;td&gt;0.0803592&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;So, the processing time is actually much better in Crystal than in Python, but the rest of the
+program works a lot slower. Using multiple cores would not solve this problem.&lt;/p&gt;
+&lt;p&gt;Of course, contributors already declared to help with this issue and improve the loading
+and saving times. But that doesn't change the fact that the only image processing
+tool available for Crystal is at the moment very slow.&lt;/p&gt;
+&lt;h2&gt;Summary&lt;/h2&gt;
+&lt;p&gt;That concludes my first attempt of using Crystal on my own. I noticed the
+following things about this language:&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Pros&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;it has an excellent community (people respond very quickly and try to help newbies)&lt;/li&gt;
+&lt;li&gt;it simplifies a lot of things&lt;/li&gt;
+&lt;li&gt;it is fast (at least the image processing part)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Cons&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;it lacks the libraries&lt;/li&gt;
+&lt;li&gt;it does not support parallel code execution&lt;/li&gt;
+&lt;li&gt;the package manager can be a bit confusing&lt;/li&gt;
+&lt;li&gt;the code can still be quite verbose&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Of course, these are only my personal observations. Moreover, the domain I chose (image processing)
+might not be a thing among Crystal developers. Perhaps if I started with an HTTP server,
+my experience would be very different. But the general impression I got was that
+Crystal is not yet ready for being a general purpose tool. It has a bit of a charm,
+but for now I will stick with Python (and, if I really need the speed, with C).&lt;/p&gt;</content><category term="crystal"></category></entry></feed>

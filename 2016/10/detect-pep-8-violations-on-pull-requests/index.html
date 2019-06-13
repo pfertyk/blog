@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Paweł Fertyk">
+    <meta name="description" content="Your own automatic GitHub linter" />
+
+    <link type="application/atom+xml" rel="alternate" href="/feeds/all.atom.xml"  title="Paweł Fertyk's blog on programming - Atom Feed">
+    <link type="application/rss+xml" rel="alternate" href="/feeds/all.rss.xml" title="Paweł Fertyk's blog on programming - RSS Feed">
+
+    <title>Detect PEP-8 violations on pull requests / Paweł Fertyk</title>
+    <link rel="stylesheet" href="/theme/css/main.css" type="text/css"/>
+    <link rel="shortcut icon" href="/theme/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/theme/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Ubuntu"/>
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro"/>
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=DejaVu+Sans+Mono"/>
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:image" content="/theme/images/pfertyk.jpg" />
+    <meta name="twitter:title" content="Detect PEP-8 violations on pull requests" />
+    <meta name="twitter:description" content="Your own automatic GitHub linter" />
+  </head>
+  <body>
+    <div class="page-wrapper">
+      <nav class="no-print">
+        <header><a href="/">Paweł Fertyk</a></header>
+        <ul>
+          <li><a href="/">Blog</a></li><li><a href="/tags/">Tags</a></li><li><a href="/about/">About</a></li>
+        </ul>
+      </nav>
+<h2 class="article-title">
+  Detect PEP-8 violations on pull requests
+</h2>
+<div class="date-posted">2016-10-14
+<a href="//tag/bot/">bot</a>
+<a href="//tag/heroku/">heroku</a>
+<a href="//tag/python/">python</a>
+</div>
+<p>I like the Zen of Python. <em>There should be one - and preferably only one - obvious way to do it</em> reflects perfectly my philosophy of life. That is why I also like PEP-8: it solves the problem of different coding conventions across many teams. Sure, you have to sacrifice a bit of your freedom as a developer, and sometimes it is difficult to keep the line under 79 characters, but still I think it is worth it in the long run.</p>
+<p>Every Python developer has an editor or an IDE configured to display all PEP-8 violations
+(initially, of course, since in time you learn those rules by heart and you no longer need any hints).
+But sometimes you need to push changes before you can install a linter plugin
+or you simply don't notice that <code>imported but unused [F401]</code> message.
+What then? How to ensure that no PEP-8 violations will ever find their way into your codebase?</p>
+<p>Don't worry, you don't have to manually validate every pull request.
+You can configure an automatic linter. Once in place, it will analyse the changes
+in a branch once a pull request is created. If no errors are found, it will
+add a comment with a nice message. If there are any errors, it will add a comment with a
+full description for each incorrect line of code.</p>
+<h2>Application setup</h2>
+<p>First you need to create an app on Heroku. In case you haven't used Heroku before,
+<a href="https://devcenter.heroku.com/articles/getting-started-with-python#introduction">here</a>
+is a guide that will help you get started.</p>
+<p>To create a new app, go to <strong>Dashboard</strong> -&gt; <strong>New</strong> -&gt; <strong>Create new app</strong>.
+You can specify the name of your app if you want.</p>
+<p><img alt="PEP-8 bot Heroku app name" src="../../../images/pep8-bot-heroku-app-name.png"></p>
+<p>Once the app is created, provide it with the <strong>RabbitMQ Bigwig</strong> add-on.
+Go to <strong>Resources</strong>, find the add-on and click <strong>Provision</strong>. Unfortunately,
+the process requires you to provide billing information (you need to
+configure a credit card for your account). But don't worry, the add-on itself is free.</p>
+<p><img alt="Provisioning PEP-8 bot with rabbitmq plugin" src="../../../images/pep8-bot-rabbitmq-provision.png"></p>
+<p>Now we move to the command line. First, you should install <strong>Heroku CLI</strong>.
+Just run this command:</p>
+<div class="highlight"><pre><span></span>wget -O- https://toolbelt.heroku.com/install-ubuntu.sh <span class="p">|</span> sh
+</pre></div>
+
+
+<p>Next you will need to clone the repository with PEP-8 linter bot:</p>
+<div class="highlight"><pre><span></span>git clone https://github.com/pfertyk/lint-review.git
+<span class="nb">cd</span> lint-review
+</pre></div>
+
+
+<p>The time has come to tell Heroku who you are. Run <code>heroku login</code> an provide
+it with your Heroku credentials (email and password). Next you have to
+configure a git remote to be able to push the code to Heroku.
+The name of the remote can be found in your app's <strong>Settings</strong>:</p>
+<p><img alt="Heroku Git URL for PEP-8 bot" src="../../../images/pep8-bot-heroku-git-url.png"></p>
+<div class="highlight"><pre><span></span>git remote add heroku https://git.heroku.com/pep8-linter.git
+</pre></div>
+
+
+<p>For some reason, when I tried to deploy this app, Heroku insisted on
+treating it as if it was written in Ruby. So, to be sure that it will be
+recognized as Python code, you should set a proper buildpack:</p>
+<div class="highlight"><pre><span></span>heroku buildpacks:set heroku/python
+</pre></div>
+
+
+<p>When this is done, you can deploy the app to Heroku:</p>
+<div class="highlight"><pre><span></span>git push heroku master
+</pre></div>
+
+
+<p>Bear in mind that this process can take a while.</p>
+<h2>Configuration</h2>
+<p>Once the app is deployed, you will notice that the celery worker's status if <code>OFF</code>:</p>
+<p><img alt="Disabled celery worker" src="../../../images/pep8-bot-disabled-celery-worker.png"></p>
+<p>To fix this, go to <strong>Resources</strong>, click the edit icon next to <code>worker</code>,
+switch the state and confirm.</p>
+<p>Next go to <strong>Settings</strong> and click <strong>Reveal Config Vars</strong>.
+You should see the following variables:</p>
+<ul>
+<li>RABBITMQ_BIGWIG_URL</li>
+<li>RABBITMQ_BIGWIG_TX_URL</li>
+<li>RABBITMQ_BIGWIG_RX_URL</li>
+</ul>
+<p>You need to configure the settings file and workspace for your app.
+You also have to specify the name of the server, which is the same as your
+app's domain (you can find it in <strong>Settings</strong> -&gt; <strong>Domains</strong>).
+In my case, the additional configuration looked like this:</p>
+<table>
+  <tbody>
+    <tr>
+      <td>LINTREVIEW_SERVER_NAME</td>
+      <td>pep8-linter.herokuapp.com</td>
+    </tr>
+    <tr>
+      <td>LINTREVIEW_SETTINGS</td>
+      <td>./settings.py</td>
+    </tr>
+    <tr>
+      <td>LINTREVIEW_WORKSPACE</td>
+      <td>./workspace</td>
+    </tr>
+    </tbody>
+</table>
+
+<h2>New GitHub account</h2>
+<p>Your automatic linter will need a GitHub account.
+You can use your own, but it's more fun to create a new one.</p>
+<p><img alt="PEP-8 bot profile" src="../../../images/pep8-bot-github-profile.png"></p>
+<p>Once the account is created, you will have to generate a token.
+Go to <strong>Settings</strong> -&gt; <strong>Personal access tokens</strong> -&gt; <strong>Generate new token</strong>.
+Choose a good description and select the <strong>notifications</strong> scope and the whole <strong>repo</strong> scope
+(or just <strong>public_repo</strong> if you are going to use this bot only for public repositories).</p>
+<p>Copy the token and go back to your Heroku app's <strong>Settings</strong>.
+Add two new config variables: <code>GITHUB_USER</code> with the name of newly created GitHub
+profile (in my case <code>PEPing-tom</code>) and <code>GITHUB_OAUTH_TOKEN</code>
+with the token you just generated.</p>
+<h2>Testing</h2>
+<p>Let's see your new bot in action. Create a test repository on GitHub.
+The bot will look for linter configuration in a file called <code>.lintrc</code>,
+so let's create one with the following content:</p>
+<div class="highlight"><pre><span></span><span class="k">[tools]</span>
+<span class="na">linters</span> <span class="o">=</span> <span class="s">flake8</span>
+</pre></div>
+
+
+<p>There are two more things you need to configure in every repository that you want
+this linter to check. First, you have to add your bot's GitHub profile as a collaborator
+(<strong>Settings</strong> -&gt; <strong>Collaborators</strong>), and the bot has to accept the invitation.
+Second, you need to add a webhook to your repository to inform the bot about pull requests.
+Go to <strong>Settings</strong> -&gt; <strong>Webhooks</strong> -&gt; <strong>Add webhook</strong>.
+The value in <strong>Payload URL</strong> should be <code>{HEROKU_APP_DOMAIN}/review/start</code>
+(in my case it was <code>https://pep8-linter.herokuapp.com/review/start</code>).
+Leave <code>application/json</code> as content type and choose <strong>Let me select individual events</strong>.
+The only event you need is <strong>Pull request</strong>.
+Make sure that <strong>Active</strong> is checked and add a webhook.</p>
+<p>Now let's see how it works in practice. Create a new branch in your test repository
+and add some atrocious Python code:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">x</span><span class="p">():</span>
+    <span class="n">a</span><span class="o">=</span><span class="n">x</span>
+</pre></div>
+
+
+<p>Push the new branch to GitHub and create a new pull request. A moment later, you should see some comments:</p>
+<p><img alt="PEP8 bot in action" src="../../../images/pep8-bot-github-error-comments.png"></p>
+<p>Let's fix these errors:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">x</span><span class="p">():</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Now your bot informs you that there are no problems:</p>
+<p><img alt="PEP8 bot is content" src="../../../images/pep8-bot-github-nice-comment.png"></p>
+<p>That's it! Now you can be sure that no PEP-8 violation will sneak into your clean and standard-compliant codebase. Unless, of course, you decide to ignore these comments...</p>
+<p>I hope that you found this tutorial useful. Please contact me if there is anything missing or if you encounter any problems with the whole process.</p>
+      <div class="footer no-print">
+        <div class="copyright">This work is <a href="https://creativecommons.org/publicdomain/zero/1.0/">public domain</a> (<a href="https://github.com/pfertyk/blog">source</a>)</div>
+      </div>
+    </div>
+  </body>
+</html>

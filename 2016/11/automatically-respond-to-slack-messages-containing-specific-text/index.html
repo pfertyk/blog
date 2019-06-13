@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Paweł Fertyk">
+    <meta name="description" content="Yeah, that would be great" />
+
+    <link type="application/atom+xml" rel="alternate" href="/feeds/all.atom.xml"  title="Paweł Fertyk's blog on programming - Atom Feed">
+    <link type="application/rss+xml" rel="alternate" href="/feeds/all.rss.xml" title="Paweł Fertyk's blog on programming - RSS Feed">
+
+    <title>Automatically respond to Slack messages containing specific text / Paweł Fertyk</title>
+    <link rel="stylesheet" href="/theme/css/main.css" type="text/css"/>
+    <link rel="shortcut icon" href="/theme/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/theme/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Ubuntu"/>
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro"/>
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=DejaVu+Sans+Mono"/>
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:image" content="/theme/images/pfertyk.jpg" />
+    <meta name="twitter:title" content="Automatically respond to Slack messages containing specific text" />
+    <meta name="twitter:description" content="Yeah, that would be great" />
+  </head>
+  <body>
+    <div class="page-wrapper">
+      <nav class="no-print">
+        <header><a href="/">Paweł Fertyk</a></header>
+        <ul>
+          <li><a href="/">Blog</a></li><li><a href="/tags/">Tags</a></li><li><a href="/about/">About</a></li>
+        </ul>
+      </nav>
+<h2 class="article-title">
+  Automatically respond to Slack messages containing specific text
+</h2>
+<div class="date-posted">2016-11-01
+<a href="//tag/bot/">bot</a>
+<a href="//tag/python/">python</a>
+<a href="//tag/slack/">slack</a>
+</div>
+<p>Recently I tried to create a Slack bot. It's job was to read messages and, if <em>'that would be great'</em> was detected in the content, respond to the message with a picture of Bill Lumbergh from <em>Office Space</em> (yeah, I'm a funny guy). But I found out that the learning resources are somewhat scattered around the Internet. It was difficult for a person not familiar with Slack API and with bots in general to quickly create nothing more than a simple bot. I finally put together the information from different sources and decided to describe the process here.</p>
+<p>This post will show you how to integrate with Slack in two ways: using bot users and outgoing webhooks. You don't have to know anything about Slack or Python frameworks, but basic Python skills are required (also a Heroku account or your own server would be helpful). The code will be simple and will do the one and only task that I mentioned: detect the phrase and respond with an image. Let't get right to it!</p>
+<h2>Bot users</h2>
+<p>Slack allows you to create <a href="https://api.slack.com/bot-users">bot users</a>. They are very similar to normal users, except they can be controlled using the API token.</p>
+<h3>Create a bot user</h3>
+<p>To create a new bot user, visit <a href="https://my.slack.com/services/new/bot">this link</a> (of course, you have to be a full member of your team to do that). First, you need to pick a name for your bot:</p>
+<p><img alt="New bot's name" src="../../../images/slack-lumbergh-bot-creation.png"></p>
+<p>Then, you can access your bot's settings. It is possible (and advised!) to give it a nice name and a proper icon. But the important part here is the token:</p>
+<p><img alt="New bot's token" src="../../../images/slack-lumbergh-bot-token.png"></p>
+<p>This will be required for your Python code to post messages to Slack channels. From now on, I'm going to assume that your token is <code>xoxo-123token</code>.</p>
+<p>Now that your bot is created, go ahead and invite it:</p>
+<p><img alt="Inviting the bot" src="../../../images/slack-lumbergh-bot-invite.png"></p>
+<p>The bot should be more than happy to accept the invitation:</p>
+<p><img alt="Bot accepted invitation" src="../../../images/slack-lumbergh-bot-accept-invitation.png"></p>
+<h3>Write the code</h3>
+<p>First, you need to create a new virtualenv and install <code>slackclient</code>:</p>
+<div class="highlight"><pre><span></span>mkvirtualenv -p /usr/bin/python3 slack-bot
+pip install slackclient
+</pre></div>
+
+
+<p>Next you have to actually create a Slack client, using your bot's token. For security reasons set the environment variable with the token:</p>
+<div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">SLACKBOT_LUMBERGH_TOKEN</span><span class="o">=</span>xoxo-123token
+</pre></div>
+
+
+<p>and then use it in Python:</p>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">slackclient</span> <span class="kn">import</span> <span class="n">SlackClient</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+
+<span class="n">token</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;SLACKBOT_LUMBERGH_TOKEN&#39;</span><span class="p">)</span>
+<span class="n">slack_client</span> <span class="o">=</span> <span class="n">SlackClient</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+</pre></div>
+
+
+<p>There are many methods provided by <code>slackclient</code> (you can check the <a href="http://python-slackclient.readthedocs.io/en/latest/">documentation</a>). For this example, we are going to use just 3 of them.</p>
+<p>To start working with Slack use <code>rtm_connect</code>. It will open a websocket connection and start to listen for events.</p>
+<div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">slack_client</span><span class="o">.</span><span class="n">rtm_connect</span><span class="p">():</span>
+    <span class="c1"># proceed</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Connection failed, invalid token?&#39;</span><span class="p">)</span>
+</pre></div>
+
+
+<p>To get the list of events, use <code>rtm_read</code>. It will return a list of events since the last call.</p>
+<div class="highlight"><pre><span></span><span class="n">events</span> <span class="o">=</span> <span class="n">slack_client</span><span class="o">.</span><span class="n">rtm_read</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
+    <span class="c1"># process event</span>
+</pre></div>
+
+
+<p>There are different types of events. You want to intercept those that have a <code>message</code> type, come from a specific channel and contain some text:</p>
+<div class="highlight"><pre><span></span><span class="k">if</span> <span class="p">(</span>
+    <span class="s1">&#39;channel&#39;</span> <span class="ow">in</span> <span class="n">event</span> <span class="ow">and</span>
+    <span class="s1">&#39;text&#39;</span> <span class="ow">in</span> <span class="n">event</span> <span class="ow">and</span>
+    <span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">type</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;message&#39;</span>
+<span class="p">):</span>
+    <span class="c1"># this is the event you are looking for</span>
+</pre></div>
+
+
+<p>Now that you have an actual message, you can check if the text contains the phrase <em>'that would be great'</em>. If so, you can post a new message to a Slack channel the message came from. To do this, use <code>api_call</code> method:</p>
+<div class="highlight"><pre><span></span><span class="n">link</span> <span class="o">=</span> <span class="s1">&#39;&lt;https://cdn.meme.am/instances/400x/33568413.jpg|That would be great&gt;&#39;</span>
+
+<span class="n">slack_client</span><span class="o">.</span><span class="n">api_call</span><span class="p">(</span>
+    <span class="s1">&#39;chat.postMessage&#39;</span><span class="p">,</span>
+    <span class="n">channel</span><span class="o">=</span><span class="n">event</span><span class="p">[</span><span class="s1">&#39;channel&#39;</span><span class="p">],</span>
+    <span class="n">text</span><span class="o">=</span><span class="n">link</span><span class="p">,</span>
+    <span class="n">as_user</span><span class="o">=</span><span class="s1">&#39;true:&#39;</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>Some things might require an explaination:</p>
+<ul>
+<li><code>'chat.postMessage'</code> defines that type of the API call you are going to make (in this case, you want to post a message)</li>
+<li><code>as_user='true:'</code> will make your bot's messages appear as they were sent by a normal Slack user</li>
+<li>link's format is <code>&lt;actual_url|Displayed text&gt;</code></li>
+</ul>
+<p>You code by far should look like this:</p>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">slackclient</span> <span class="kn">import</span> <span class="n">SlackClient</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="n">token</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;SLACKBOT_LUMBERGH_TOKEN&#39;</span><span class="p">)</span>
+
+<span class="n">slack_client</span> <span class="o">=</span> <span class="n">SlackClient</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+
+<span class="n">link</span> <span class="o">=</span> <span class="s1">&#39;&lt;https://cdn.meme.am/instances/400x/33568413.jpg|That would be great&gt;&#39;</span>
+
+<span class="k">if</span> <span class="n">slack_client</span><span class="o">.</span><span class="n">rtm_connect</span><span class="p">():</span>
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="n">events</span> <span class="o">=</span> <span class="n">slack_client</span><span class="o">.</span><span class="n">rtm_read</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="s1">&#39;channel&#39;</span> <span class="ow">in</span> <span class="n">event</span> <span class="ow">and</span>
+                <span class="s1">&#39;text&#39;</span> <span class="ow">in</span> <span class="n">event</span> <span class="ow">and</span>
+                <span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;message&#39;</span>
+            <span class="p">):</span>
+                <span class="n">channel</span> <span class="o">=</span> <span class="n">event</span><span class="p">[</span><span class="s1">&#39;channel&#39;</span><span class="p">]</span>
+                <span class="n">text</span> <span class="o">=</span> <span class="n">event</span><span class="p">[</span><span class="s1">&#39;text&#39;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="s1">&#39;that would be great&#39;</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">and</span> <span class="n">link</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">text</span><span class="p">:</span>
+                    <span class="n">slack_client</span><span class="o">.</span><span class="n">api_call</span><span class="p">(</span>
+                        <span class="s1">&#39;chat.postMessage&#39;</span><span class="p">,</span>
+                        <span class="n">channel</span><span class="o">=</span><span class="n">channel</span><span class="p">,</span>
+                        <span class="n">text</span><span class="o">=</span><span class="n">link</span><span class="p">,</span>
+                        <span class="n">as_user</span><span class="o">=</span><span class="s1">&#39;true:&#39;</span>
+                    <span class="p">)</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="s1">&#39;Connection failed, invalid token?&#39;</span><span class="p">)</span>
+</pre></div>
+
+
+<p>The <code>sleep(1)</code> fragment was added to slow down the loop a bit. Notice that the text is also checked for the presence of the link itself (otherwise your bot would start answering its own messages).</p>
+<p>Assuming that you named your file <code>main.py</code> you can now run the program:</p>
+<div class="highlight"><pre><span></span>python main.py
+</pre></div>
+
+
+<p>and see your bot in action:</p>
+<p><img alt="User bot in action" src="../../../images/slack-lumbergh-bot-answer.png"></p>
+<p>It works quite nicely, except for that awful endless loop. That is not how the code should look like. If only there was a way to react to actual messages instead of reading all the events...</p>
+<h2>Outgoing webhooks</h2>
+<p>Fortunately, Slack provides another way of integrating with other services: webhooks. Thanks to them you can receive a call each time a message is sent to a channel.</p>
+<h3>Create a webhook</h3>
+<p>Go to <a href="https://my.slack.com/services/new/outgoing-webhook">Outgoing WebHooks</a> page and click <strong>Add Outgoing WebHooks integration</strong>. You will be redirected to the <strong>Edit configuration</strong> page, and you will immediately notice some limitations:</p>
+<ul>
+<li>the integration can only be enabled for one specific channel or for all messages starting with specific (trigger) words</li>
+<li>you will need a server with a public IP address to send the messages to (you need to provide a URL that Slack can find)</li>
+<li>you can still customize the name and the icon, but you will have to repeat the process for each channel (unless you are going to use trigger words)</li>
+</ul>
+<p>So, is it even worth the effort to use this outgoing webhook instead of a bot user? I think it is. Infinite loops without breaking conditions are evil and you should avoid them. Besides, the downsides are not really that troublesome (you probably will use this integration on one or two channels anyway, and setting up the server with Heroku is quite easy).</p>
+<p>Let's proceed with the configuration. Select the channel and leave the <strong>Trigger Word(s)</strong> section empty (you don't want to restrict the messages that will be answered). I'm going to assume for a moment that you have your own public IP address and that it is <code>123.1.2.3</code> (don't worry, in just a moment you will deploy your program to Heroku and that will take care of the public IP problem). Put <code>123.1.2.3/lumbergh</code> in the <strong>URL(s)</strong> field. You can also customize the name and the icon.</p>
+<p>There is another important section here: <strong>Token</strong>. It contains the token that will be added to each API call send to the URLs you provided. You will get back to it in a moment.</p>
+<p>Click <strong>Save Settings</strong> button. Notice that you don't need to invite an integration to a channel, it will be added automatically when you create the webhook (also, unlike bot users, integrations can have names starting with a capital letter):</p>
+<p><img alt="Webhook integration enabled" src="../../../images/slack-lumbergh-webhook-enabled.png"></p>
+<h3>Write the code</h3>
+<p>The new version of your program will not require <code>slackclient</code> at all. Instead, you are going to use <code>flask</code>:</p>
+<div class="highlight"><pre><span></span>pip install flask
+</pre></div>
+
+
+<p>A very simple application would look like this:</p>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s1">&#39;0.0.0.0&#39;</span><span class="p">)</span>  <span class="c1"># make the app externally visible</span>
+</pre></div>
+
+
+<p>This of course will not do anything useful, so let's create an endpoint:</p>
+<div class="highlight"><pre><span></span><span class="nd">@app.route</span><span class="p">(</span><span class="s1">&#39;/lumbergh&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;POST&#39;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">lumbergh</span><span class="p">():</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;text&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s1">&#39;that would be great&#39;</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">and</span> <span class="n">link</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">text</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">link</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Response</span><span class="p">(),</span> <span class="mi">200</span>
+</pre></div>
+
+
+<p>Now every time Slack calls <code>123.1.2.3/lumbergh</code>, the program will check if the message contains the phrase <em>'it would be great'</em>. If so, a link to the image will be returned. Notice that you no longer need to use <code>api_call</code> here: the response with a text will be automatically converted to a new message by Slack.</p>
+<p>The code of your program should look like this:</p>
+<div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">Response</span><span class="p">,</span> <span class="n">jsonify</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">link</span> <span class="o">=</span> <span class="s1">&#39;&lt;https://cdn.meme.am/instances/400x/33568413.jpg|That would be great&gt;&#39;</span>
+
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="s1">&#39;/lumbergh&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;POST&#39;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">lumbergh</span><span class="p">():</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;text&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s1">&#39;that would be great&#39;</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">and</span> <span class="n">link</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">text</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">link</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Response</span><span class="p">(),</span> <span class="mi">200</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="s1">&#39;0.0.0.0&#39;</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Do you remember the token that Slack created for your outgoing webhook? You might notice that there is no token validation here. If you want, you can check if the call was made by Slack:</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">lumbergh</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;token&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;WEBHOOK_TOKEN&#39;</span><span class="p">):</span>
+        <span class="c1"># process the message</span>
+    <span class="k">return</span> <span class="n">Response</span><span class="p">(),</span> <span class="mi">200</span>
+</pre></div>
+
+
+<p>I decided however to skip the validation. That way one instance of a program can be used with multiple channels.</p>
+<p>You can run the your new app (on a publicly available server):</p>
+<div class="highlight"><pre><span></span>python main.py
+</pre></div>
+
+
+<p>and check if it works:</p>
+<p><img alt="Webhook integration response" src="../../../images/slack-lumbergh-webhook-working.png"></p>
+<p>The problem is that you still need to have a public IP address. Let's solve this problem with Heroku.</p>
+<h3>Deploying on Heroku</h3>
+<p>I'm going to assume that you already have a Heroku account and that you installed <strong>Heroku CLI</strong>. Create a new app and give it a nice name (I picked <em>lumbergh</em>). Go to <strong>Settings</strong>, check the git URL and configure the git remote accordingly:</p>
+<p><img alt="Webhook integration git URL" src="../../../images/slack-lumbergh-webhook-git.png"></p>
+<div class="highlight"><pre><span></span>git init
+git remote add heroku https://git.heroku.com/lumbergh.git
+</pre></div>
+
+
+<p>To run the program you will need a server, for example <code>gunicorn</code>:</p>
+<div class="highlight"><pre><span></span>pip install gunicorn
+</pre></div>
+
+
+<p>For a program to work with Heroku, you have to create an additional file called <code>Procfile</code>:</p>
+<div class="highlight"><pre><span></span><span class="na">web: gunicorn lumbergh:app</span>
+</pre></div>
+
+
+<p>Also, since <a href="https://wiki.python.org/moin/Python2orPython3">Python 2.x is legacy and Python 3.x is the present and future of the language</a>, you should inform Heroku that you want to use the proper version of Python by creating a <code>runtime.txt</code> file:</p>
+<div class="highlight"><pre><span></span><span class="na">python-3.4.3</span>
+</pre></div>
+
+
+<p>Now you can deploy to Heroku (remember that first you need to use <code>heroku login</code>):</p>
+<div class="highlight"><pre><span></span>git push heroku master
+</pre></div>
+
+
+<p>Check the <strong>Overview</strong> to see if the program is working:</p>
+<p><img alt="Webhook integration status" src="../../../images/slack-lumbergh-webhook-status.png"></p>
+<p>Now you can change the URL for the Slack webhook to the one provided by Heroku (you will find it in <strong>Settings</strong>):</p>
+<p><img alt="Webhook integration Heroku address" src="../../../images/slack-lumbergh-webhook-heroku-url.png">
+<img alt="Webhook integration new Slack URL" src="../../../images/slack-lumbergh-webhook-slack-url.png"></p>
+<h2>Summary</h2>
+<p>As it turns out, answering messages automatically on Slack is very easy. Bot users can be enabled for many channels, but they need an infinite loop to process events. Outgoing webhooks can be called for each message, but they need a public IP and have to be added to each channel separately. And both of these solutions can be implemented in less than 31 lines of code.</p>
+<p>The source code for this Slack bot can be found <a href="https://github.com/pfertyk/lumbergh-slackbot">here</a>. The latest version contains the webhook integration, but the first commit shows the bot user program. If you don't have the time to configure the bot by yourself, you can use my Heroku instance (just add a new outgoing webhook with <code>https://lumbergh.herokuapp.com/lumbergh</code> URL).</p>
+<p>If you find any problems with this tutorial, please let me know.</p>
+      <div class="footer no-print">
+        <div class="copyright">This work is <a href="https://creativecommons.org/publicdomain/zero/1.0/">public domain</a> (<a href="https://github.com/pfertyk/blog">source</a>)</div>
+      </div>
+    </div>
+  </body>
+</html>
