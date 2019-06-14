@@ -19,11 +19,11 @@ can be properly installed.
 
 Go to your app's **Settings** and click **Add buildpack** button. Next, select **nodejs** buildpack:
 
-![Node.js buildpack]({filename}/images/eslint-bot-nodejs-buildpack.png)
+![Node.js buildpack]({static}/images/eslint-bot-nodejs-buildpack.png)
 
 Now your app should have two buildpacks:
 
-![Two buildpacks]({filename}/images/eslint-bot-double-buildpack.png)
+![Two buildpacks]({static}/images/eslint-bot-double-buildpack.png)
 
 If you are passionate about the command line (like me), you can achieve the same effect this way:
 
@@ -105,7 +105,7 @@ a = x
 
 Soon after creating a pull request with this file, you should notice that your bot is not very happy:
 
-![ESlint comments]({filename}/images/eslint-bot-comments.png)
+![ESlint comments]({static}/images/eslint-bot-comments.png)
 
 You might also notice that the name `PEPing-tom` no longer suits your bot, since now it can also use ESlint.
 Maybe `ESPEP` would be better?

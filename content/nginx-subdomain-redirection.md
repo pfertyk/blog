@@ -38,7 +38,7 @@ awesome-slides 60 IN TXT "2|pfertyk.me:8000"
 and my presentation was available to the public. Everything seemed fine until I
 opened the web console:
 
-![Ugly redirection]({filename}/images/nginx-ugly-redirection.png)
+![Ugly redirection]({static}/images/nginx-ugly-redirection.png)
 
 The first call was made to `awesome-slides.pfertyk.me`, but all the
 subsequent ones used the domain `pfertyk.me:8000`. I know that normal users don't usually
@@ -69,7 +69,7 @@ actually-awesome-slides IN CNAME pfertyk.me.
 
 And there it was:
 
-![Pretty redirection]({filename}/images/nginx-pretty-redirection.png)
+![Pretty redirection]({static}/images/nginx-pretty-redirection.png)
 
 The configuration was simple and elegant. The port number was hidden.
 In fact, Nginx was now using port 80 for all the

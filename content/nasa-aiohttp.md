@@ -146,7 +146,7 @@ it [here](https://api.nasa.gov/index.html#apply-for-an-api-key)
 Now when you run the application, you will be redirected to a pretty image
 straight from Mars:
 
-![A rather uninspiring photo]({filename}/images/nasa-aiohttp-not-inspiring.jpg)
+![A rather uninspiring photo]({static}/images/nasa-aiohttp-not-inspiring.jpg)
 
 Well, that's not exactly what I meant ...
 
@@ -210,7 +210,7 @@ async def validate_image(image_bytes):
     return image.width >= 1024 and image.height >= 1024
 ```
 
-![Mars in shades of gray]({filename}/images/nasa-aiohttp-landscape-grayscale.jpg)
+![Mars in shades of gray]({static}/images/nasa-aiohttp-landscape-grayscale.jpg)
 
 Now that's more like it! We can go one step further and reject grayscale images:
 
@@ -222,11 +222,11 @@ async def validate_image(image_bytes):
 
 Now our program starts returning much more inspiring photos:
 
-![Cool landscape]({filename}/images/nasa-aiohttp-landscape-rgb.jpg)
+![Cool landscape]({static}/images/nasa-aiohttp-landscape-rgb.jpg)
 
 And, occasionally, a robot selfie:
 
-![Rover's selfie]({filename}/images/nasa-aiohttp-selfie.jpg)
+![Rover's selfie]({static}/images/nasa-aiohttp-selfie.jpg)
 
 ## Summary
 

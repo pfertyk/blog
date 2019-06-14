@@ -15,21 +15,21 @@ Slack allows you to create [bot users](https://api.slack.com/bot-users). They ar
 
 To create a new bot user, visit [this link](https://my.slack.com/services/new/bot) (of course, you have to be a full member of your team to do that). First, you need to pick a name for your bot:
 
-![New bot's name]({filename}/images/slack-lumbergh-bot-creation.png)
+![New bot's name]({static}/images/slack-lumbergh-bot-creation.png)
 
 Then, you can access your bot's settings. It is possible (and advised!) to give it a nice name and a proper icon. But the important part here is the token:
 
-![New bot's token]({filename}/images/slack-lumbergh-bot-token.png)
+![New bot's token]({static}/images/slack-lumbergh-bot-token.png)
 
 This will be required for your Python code to post messages to Slack channels. From now on, I'm going to assume that your token is `xoxo-123token`.
 
 Now that your bot is created, go ahead and invite it:
 
-![Inviting the bot]({filename}/images/slack-lumbergh-bot-invite.png)
+![Inviting the bot]({static}/images/slack-lumbergh-bot-invite.png)
 
 The bot should be more than happy to accept the invitation:
 
-![Bot accepted invitation]({filename}/images/slack-lumbergh-bot-accept-invitation.png)
+![Bot accepted invitation]({static}/images/slack-lumbergh-bot-accept-invitation.png)
 
 ### Write the code
 
@@ -153,7 +153,7 @@ python main.py
 
 and see your bot in action:
 
-![User bot in action]({filename}/images/slack-lumbergh-bot-answer.png)
+![User bot in action]({static}/images/slack-lumbergh-bot-answer.png)
 
 It works quite nicely, except for that awful endless loop. That is not how the code should look like. If only there was a way to react to actual messages instead of reading all the events...
 
@@ -177,7 +177,7 @@ There is another important section here: **Token**. It contains the token that w
 
 Click **Save Settings** button. Notice that you don't need to invite an integration to a channel, it will be added automatically when you create the webhook (also, unlike bot users, integrations can have names starting with a capital letter):
 
-![Webhook integration enabled]({filename}/images/slack-lumbergh-webhook-enabled.png)
+![Webhook integration enabled]({static}/images/slack-lumbergh-webhook-enabled.png)
 
 ### Write the code
 
@@ -252,7 +252,7 @@ python main.py
 
 and check if it works:
 
-![Webhook integration response]({filename}/images/slack-lumbergh-webhook-working.png)
+![Webhook integration response]({static}/images/slack-lumbergh-webhook-working.png)
 
 The problem is that you still need to have a public IP address. Let's solve this problem with Heroku.
 
@@ -260,7 +260,7 @@ The problem is that you still need to have a public IP address. Let's solve this
 
 I'm going to assume that you already have a Heroku account and that you installed **Heroku CLI**. Create a new app and give it a nice name (I picked *lumbergh*). Go to **Settings**, check the git URL and configure the git remote accordingly:
 
-![Webhook integration git URL]({filename}/images/slack-lumbergh-webhook-git.png)
+![Webhook integration git URL]({static}/images/slack-lumbergh-webhook-git.png)
 
 ```sh
 git init
@@ -293,12 +293,12 @@ git push heroku master
 
 Check the **Overview** to see if the program is working:
 
-![Webhook integration status]({filename}/images/slack-lumbergh-webhook-status.png)
+![Webhook integration status]({static}/images/slack-lumbergh-webhook-status.png)
 
 Now you can change the URL for the Slack webhook to the one provided by Heroku (you will find it in **Settings**):
 
-![Webhook integration Heroku address]({filename}/images/slack-lumbergh-webhook-heroku-url.png)
-![Webhook integration new Slack URL]({filename}/images/slack-lumbergh-webhook-slack-url.png)
+![Webhook integration Heroku address]({static}/images/slack-lumbergh-webhook-heroku-url.png)
+![Webhook integration new Slack URL]({static}/images/slack-lumbergh-webhook-slack-url.png)
 
 ## Summary
 

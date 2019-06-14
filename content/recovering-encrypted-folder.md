@@ -60,7 +60,7 @@ decrypted!
 
 Or so I thought. The content of the mounted directory looked like this:
 
-![Encrypted filenames]({filename}/images/ecryptfs-encrypted-filenames.png)
+![Encrypted filenames]({static}/images/ecryptfs-encrypted-filenames.png)
 
 The files might have been available now, but they were rather useless
 without their original names. So I had to find something better.

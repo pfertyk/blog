@@ -28,14 +28,14 @@ To create a new app, go to **Dashboard** -> **New** -> **Create new app**.
 You can specify the name of your app if you want.
 
 
-![PEP-8 bot Heroku app name]({filename}/images/pep8-bot-heroku-app-name.png)
+![PEP-8 bot Heroku app name]({static}/images/pep8-bot-heroku-app-name.png)
 
 Once the app is created, provide it with the **RabbitMQ Bigwig** add-on.
 Go to **Resources**, find the add-on and click **Provision**. Unfortunately,
 the process requires you to provide billing information (you need to
 configure a credit card for your account). But don't worry, the add-on itself is free.
 
-![Provisioning PEP-8 bot with rabbitmq plugin]({filename}/images/pep8-bot-rabbitmq-provision.png)
+![Provisioning PEP-8 bot with rabbitmq plugin]({static}/images/pep8-bot-rabbitmq-provision.png)
 
 Now we move to the command line. First, you should install **Heroku CLI**.
 Just run this command:
@@ -56,7 +56,7 @@ it with your Heroku credentials (email and password). Next you have to
 configure a git remote to be able to push the code to Heroku.
 The name of the remote can be found in your app's **Settings**:
 
-![Heroku Git URL for PEP-8 bot]({filename}/images/pep8-bot-heroku-git-url.png)
+![Heroku Git URL for PEP-8 bot]({static}/images/pep8-bot-heroku-git-url.png)
 
 ```sh
 git remote add heroku https://git.heroku.com/pep8-linter.git
@@ -82,7 +82,7 @@ Bear in mind that this process can take a while.
 
 Once the app is deployed, you will notice that the celery worker's status if `OFF`:
 
-![Disabled celery worker]({filename}/images/pep8-bot-disabled-celery-worker.png)
+![Disabled celery worker]({static}/images/pep8-bot-disabled-celery-worker.png)
 
 To fix this, go to **Resources**, click the edit icon next to `worker`,
 switch the state and confirm.
@@ -121,7 +121,7 @@ In my case, the additional configuration looked like this:
 Your automatic linter will need a GitHub account.
 You can use your own, but it's more fun to create a new one.
 
-![PEP-8 bot profile]({filename}/images/pep8-bot-github-profile.png)
+![PEP-8 bot profile]({static}/images/pep8-bot-github-profile.png)
 
 Once the account is created, you will have to generate a token.
 Go to **Settings** -> **Personal access tokens** -> **Generate new token**.
@@ -165,7 +165,7 @@ def x():
 
 Push the new branch to GitHub and create a new pull request. A moment later, you should see some comments:
 
-![PEP8 bot in action]({filename}/images/pep8-bot-github-error-comments.png)
+![PEP8 bot in action]({static}/images/pep8-bot-github-error-comments.png)
 
 Let's fix these errors:
 
@@ -177,7 +177,7 @@ def x():
 
 Now your bot informs you that there are no problems:
 
-![PEP8 bot is content]({filename}/images/pep8-bot-github-nice-comment.png)
+![PEP8 bot is content]({static}/images/pep8-bot-github-nice-comment.png)
 
 That's it! Now you can be sure that no PEP-8 violation will sneak into your clean and standard-compliant codebase. Unless, of course, you decide to ignore these comments...
 
