@@ -6,7 +6,7 @@ slug: about
 <div class="photo"></div>
 <div class="social-links" markdown="1">
 [Github](https://github.com/pfertyk){: .github}
-[Exercism](http://exercism.io/pfertyk){: .exercism}
+[Exercism](http://exercism.io/profiles/pfertyk){: .exercism}
 [Email](mailto:pfertyk@pfertyk.me){: .email}
 </div>
 
