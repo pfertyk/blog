@@ -10,9 +10,11 @@ slug: about
 [Email](mailto:pfertyk@pfertyk.me){: .email}
 </div>
 
-I'm a software developer, currently living in Berlin.
-I work mostly with Python, but I used to tamper with Java and C++.
-I'm a huge fan of automated tests, open source, refactoring,
+I'm a software developer, at present living in Berlin.
+I work mostly with Python and JavaScript,
+but I used to tamper with Java and C++,
+and I'm currently improving my Rust and GDScript skills.
+I'm a huge fan of automated tests, open source, refactoring, game development,
 and removing third party services from my life.
 
 In 2018 I've established a small game development company: [Miskatonic Studio](https://miskatonicstudio.com) and released my first game: [Intrepid](https://store.steampowered.com/app/992860/Intrepid).
@@ -28,13 +30,14 @@ Developing XTM Cloud backend, implementing various file processors, designing ne
 Implementing RESTful APIs, developing front-end applications, configuring search engines and task queues, refining software requirements, designing architecture for new features.
 * **Python Developer** Unhaggle Inc. (2017)  
 Developing an automotive buying and pricing service, managing deployments, testing, providing code reviews for other developers.
+* **Python Plugin Developer** Rapid7 LLC (2018&ndash;2019)  
+Integrating miscellaneous technologies and third-party APIs into an automated security audit system: [Komand](https://docs.komand.com/docs/installing-and-updating-plugins), providing test suites for plugins, refining requirements with the client.
 * **Software Developer** Spreenauten GmbH (2017&ndash;present)  
 Developing an internal resource management system (both front-end and back-end), managing low-level radio communication, estimating tasks, refining software requirements, providing code reviews for other developers, gathering requirements from clients.
-* **Python Plugin Developer** Rapid7 LLC (2018&ndash;2019)  
-Integrating miscellaneous technologies and third-party APIs into an automated security audit system: [Komand](https://github.com/komand/plugin-sdk-docs), providing test suites for plugins, refining requirements with the client.
 
 ## Projects and contributions:
 
+* [**GOAT**](https://github.com/miskatonicstudio/goat) framework for 3D adventure games in Godot
 * [**khal**](https://github.com/pimutils/khal) command line CalDAV client
 * [**Mauve**](https://github.com/pfertyk/mauve) very simple Markdown viewer
 * [**ray tracer**](https://github.com/pfertyk/ray_tracer) Python 3D graphics generator
@@ -46,3 +49,5 @@ Integrating miscellaneous technologies and third-party APIs into an automated se
 * **Pygame workshop for PyLadies Poznań** ([slides](http://pyladies-pygame.pfertyk.me), [GitHub](https://github.com/pfertyk/workshop-pyladies-pygame))
 * **Clean code in tests** ([slides](http://summit-clean-tests.pfertyk.me), [video](https://www.youtube.com/watch?v=SFDqVP7iP6k&index=8&list=PLwXxS6lAcQUNMUGloNZmlB1dbE95XhQDs))
 * **Introduction to aiohttp** ([slides](http://aiohttp.pfertyk.me))
+* **The good, the bad, and the ugly: 3D features of Godot** ([slides](https://miskatonicstudio.com/godot-con-2019/), [video](https://www.youtube.com/watch?v=QX5RIeiJ3Qs))
+* **Making 3D adventure games with Godot** ([video](https://youtu.be/tHTz848VBcs?t=73))
