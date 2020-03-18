@@ -382,7 +382,7 @@ the setup process will be quite easy (at least for a Ubuntu-based OS):
 
 ```bash
 sudo apt install coturn
-turnserver -a -o -v -n --no-dtls --no-tls -u username:credential
+turnserver -a -o -v -n --no-dtls --no-tls -u username:credential -r realmName
 ```
 
 This will start a TURN server using port 3478. The flags mean:
@@ -394,6 +394,7 @@ This will start a TURN server using port 3478. The flags mean:
 * `--no-dtls`: do not start DTLS client listeners
 * `--no-tls`: do not start TLS client listeners
 * `-u`: user account, in form 'username:password', for long-term credentials
+* `-r`: the default realm to be used for the users
 
 Next, you need to change the peer connection configuration a bit. Edit `main.js`,
 replacing `{PUBLIC_IP}` with an actual IP of your server:
