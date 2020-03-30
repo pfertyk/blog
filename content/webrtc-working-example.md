@@ -396,6 +396,17 @@ This will start a TURN server using port 3478. The flags mean:
 * `-u`: user account, in form 'username:password', for long-term credentials
 * `-r`: the default realm to be used for the users
 
+EDIT: To check if your TURN server setup is correct, you can use
+[this validator](https://webrtc.github.io/samples/src/content/peerconnection/trickle-ice/).
+To test the example above you should input the following values:
+
+* **STUN or TURN URI**: `turn:{YOUR_SERVER_IP}:3478`
+* **TURN username**: `test`
+* **TURN password**: `test`
+
+Click "Add Server", remove other servers, and select "Gather candidates".
+If you get a component of type `relay`, that means your setup is working.
+
 Next, you need to change the peer connection configuration a bit. Edit `main.js`,
 replacing `{PUBLIC_IP}` with an actual IP of your server:
 
