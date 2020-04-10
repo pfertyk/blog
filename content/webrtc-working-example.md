@@ -7,7 +7,8 @@ Recently I had to use WebRTC for a simple project. The technology itself has
 many advantages and is being developed as an open standard, without the need
 for any plugins. However, I was quite new to WebRTC and had some problems getting my head
 around the basic concepts, as well as creating a working solution. There are
-many tutorials available, but most of them are incomplete, obsolete, or forced
+many tutorials available (like [this one](https://codelabs.developers.google.com/codelabs/webrtc-web/#6),
+which inspired my solution). But most of them are incomplete, obsolete, or forced
 me to use some third party services (e.g. Google Firebase), that only made the
 whole process more complicated to setup and more difficult to understand.
 
@@ -378,7 +379,10 @@ You can use this example over a public network, but it's going to require a bit
 more work. First, you need to setup a TURN server. Simply put, TURN servers are used to
 discover WebRTC peers over a public network. Unfortunately, for this step you
 will need a publicly visible server. Good news is, once you have your own server,
-the setup process will be quite easy (at least for a Ubuntu-based OS):
+the setup process will be quite easy (at least for a Ubuntu-based OS). I've found
+a lot of useful information in [this discussion on Stack Overflow](
+https://stackoverflow.com/questions/22233980/implementing-our-own-stun-turn-server-for-webrtc-application
+), and I'm just going to copy the most important bits here:
 
 ```bash
 sudo apt install coturn
