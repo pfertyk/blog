@@ -38,6 +38,7 @@ Developing an internal resource management system (both front-end and back-end),
 ## Projects and contributions:
 
 * [**GOAT**](https://github.com/miskatonicstudio/goat) framework for 3D adventure games in Godot
+* [**Pygments**](https://github.com/pygments/pygments) generic syntax highlighter written in Python
 * [**khal**](https://github.com/pimutils/khal) command line CalDAV client
 * [**Mauve**](https://github.com/pfertyk/mauve) very simple Markdown viewer
 * [**ray tracer**](https://github.com/pfertyk/ray_tracer) Python 3D graphics generator
