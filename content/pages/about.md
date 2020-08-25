@@ -27,13 +27,17 @@ Debugging and configuring Smart TV software.
 * **Java Software Developer** XTM International Ltd (2013&ndash;2016)  
 Developing XTM Cloud backend, implementing various file processors, designing new features for translation software, providing support for clients.
 * **Python Developer** STX Next (2016&ndash;2017)  
-Implementing RESTful APIs, developing front-end applications, configuring search engines and task queues, refining software requirements, designing architecture for new features.
+Implementing RESTful APIs, developing frontend applications, configuring search engines and task queues, refining software requirements, designing architecture for new features.
 * **Python Developer** Unhaggle Inc. (2017)  
 Developing an automotive buying and pricing service, managing deployments, testing, providing code reviews for other developers.
 * **Python Plugin Developer** Rapid7 LLC (2018&ndash;2019)  
 Integrating miscellaneous technologies and third-party APIs into an automated security audit system: [Komand](https://docs.komand.com/docs/installing-and-updating-plugins), providing test suites for plugins, refining requirements with the client.
-* **Software Developer** Spreenauten GmbH (2017&ndash;present)  
-Developing an internal resource management system (both front-end and back-end), managing low-level radio communication, estimating tasks, refining software requirements, providing code reviews for other developers, gathering requirements from clients.
+* **Software Developer** Spreenauten GmbH (2017&ndash;2020)  
+Developing an internal resource management system (both frontend and backend), managing low-level radio communication, estimating tasks, refining software requirements, providing code reviews for other developers, gathering requirements from clients.
+* **Software Engineer** Delivery Hero SE (2020&ndash;present)  
+Developing a backend application for managing restaurants and geographic data, helping with infrastructure issues, providing code reviews for other developers, designing architecture for new features.
+* **Author** Real Python (2020&ndash;present)  
+Contributing articles and tutorials to the site.
 
 ## Projects and contributions:
 
@@ -52,3 +56,7 @@ Developing an internal resource management system (both front-end and back-end),
 * **Introduction to aiohttp** ([slides](http://aiohttp.pfertyk.me))
 * **The good, the bad, and the ugly: 3D features of Godot** ([slides](https://miskatonicstudio.com/godot-con-2019/), [video](https://www.youtube.com/watch?v=QX5RIeiJ3Qs))
 * **Making 3D adventure games with Godot** ([video](https://youtu.be/tHTz848VBcs?t=73))
+
+## Articles:
+
+* [**Get Started With Django Part 2: Django User Management**](https://realpython.com/django-user-management/)
