@@ -60,3 +60,4 @@ Contributing articles and tutorials to the site.
 ## Articles:
 
 * [**Get Started With Django Part 2: Django User Management**](https://realpython.com/django-user-management/)
+* [**Build an Asteroids Game With Python and Pygame**](https://realpython.com/asteroids-game-python/)
