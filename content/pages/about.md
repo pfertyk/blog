@@ -57,7 +57,8 @@ Contributing articles and tutorials to the site.
 * **The good, the bad, and the ugly: 3D features of Godot** ([slides](https://miskatonicstudio.com/godot-con-2019/), [video](https://www.youtube.com/watch?v=QX5RIeiJ3Qs))
 * **Making 3D adventure games with Godot** ([video](https://youtu.be/tHTz848VBcs?t=73))
 
-## Articles:
+## Articles and podcasts:
 
 * [**Get Started With Django Part 2: Django User Management**](https://realpython.com/django-user-management/)
 * [**Build an Asteroids Game With Python and Pygame**](https://realpython.com/asteroids-game-python/)
+* [**Taking the Next Step in Python Game Development**](https://realpython.com/podcasts/rpp/57/)
