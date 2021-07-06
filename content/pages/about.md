@@ -13,7 +13,7 @@ slug: about
 I'm a software developer, at present living in Berlin.
 I work mostly with Python and JavaScript,
 but I used to tamper with Java and C++,
-and I'm currently improving my Rust and GDScript skills.
+and I'm currently improving GDScript skills.
 I'm a huge fan of automated tests, open source, refactoring, game development,
 and removing third party services from my life.
 
@@ -41,6 +41,7 @@ Contributing articles and tutorials to the site.
 
 ## Projects and contributions:
 
+* [**Godot Engine**](https://github.com/godotengine/godot) 2D and 3D cross-platform game engine
 * [**GOAT**](https://github.com/miskatonicstudio/goat) framework for 3D adventure games in Godot
 * [**Pygments**](https://github.com/pygments/pygments) generic syntax highlighter written in Python
 * [**khal**](https://github.com/pimutils/khal) command line CalDAV client
