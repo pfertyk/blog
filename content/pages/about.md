@@ -63,3 +63,7 @@ Contributing articles and tutorials to the site.
 * [**Get Started With Django Part 2: Django User Management**](https://realpython.com/django-user-management/)
 * [**Build an Asteroids Game With Python and Pygame**](https://realpython.com/asteroids-game-python/)
 * [**Taking the Next Step in Python Game Development**](https://realpython.com/podcasts/rpp/57/)
+
+## Trainings and certifications:
+
+<div data-iframe-width="150" data-iframe-height="270" data-share-badge-id="d61f2e14-adeb-48b3-bfc6-0d0863f6f9ac" data-share-badge-host="https://www.credly.com"></div><script type="text/javascript" async src="//cdn.credly.com/assets/utilities/embed.js"></script>
