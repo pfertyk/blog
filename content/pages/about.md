@@ -20,24 +20,26 @@ and removing third party services from my life.
 In 2018 I've established a small game development company: [Miskatonic Studio](https://miskatonicstudio.com) and released my first game: [Intrepid](https://store.steampowered.com/app/992860/Intrepid).
 
 ## Career highlights:
-* **Co-developer of eIntern system** Poznań University of Technology (2012)  
-Implementing, testing and documenting an internship monitoring system for the university.
-* **Junior Software Engineer** Samsung Electronics Poland (2012&ndash;2013)  
-Debugging and configuring Smart TV software.
-* **Java Software Developer** XTM International Ltd (2013&ndash;2016)  
-Developing XTM Cloud backend, implementing various file processors, designing new features for translation software, providing support for clients.
-* **Python Developer** STX Next (2016&ndash;2017)  
-Implementing RESTful APIs, developing frontend applications, configuring search engines and task queues, refining software requirements, designing architecture for new features.
-* **Python Developer** Unhaggle Inc. (2017)  
-Developing an automotive buying and pricing service, managing deployments, testing, providing code reviews for other developers.
-* **Python Plugin Developer** Rapid7 LLC (2018&ndash;2019)  
-Integrating miscellaneous technologies and third-party APIs into an automated security audit system: [Komand](https://docs.komand.com/docs/installing-and-updating-plugins), providing test suites for plugins, refining requirements with the client.
-* **Software Developer** Spreenauten GmbH (2017&ndash;2020)  
-Developing an internal resource management system (both frontend and backend), managing low-level radio communication, estimating tasks, refining software requirements, providing code reviews for other developers, gathering requirements from clients.
+* **Python and AWS developer** 4ds Int. GmbH (2022&ndash;present)  
+Improving software and configuring infrastructure for *Adaptive Architecture* solutions.
+* **Author** Real Python (2020&ndash;present)  
+Contributing articles and tutorials.
 * **Software Engineer** Delivery Hero SE (2020&ndash;present)  
 Developing a backend application for managing restaurants and geographic data, helping with infrastructure issues, providing code reviews for other developers, designing architecture for new features.
-* **Author** Real Python (2020&ndash;present)  
-Contributing articles and tutorials to the site.
+* **Software Developer** Spreenauten GmbH (2017&ndash;2020)  
+Developing an internal resource management system (both frontend and backend), managing low-level radio communication, estimating tasks, refining software requirements, providing code reviews for other developers, gathering requirements from clients.
+* **Python Plugin Developer** Rapid7 LLC (2018&ndash;2019)  
+Integrating miscellaneous technologies and third-party APIs into an automated security audit system: [Komand](https://docs.komand.com/docs/installing-and-updating-plugins), providing test suites for plugins, refining requirements with the client.
+* **Python Developer** Unhaggle Inc. (2017)  
+Developing an automotive buying and pricing service, managing deployments, testing, providing code reviews for other developers.
+* **Python Developer** STX Next (2016&ndash;2017)  
+Implementing RESTful APIs, developing frontend applications, configuring search engines and task queues, refining software requirements, designing architecture for new features.
+* **Java Software Developer** XTM International Ltd (2013&ndash;2016)  
+Developing XTM Cloud backend, implementing various file processors, designing new features for translation software, providing support for clients.
+* **Junior Software Engineer** Samsung Electronics Poland (2012&ndash;2013)  
+Debugging and configuring Smart TV software.
+* **Co-developer of eIntern system** Poznań University of Technology (2012)  
+Implementing, testing and documenting an internship monitoring system for the university.
 
 ## Projects and contributions:
 
@@ -49,7 +51,7 @@ Contributing articles and tutorials to the site.
 * [**Mauve**](https://github.com/pfertyk/mauve) very simple Markdown viewer
 * [**ray tracer**](https://github.com/pfertyk/ray_tracer) Python 3D graphics generator
 * [**hex generator**](https://github.com/pfertyk/hex_generator) board editor for tabletop games
-* [**Mars Photo API**](https://github.com/pfertyk/nasa-mars-pics-api) API returning random pictures taken by NASA's rovers ([demo](https://nasa-mars-pics.herokuapp.com))
+* [**Mars Photo API**](https://github.com/pfertyk/nasa-mars-pics-api) API returning random pictures taken by NASA's rovers
 
 ## Talks and workshops:
 
