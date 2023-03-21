@@ -135,7 +135,7 @@ Unlike the layer resource, a Lambda requires an IAM role. Add this code to `main
 
 ```tf
 resource "aws_iam_role" "iam_role" {
-  name = "lambda_iam_role"
+  name = "lambda-iam-role"
 
   assume_role_policy = <<EOF
 {
