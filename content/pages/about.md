@@ -10,7 +10,7 @@ slug: about
 [Email](mailto:pfertyk@pfertyk.me){: .email}
 </div>
 
-I'm a software developer, at present living in Berlin.
+I'm a software developer, at present living in Belgium.
 I work mostly with Python and JavaScript,
 but I used to tamper with Java and C++,
 and I'm currently improving GDScript skills.
@@ -20,11 +20,13 @@ and removing third party services from my life.
 In 2018 I've established a small game development company: [Miskatonic Studio](https://miskatonicstudio.com) and released my first game: [Intrepid](https://store.steampowered.com/app/992860/Intrepid).
 
 ## Career highlights:
-* **Python and AWS developer** 4ds Int. GmbH (2022&ndash;present)  
+* **Software Developer** Odoo S.A. (2023&ndash;present)  
+Developing a suite of open source business applications, reviewing community contributions.
+* **Python and AWS developer** 4ds Int. GmbH (2022)  
 Improving software and configuring infrastructure for *Adaptive Architecture* solutions.
 * **Author** Real Python (2020&ndash;present)  
 Contributing articles and tutorials.
-* **Software Engineer** Delivery Hero SE (2020&ndash;present)  
+* **Software Engineer** Delivery Hero SE (2020&ndash;2023)  
 Developing a backend application for managing restaurants and geographic data, helping with infrastructure issues, providing code reviews for other developers, designing architecture for new features.
 * **Software Developer** Spreenauten GmbH (2017&ndash;2020)  
 Developing an internal resource management system (both frontend and backend), managing low-level radio communication, estimating tasks, refining software requirements, providing code reviews for other developers, gathering requirements from clients.
