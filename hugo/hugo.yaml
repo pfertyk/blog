@@ -1,0 +1,72 @@
+baseURL: https://pfertyk.me/
+languageCode: en
+title: Paweł Fertyk
+theme: PaperMod
+
+timeZone: Europe/Brussels
+
+menu:
+  main:
+    - name: Archive
+      url: archives/
+      weight: 10
+    - name: Search
+      url: search/
+      weight: 20
+    - name: Tags
+      url: tags/
+      weight: 30
+    - name: About
+      url: about/
+      weight: 40
+
+outputs:
+  home:
+    - HTML
+    - RSS
+    - JSON # necessary for search
+
+outputFormats:
+  RSS:
+    baseName: feeds/all.rss
+
+params:
+  env: production # to enable google analytics, opengraph, twitter-cards and schema.
+  description: "Paweł Fertyk's blog on programming"
+  defaultTheme: light
+  author: Paweł Fertyk
+  hideAuthor: true
+  images:
+    - about/pfertyk.jpg
+  ShowToc: true
+  ShowCodeCopyButtons: true
+
+  socialIcons:
+    - name: github
+      title: GitHub
+      url: "https://github.com/pfertyk"
+    - name: codeberg
+      title: Codeberg
+      url: https://codeberg.org/pfertyk
+    - name: email
+      title: Email
+      url: mailto:pfertyk@pfertyk.me
+    - name: kofi
+      title: Ko-fi
+      url: https://ko-fi.com/pfertyk
+    - name: rss
+      title: RSS
+      url: /feeds/all.rss.xml
+
+  assets:
+    favicon: /images/favicon.ico
+    favicon16x16: /images/favicon-16x16.png
+    favicon32x32: /images/favicon-32x32.png
+
+permalinks:
+  articles: "/:year/:month/:title"
+
+markup:
+  goldmark:
+    renderer:
+      unsafe: true

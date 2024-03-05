@@ -1,0 +1,10 @@
+img[src$='#profile-photo'] {
+  border-radius: 50%;
+  width: 16rem;
+  height: auto;
+  margin: 0 auto;
+}
+
+.social-icons a {
+  box-shadow: 0 0;
+}
