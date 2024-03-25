@@ -54,12 +54,15 @@ resource "null_resource" "pip_install" {
   }
 
   provisioner "local-exec" {
-    command = "python3 -m pip install -r requirements.txt -t ${path.module}/layer"
+    command = "python3 -m pip install -r requirements.txt -t ${path.module}/layer/python"
   }
 }
 ```
 
-The command `python3 -m pip install -r requirements.txt -t ${path.module}/layer` will install Python dependencies into a local folder called `layer`. Providing a trigger based on a hash means that the command will run again every time there is a change in `requirements.txt`.
+The command `python3 -m pip install -r requirements.txt -t ${path.module}/layer/python` will install Python dependencies into a local folder called `layer/python` (which you need to create first). Providing a trigger based on a hash means that the command will run again every time there is a change in `requirements.txt`.
+
+> [EDIT 2024-03-25]  
+> According to [AWS documentation](https://docs.aws.amazon.com/lambda/latest/dg/python-package.html#python-package-dependencies-layers), Python dependencies can no longer be placed directly in the `layer` folder, but rather in `layer/python` folder.
 
 Please note that the command will be executed locally on your machine. That means that both Python3 and Pip have to be installed.
 
@@ -201,7 +204,8 @@ At this point, your project should have the following structure:
 ├── code
 │   └── lambda.py
 ├── layer
-│   └── (Python dependencies)
+│   └── python
+│       └── (Python dependencies)
 ├── config.tf
 ├── main.tf
 └── requirements.txt
