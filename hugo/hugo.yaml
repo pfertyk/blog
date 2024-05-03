@@ -33,6 +33,9 @@ outputFormats:
 params:
   env: production # to enable google analytics, opengraph, twitter-cards and schema.
   description: "Paweł Fertyk's blog on programming"
+  homeInfoParams:
+    title: Hi! 😉
+    content: At the moment, I am overwhelmed with other projects. That's why this blog is not updated very often. If you want to know what I'm currently working on, take a look at my [gamedev projects on GitHub](https://github.com/miskatonicstudio), check the status of the [GDScript track on Exercism](https://forum.exercism.org/t/create-new-track-for-gdscript/), or browse the [codebase of Odoo](https://github.com/odoo/odoo/pulls/pfertyk).
   defaultTheme: light
   author: Paweł Fertyk
   hideAuthor: true
