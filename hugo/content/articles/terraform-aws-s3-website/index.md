@@ -12,6 +12,8 @@ This post shows how to quickly set up a static website using AWS and Terraform. 
 
 The full source code for this article is available in [this repository](https://github.com/pfertyk/terraform-templates).
 
+> NOTE: The minimal configuration required by AWS might change over time. If you notice that something is missing, please let me know. You can keep track of all the updates applied to this post in its [history](https://github.com/pfertyk/terraform-templates/commits/main/static-website).
+
 ## Content of the website
 
 Let's start with the resources that you want to host. Create a directory called `content`, where you will put all the files that your static website consists of. The first of those files will be `index.html`:
@@ -86,11 +88,21 @@ The name of the bucket has to be, unfortunately, unique. It also needs to follow
 
 Please note that this is the only place where you need to define the name of the bucket. All other AWS resources will refer to it by using `aws_s3_bucket.bucket.id`.
 
-The next thing to configure is a bucket policy:
+The next thing to configure is a bucket access block and a bucket policy:
 
 ```terraform
-resource "aws_s3_bucket_policy" "bucket_policy" {
+resource "aws_s3_bucket_public_access_block" "bucket_access_block" {
   bucket = aws_s3_bucket.bucket.id
+
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
+}
+
+resource "aws_s3_bucket_policy" "bucket_policy" {
+  depends_on = [aws_s3_bucket_public_access_block.bucket_access_block]
+  bucket     = aws_s3_bucket.bucket.id
   policy = jsonencode(
     {
       "Version" : "2012-10-17",
@@ -108,7 +120,7 @@ resource "aws_s3_bucket_policy" "bucket_policy" {
 }
 ```
 
-Without this policy, S3 files will not be publicly available.
+Without these resources, S3 files will not be publicly available.
 
 Each file from the `content` directory will be uploaded as an S3 object:
 
@@ -119,7 +131,7 @@ resource "aws_s3_object" "file" {
   key          = replace(each.value, "/^content//", "")
   source       = each.value
   content_type = lookup(local.content_types, regex("\\.[^.]+$", each.value), null)
-  etag         = filemd5(each.value)
+  source_hash  = filemd5(each.value)
 }
 ```
 
