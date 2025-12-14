@@ -8,3 +8,18 @@ img[src$='#profile-photo'] {
 .social-icons a {
   box-shadow: 0 0;
 }
+
+@media screen
+{
+  .only-print, .only-print *
+  {
+    display: none !important;
+  }
+}
+@media print
+{
+  .no-print, .no-print *
+  {
+    display: none !important;
+  }
+}
