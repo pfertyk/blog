@@ -13,6 +13,7 @@ and removing third party services from my life.
 Over the years, I've worked with Python, GDScript, JavaScript, git,
 AWS, Terraform, Docker, Kubernetes, Kafka, Celery, GitHub Actions, Travis CI, Jenkins,
 Postgres, Django, Flask, Angular, React Native, WebRTC, WebSockets, Selenium, Cucumber,
+Grafana, Prometheus, Datadog,
 as well as Java and C++ (in the old days) and a few other technologies.
 The list of projects below should provide a glimpse.
 
